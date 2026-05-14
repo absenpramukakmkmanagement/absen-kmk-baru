@@ -35,12 +35,11 @@
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- Tambahan: Pustaka Cropper.js untuk fitur pemotong foto -->
+    <!-- Pustaka Cropper.js -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <style type="text/tailwindcss">
-        /* Gaya Form Modern */
         .form-input-modern { @apply block w-full mt-1.5 px-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-pramuka-main dark:focus:border-pramuka-light font-medium text-sm transition-colors; } 
         .form-label-modern { @apply block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1; } 
     </style>
@@ -56,19 +55,21 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(4px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
         .bg-pattern { background-image: radial-gradient(var(--c-main) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.04; }
         
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
+
+        /* Ping animation for online indicator */
+        .online-ping { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
     </style>
 </head>
 <body class="bg-[#F1F5F9] text-gray-800 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Latar Belakang Pola Modern -->
+    <!-- Latar Belakang -->
     <div class="absolute inset-0 bg-pattern pointer-events-none fixed"></div>
-    <!-- Gradasi Halus di Latar -->
     <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pramuka-main/5 blur-[120px] pointer-events-none"></div>
     <div class="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-pramuka-light/5 blur-[120px] pointer-events-none"></div>
 
@@ -85,8 +86,18 @@
                         <span class="text-[10px] font-bold uppercase tracking-widest text-pramuka-main dark:text-pramuka-light">KMK Management</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 sm:gap-4">
-                    <div class="hidden md:flex flex-col text-right mr-3">
+                <div class="flex items-center gap-2 sm:gap-3">
+                    
+                    <!-- Indikator Online Real-time -->
+                    <button onclick="openModal('modal-online-users')" class="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all shadow-sm border border-emerald-200 dark:border-emerald-800/50 group" title="Lihat Siapa yang Online">
+                        <div class="relative flex h-3 w-3">
+                          <span class="online-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                        </div>
+                        <span id="online-count-badge" class="text-sm font-bold text-emerald-700 dark:text-emerald-400">0 Online</span>
+                    </button>
+
+                    <div class="hidden md:flex flex-col text-right mr-2 ml-2">
                         <span id="user-info" class="text-sm font-extrabold text-gray-800 dark:text-gray-200 leading-tight"></span>
                         <span id="user-role-badge" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold"></span>
                     </div>
@@ -101,7 +112,7 @@
 
                     <div class="h-8 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden sm:block"></div>
 
-                    <button onclick="logout()" class="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white transition-all font-bold text-sm flex items-center gap-2 shadow-sm border border-red-100 dark:border-red-900/30">
+                    <button onclick="handleLogout()" class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white transition-all font-bold text-sm flex items-center gap-2 shadow-sm border border-red-100 dark:border-red-900/30">
                         <i class="ph-bold ph-power text-lg"></i> <span class="hidden sm:inline">Keluar</span>
                     </button>
                 </div>
@@ -190,7 +201,6 @@
                     <div class="mt-4 mb-8 flex flex-wrap justify-center gap-2">
                         <span id="disp-kelas" class="px-4 py-2 bg-gradient-to-r from-pramuka-main/10 to-pramuka-light/10 text-pramuka-main dark:text-pramuka-light border border-pramuka-main/20 rounded-xl text-xs font-bold tracking-widest uppercase">Kelas</span>
                         
-                        <!-- TOMBOL LEADERBOARD XP DI PROFIL SISWA -->
                         <span onclick="openLeaderboard()" class="px-4 py-2 bg-gradient-to-r from-amber-400/20 to-yellow-500/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-1 cursor-pointer transition transform hover:scale-105 hover:bg-amber-400/30 shadow-sm" title="Klik untuk melihat Papan Peringkat (Klasemen)!">
                             <i class="ph-fill ph-star"></i> <span id="disp-poin">0 XP</span>
                         </span>
@@ -233,7 +243,6 @@
             
             <!-- Admin Header -->
             <div class="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-gradient-to-r from-gray-900 via-gray-800 to-black dark:from-black dark:to-gray-900 text-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-gray-700">
-                <!-- Background Decoration -->
                 <div class="absolute -right-20 -top-20 opacity-20 transform rotate-12 blur-sm pointer-events-none">
                     <div class="w-64 h-64 border-[40px] border-pramuka-main rounded-full"></div>
                 </div>
@@ -256,7 +265,6 @@
                     <button onclick="navAdmin('scan')" class="flex-1 md:flex-none px-5 py-3 bg-gradient-to-r from-pramuka-main to-pramuka-dark text-white font-black hover:from-pramuka-dark hover:to-black rounded-xl shadow-lg shadow-pramuka-main/30 transition transform hover:-translate-y-1 flex items-center justify-center gap-2 text-sm border border-white/10"><i class="ph-bold ph-qr-code text-lg"></i> Scanner</button>
                     <button onclick="navAdmin('data')" class="flex-1 md:flex-none px-5 py-3 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition border border-white/10 flex items-center justify-center gap-2 text-sm font-bold shadow-inner"><i class="ph-bold ph-database text-lg"></i> Master</button>
                     <button onclick="navAdmin('rekap')" class="flex-1 md:flex-none px-5 py-3 bg-white/10 hover:bg-white/20 rounded-xl backdrop-blur-md transition border border-white/10 flex items-center justify-center gap-2 text-sm font-bold shadow-inner"><i class="ph-bold ph-file-xls text-lg"></i> Rekap</button>
-                    <!-- TOMBOL LEADERBOARD DI DASHBOARD ADMIN -->
                     <button onclick="openLeaderboard()" class="flex-1 md:flex-none px-5 py-3 bg-gradient-to-r from-amber-500 to-amber-600 text-white hover:from-amber-600 hover:to-amber-700 rounded-xl shadow-lg shadow-amber-500/30 transition transform hover:-translate-y-1 flex items-center justify-center gap-2 text-sm font-black border border-white/20"><i class="ph-fill ph-trophy text-lg"></i> Klasemen</button>
                 </div>
             </div>
@@ -359,7 +367,7 @@
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-5 border-b border-gray-200 dark:border-gray-700 pb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-pramuka-light/20 text-pramuka-main rounded-xl flex items-center justify-center"><i class="ph-bold ph-database text-2xl"></i></div>
-                        <h3 class="font-black text-2xl text-gray-900 dark:text-white tracking-tight">Data siswa</h3>
+                        <h3 class="font-black text-2xl text-gray-900 dark:text-white tracking-tight">Data Sistem</h3>
                     </div>
                     
                     <div class="flex flex-wrap gap-4 w-full lg:w-auto">
@@ -418,7 +426,6 @@
                         <div class="flex gap-2 w-full sm:w-auto">
                             <button onclick="loadRekapAdmin()" class="flex-1 sm:flex-none p-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition shadow-sm border border-gray-200 dark:border-gray-700 flex justify-center items-center" title="Refresh Data"><i class="ph-bold ph-arrows-clockwise text-lg text-gray-600 dark:text-gray-300"></i></button>
                             <button onclick="downloadRekapExcel()" class="flex-1 sm:flex-none px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-emerald-500/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-microsoft-excel-logo text-lg"></i> Export</button>
-                            <!-- Tombol Arsip (Hanya untuk Superadmin) -->
                             <button id="btn-arsip-data" onclick="archiveOldData()" class="hidden flex-1 sm:flex-none px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-rose-500/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-archive text-lg"></i> Arsipkan</button>
                         </div>
                     </div>
@@ -442,6 +449,23 @@
         .modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     </style>
 
+    <!-- Modal Online Users (BARU) -->
+    <div id="modal-online-users" class="hidden fixed inset-0 modal-overlay z-[300] flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md rounded-[2.5rem] shadow-2xl animate-fade-in flex flex-col bg-white dark:bg-gray-900 border border-white/20 dark:border-gray-700/50 max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center rounded-t-[2.5rem] bg-gradient-to-r from-emerald-400 to-green-500 shadow-sm relative overflow-hidden">
+                <div class="absolute right-0 top-0 opacity-20 transform rotate-12 scale-150 pointer-events-none"><i class="ph-fill ph-users text-white text-6xl"></i></div>
+                <h3 class="font-black text-xl flex items-center gap-3 text-white drop-shadow-md relative z-10"><i class="ph-fill ph-users text-2xl"></i> Pengguna Aktif</h3>
+                <button onclick="closeModal('modal-online-users')" class="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full transition-all relative z-10"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow" id="online-users-content">
+                <!-- Konten akan dimuat dari JS Firebase -->
+                <div class="text-center p-8 text-gray-400">
+                    <div class="spinner border-t-emerald-500 mx-auto mb-4"></div> Memuat data real-time...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Leaderboard (Klasemen XP) -->
     <div id="modal-leaderboard" class="hidden fixed inset-0 modal-overlay z-[300] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-md rounded-[2.5rem] shadow-2xl animate-fade-in flex flex-col bg-white dark:bg-gray-900 border border-white/20 dark:border-gray-700/50 max-h-[90vh]">
@@ -451,7 +475,6 @@
                 <button onclick="closeModal('modal-leaderboard')" class="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full transition-all relative z-10"><i class="ph-bold ph-x"></i></button>
             </div>
             <div class="p-6 overflow-y-auto flex-grow" id="leaderboard-content">
-                <!-- Konten Leaderboard akan dimuat dari JS -->
                 <div class="text-center p-8 text-gray-400">
                     <div class="spinner border-t-amber-500 mx-auto mb-4"></div> Memuat klasemen...
                 </div>
@@ -543,29 +566,24 @@
         </div>
     </div>
 
-    <!-- Template Ekspor ID Card (Desain Simpel & Profesional) -->
+    <!-- Template Ekspor ID Card -->
     <div id="export-container" style="position: fixed; top: 0; left: -9999px; z-index: -99;">
         <div id="id-card-export" style="width: 320px; height: 500px; background-color: #ffffff; position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Plus Jakarta Sans', Arial, sans-serif; overflow: hidden; border-radius: 12px; border: 1px solid #e5e7eb;">
-            <!-- Header Block Solid -->
             <div id="card-export-bg" style="width: 100%; height: 140px; background-color: #654321; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 24px;">
                 <span style="color: rgba(255,255,255,0.8); font-size: 10px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase;">Kartu Identitas</span>
                 <p id="card-export-sekolah" style="color: #ffffff; font-size: 14px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; text-align: center; padding: 0 10px;">KMK MANAGEMENT</p>
             </div>
-            <!-- Foto Profil (Overlapping Header) -->
             <div style="position: relative; margin-top: -60px; z-index: 10; width: 120px; height: 120px; border-radius: 50%; border: 5px solid #ffffff; background-color: #f3f4f6; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                 <img id="card-export-foto" crossOrigin="Anonymous" src="" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
-            <!-- Nama & NISN -->
             <div style="margin-top: 16px; text-align: center; width: 90%; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
                 <h3 id="card-export-nama" style="font-weight: 800; font-size: 20px; color: #111827; margin: 0; line-height: 1.2; text-transform: capitalize;">Nama Siswa</h3>
                 <p id="card-export-nisn" style="font-size: 14px; color: #4b5563; font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-top: 6px; margin-bottom: 0;">ID: 0000</p>
                 <div style="width: 30px; height: 3px; background-color: #e5e7eb; margin: 16px auto 0 auto; border-radius: 2px;"></div>
             </div>
-            <!-- QR Code -->
             <div style="margin-bottom: 24px; background-color: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: center; align-items: center;">
                 <div id="card-export-qr"></div>
             </div>
-            <!-- Footer -->
             <div style="width: 100%; height: 36px; background-color: #111827; display: flex; justify-content: center; align-items: center;">
                 <p style="color: #9ca3af; font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin: 0;">Sistem Absensi Terpadu</p>
             </div>
@@ -614,7 +632,6 @@
                 <h3 class="font-black text-lg text-gray-900 dark:text-white flex items-center gap-2"><i class="ph-bold ph-crop text-pramuka-main text-xl"></i> Sesuaikan Foto</h3>
                 <button onclick="cancelCrop()" class="text-gray-400 hover:text-rose-500 bg-gray-50 dark:bg-gray-800 p-2 rounded-full transition-all"><i class="ph-bold ph-x"></i></button>
             </div>
-            <!-- Area Kerja Crop -->
             <div class="w-full bg-gray-100 dark:bg-gray-950 p-4" style="height: 350px;">
                 <img id="image-to-crop" src="" style="display: block; max-width: 100%;">
             </div>
@@ -696,19 +713,170 @@
         </div>
     </div>
 
+
+    <!-- ==================== FIREBASE REAL-TIME PRESENCE ==================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 1. KONFIGURASI FIREBASE ANDA SENDIRI
+        // (Ganti nilai di dalam objek ini dengan config dari Firebase Console Anda nanti)
+        const myFirebaseConfig = {
+            // apiKey: "AIzaSy...",
+            // authDomain: "project-anda.firebaseapp.com",
+            // projectId: "project-anda",
+        };
+
+        // Gunakan config dari environment (jika ada) ATAU config manual Anda
+        const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const firebaseConfig = Object.keys(envConfig).length > 0 ? envConfig : myFirebaseConfig;
+
+        let app, db, auth;
+        let isFirebaseReady = false;
+        
+        try {
+            if(firebaseConfig && firebaseConfig.projectId) {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                isFirebaseReady = true;
+            }
+        } catch (e) { console.log("Menunggu konfigurasi Firebase..."); }
+
+        let unsubscribePresence = null;
+        let currentUserDocId = null;
+
+        // Fungsi Register Online Status
+        window.registerPresence = async (userObj, role) => {
+            if(!isFirebaseReady) return updateUIForMissingFirebase();
+            try {
+                await signInAnonymously(auth);
+                currentUserDocId = String(userObj.nisn || userObj.username);
+                
+                // Menyimpan ke collection 'kmk_online_users'
+                const presenceRef = doc(db, 'kmk_online_users', currentUserDocId);
+                await setDoc(presenceRef, {
+                    id: currentUserDocId,
+                    nama: userObj.nama || userObj.username,
+                    role: role,
+                    sekolah: userObj.sekolah || 'KMK Pusat',
+                    timestamp: Date.now()
+                });
+
+                startListeningPresence();
+            } catch (err) { 
+                console.warn("Firebase Permission Error ditangani dengan aman."); 
+                updateUIForPermissionError();
+            }
+        };
+
+        // Fungsi Hapus Online Status
+        window.removePresence = async () => {
+            if(!isFirebaseReady || !currentUserDocId) return;
+            try {
+                if(unsubscribePresence) unsubscribePresence();
+                const presenceRef = doc(db, 'kmk_online_users', currentUserDocId);
+                await deleteDoc(presenceRef);
+            } catch(e) {}
+        };
+
+        // Fungsi Listener Daftar Online
+        function startListeningPresence() {
+            if(!isFirebaseReady) return;
+            const presenceCollection = collection(db, 'kmk_online_users');
+            
+            unsubscribePresence = onSnapshot(presenceCollection, (snapshot) => {
+                const onlineUsers = [];
+                snapshot.forEach(doc => onlineUsers.push(doc.data()));
+                updateOnlineUI(onlineUsers);
+            }, (error) => {
+                console.warn("Firebase Listen Error ditangani dengan aman.");
+                updateUIForPermissionError();
+            });
+        }
+
+        function updateUIForMissingFirebase() {
+            const container = document.getElementById('online-users-content');
+            if(container) container.innerHTML = `<div class="text-center p-6 text-gray-500 font-bold text-sm">Menunggu Anda memasukkan Config Firebase di kode HTML untuk mengaktifkan fitur ini.</div>`;
+        }
+
+        function updateUIForPermissionError() {
+            const container = document.getElementById('online-users-content');
+            if(container) container.innerHTML = `
+                <div class="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl text-center">
+                    <i class="ph-fill ph-warning-circle text-rose-500 text-3xl mb-2"></i>
+                    <h4 class="font-black text-rose-600 dark:text-rose-400 text-sm mb-2">Akses Firebase Ditolak</h4>
+                    <p class="text-[11px] text-rose-500 dark:text-rose-300 mb-4 font-medium leading-relaxed">Security Rules Firebase Anda memblokir akses. Jika ini Firebase Anda sendiri, ubah rules Firestore di console menjadi:</p>
+                    <code class="block bg-black/80 text-green-400 p-3 rounded-xl text-left text-[10px] font-mono whitespace-pre overflow-x-auto">match /kmk_online_users/{doc} {\n  allow read, write: if true;\n}</code>
+                </div>`;
+            const badge = document.getElementById('online-count-badge');
+            if(badge) badge.innerText = "Fitur Terkunci";
+        }
+
+        function updateOnlineUI(users) {
+            const countBadge = document.getElementById('online-count-badge');
+            if(countBadge) countBadge.innerText = `${users.length} Online`;
+
+            const container = document.getElementById('online-users-content');
+            if(!container) return;
+
+            if(users.length === 0) {
+                container.innerHTML = `<div class="text-center p-8 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Belum ada pengguna aktif.</div>`;
+                return;
+            }
+
+            // Kelompokkan berdasarkan Role
+            const admins = users.filter(u => u.role !== 'siswa');
+            const siswas = users.filter(u => u.role === 'siswa');
+
+            let html = '<div class="space-y-4">';
+            
+            const renderUserCard = (u) => {
+                const avatar = window.getAvatarUrl ? window.getAvatarUrl(u.nama) : `https://ui-avatars.com/api/?name=${u.nama}`;
+                return `
+                <div class="flex items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-750">
+                    <div class="relative mr-3">
+                        <img src="${avatar}" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm">
+                        <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
+                    </div>
+                    <div class="flex-grow min-w-0">
+                        <h4 class="font-black text-gray-900 dark:text-white truncate text-sm leading-tight">${u.nama}</h4>
+                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">${u.role} • ${u.sekolah || 'UMUM'}</p>
+                    </div>
+                </div>`;
+            };
+
+            if(admins.length > 0) {
+                html += `<h4 class="font-black text-xs text-pramuka-main uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 mb-2">Manajemen / Admin</h4>`;
+                admins.forEach(u => html += renderUserCard(u));
+            }
+
+            if(siswas.length > 0) {
+                if(admins.length > 0) html += `<div class="h-2"></div>`; // spacer
+                html += `<h4 class="font-black text-xs text-blue-600 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 mb-2">Anggota / Siswa</h4>`;
+                siswas.forEach(u => html += renderUserCard(u));
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Pastikan terhapus ketika tab ditutup
+        window.addEventListener('beforeunload', () => {
+            window.removePresence();
+        });
+    </script>
+
     <!-- ==================== JAVASCRIPT UTAMA ==================== -->
     <script>
-        // ======================================================================
         // MASUKKAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI BAWAH INI
-        // ======================================================================
         let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDWST8OWszil7mwJD4gw6P6nsiLZgrfGQqO7G2eGu6S2PaWNxXSoU7lZ6-SvlPrWcO/exec'; 
 
         let APP = { user: null, role: null, scanMode: 'masuk', html5QrcodeScanner: null, isProcessingScan: false, dataSiswa: [], tempScanData: '' };
         let adminRekapData = [];
 
-        // ======================================================================
-        // SISTEM TEMA OTOMATIS & BEEP SOUND
-        // ======================================================================
+        // Tema
         const THEMES = {
             pramuka: { main: '#654321', light: '#C97A34', dark: '#3E2723' },
             biru:    { main: '#1d4ed8', light: '#3b82f6', dark: '#1e3a8a' },
@@ -726,7 +894,8 @@
             }
         }
         
-        function getAvatarUrl(name) {
+        // Ekspor getAvatarUrl ke global agar bisa dipakai Firebase
+        window.getAvatarUrl = function(name) {
             const safeName = name ? String(name).trim() : 'KMK';
             const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--c-main').trim().substring(1) || '654321';
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=${bgColor}&color=fff&size=150&font-weight=bold&rounded=true`;
@@ -776,19 +945,33 @@
             const payload = { type };
             if (type === 'siswa') { payload.nama = document.getElementById('login-nama').value; payload.nisn = document.getElementById('login-nisn').value; } 
             else { payload.username = document.getElementById('login-user').value; payload.password = document.getElementById('login-pass').value; }
+            
             try {
                 const res = await fetchAPI('login', payload);
                 if (res.status === 'success') {
                     APP.user = res.data; APP.role = res.role; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role}));
-                    Swal.fire({ icon: 'success', title: 'Akses Diberikan', timer: 1000, showConfirmButton: false }); initApp();
+                    Swal.fire({ icon: 'success', title: 'Akses Diberikan', timer: 1000, showConfirmButton: false }); 
+                    initApp();
                 }
             } catch (err) { Swal.fire('Ditolak', err.message || 'Kredensial tidak valid', 'error'); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
-        function logout() { sessionStorage.removeItem('sess_pramuka'); location.reload(); }
+
+        async function handleLogout() {
+            // Hapus presence dari Firebase terlebih dahulu
+            if(window.removePresence) await window.removePresence();
+            
+            sessionStorage.removeItem('sess_pramuka'); 
+            location.reload(); 
+        }
 
         function initApp() {
             const sess = sessionStorage.getItem('sess_pramuka'); if (!APP.user && sess) { const parsed = JSON.parse(sess); APP.user = parsed.user; APP.role = parsed.role; }
             if (!APP.user) return; 
+
+            // Daftarkan ke sistem Presence Firebase
+            if(window.registerPresence) {
+                window.registerPresence(APP.user, APP.role);
+            }
 
             document.getElementById('view-login').classList.add('hidden'); document.getElementById('topbar').classList.remove('hidden'); document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('user-info').innerText = APP.user.nama || APP.user.username;
@@ -804,7 +987,6 @@
             const u = APP.user; document.getElementById('disp-nama').innerText = u.nama; document.getElementById('disp-nisn').innerText = `ID: ${u.nisn}`;
             document.getElementById('disp-kelas').innerText = u.kelas || '-'; document.getElementById('disp-sekolah').innerText = u.sekolah || '-';
             
-            // Format Tanggal
             let tglLahirDisplay = u.tanggal_lahir || '-';
             if (tglLahirDisplay.includes('T')) {
                 tglLahirDisplay = new Date(tglLahirDisplay).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
@@ -874,7 +1056,6 @@
                     return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"><td class="p-5 font-bold">${tgl}</td><td class="p-5 font-mono text-sm">${msk}</td><td class="p-5 font-mono text-sm">${plg}</td><td class="p-5"><span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-current/20 ${bg}">${d.status}</span></td></tr>`;
                 }).join('');
 
-                // Tampilkan total poin
                 document.getElementById('disp-poin').innerText = (totalXP > 0 ? totalXP : 0) + ' XP';
 
             } catch(e) { 
@@ -883,9 +1064,6 @@
             }
         }
 
-        // ======================================================================
-        // LOGIKA LEADERBOARD / KLASEMEN
-        // ======================================================================
         async function openLeaderboard() {
             openModal('modal-leaderboard');
             const container = document.getElementById('leaderboard-content');
@@ -901,7 +1079,6 @@
                         let rankStyle = 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700';
                         let rankBadge = `<span class="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full font-black text-gray-500 text-xs">${i+1}</span>`;
                         
-                        // Desain khusus untuk Top 3
                         if (i === 0) { rankStyle = 'bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/20 border-amber-300 dark:border-amber-600/50 transform scale-[1.02] shadow-md z-10 relative'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 1">👑</span>`; }
                         else if (i === 1) { rankStyle = 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 2">🥈</span>`; }
                         else if (i === 2) { rankStyle = 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700/50 shadow-sm'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 3">🥉</span>`; }
@@ -930,9 +1107,7 @@
             }
         }
 
-        // ======================================================================
-        // LOGIKA CROP FOTO
-        // ======================================================================
+        // CROP FOTO
         let cropperInstance = null;
 
         document.getElementById('self-foto-input').addEventListener('change', function(e) {
@@ -1025,7 +1200,6 @@
                 document.getElementById('master-tabs').classList.remove('hidden'); 
                 document.getElementById('btn-add-admin').classList.remove('hidden'); 
                 
-                // Tampilkan Tombol Arsip hanya untuk Superadmin
                 const btnArsip = document.getElementById('btn-arsip-data');
                 if(btnArsip) {
                     btnArsip.classList.remove('hidden');
