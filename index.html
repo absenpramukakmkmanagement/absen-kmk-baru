@@ -4,6 +4,9 @@
     <meta name="google-site-verification" content="wNoRe0BF-RL8VWdI6kUFKTRj_Fz7ANxtd_2hyXJ-CZg" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#654321">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Absensi Online KMK Management</title>
     
     <!-- Konfigurasi Tema Dinamis -->
@@ -28,18 +31,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <!-- Libraries Eksternal -->
+    <!-- Libraries Eksternal Dasar -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- Pustaka Cropper.js -->
+    <!-- Pustaka Cropper.js untuk fitur pemotong foto -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
+    <!-- Pustaka Baru: Chart.js (Grafik) & jsPDF (Ekspor Laporan) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
     <style type="text/tailwindcss">
+        /* Gaya Form Modern */
         .form-input-modern { @apply block w-full mt-1.5 px-4 py-3 bg-gray-50 dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-xl outline-none focus:border-pramuka-main dark:focus:border-pramuka-light font-medium text-sm transition-colors; } 
         .form-label-modern { @apply block text-[10px] font-black text-gray-500 uppercase tracking-widest ml-1 mb-1; } 
     </style>
@@ -55,21 +64,23 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); filter: blur(4px); } to { opacity: 1; transform: translateY(0); filter: blur(0); } }
         .bg-pattern { background-image: radial-gradient(var(--c-main) 1px, transparent 1px); background-size: 40px 40px; opacity: 0.04; }
         
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         .dark ::-webkit-scrollbar-thumb { background: #4b5563; }
-
-        /* Ping animation for online indicator */
-        .online-ping { animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite; }
-        @keyframes ping { 75%, 100% { transform: scale(2); opacity: 0; } }
+        
+        /* Pulse Animation Online */
+        @keyframes pulse-green { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); } 70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+        .online-dot { animation: pulse-green 2s infinite; }
     </style>
 </head>
 <body class="bg-[#F1F5F9] text-gray-800 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-300 min-h-screen flex flex-col relative overflow-x-hidden">
 
-    <!-- Latar Belakang -->
+    <!-- Latar Belakang Pola Modern -->
     <div class="absolute inset-0 bg-pattern pointer-events-none fixed"></div>
+    <!-- Gradasi Halus di Latar -->
     <div class="fixed top-[-20%] left-[-10%] w-[50%] h-[50%] rounded-full bg-pramuka-main/5 blur-[120px] pointer-events-none"></div>
     <div class="fixed bottom-[-20%] right-[-10%] w-[50%] h-[50%] rounded-full bg-pramuka-light/5 blur-[120px] pointer-events-none"></div>
 
@@ -86,18 +97,14 @@
                         <span class="text-[10px] font-bold uppercase tracking-widest text-pramuka-main dark:text-pramuka-light">KMK Management</span>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 sm:gap-3">
-                    
-                    <!-- Indikator Online Real-time -->
-                    <button onclick="openModal('modal-online-users')" class="relative flex items-center gap-2 px-3 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-all shadow-sm border border-emerald-200 dark:border-emerald-800/50 group" title="Lihat Siapa yang Online">
-                        <div class="relative flex h-3 w-3">
-                          <span class="online-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                        </div>
-                        <span id="online-count-badge" class="text-sm font-bold text-emerald-700 dark:text-emerald-400">0 Online</span>
+                <div class="flex items-center gap-2 sm:gap-4">
+                    <!-- Indikator Online Realtime -->
+                    <button onclick="openModal('modal-online-users')" class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800/50 rounded-full text-xs font-bold transition hover:bg-emerald-100 dark:hover:bg-emerald-800/40" title="Lihat Siapa yang Online">
+                        <div class="w-2.5 h-2.5 bg-emerald-500 rounded-full online-dot"></div>
+                        <span id="online-count-disp">1 Online</span>
                     </button>
 
-                    <div class="hidden md:flex flex-col text-right mr-2 ml-2">
+                    <div class="hidden md:flex flex-col text-right mr-1 ml-2">
                         <span id="user-info" class="text-sm font-extrabold text-gray-800 dark:text-gray-200 leading-tight"></span>
                         <span id="user-role-badge" class="text-[10px] uppercase tracking-widest text-gray-500 font-bold"></span>
                     </div>
@@ -112,7 +119,7 @@
 
                     <div class="h-8 w-px bg-gray-300 dark:bg-gray-700 mx-1 hidden sm:block"></div>
 
-                    <button onclick="handleLogout()" class="px-4 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white transition-all font-bold text-sm flex items-center gap-2 shadow-sm border border-red-100 dark:border-red-900/30">
+                    <button onclick="logout()" class="px-5 py-2.5 rounded-xl bg-red-50 text-red-600 hover:bg-red-500 hover:text-white dark:bg-red-900/20 dark:text-red-400 dark:hover:bg-red-600 dark:hover:text-white transition-all font-bold text-sm flex items-center gap-2 shadow-sm border border-red-100 dark:border-red-900/30">
                         <i class="ph-bold ph-power text-lg"></i> <span class="hidden sm:inline">Keluar</span>
                     </button>
                 </div>
@@ -201,6 +208,7 @@
                     <div class="mt-4 mb-8 flex flex-wrap justify-center gap-2">
                         <span id="disp-kelas" class="px-4 py-2 bg-gradient-to-r from-pramuka-main/10 to-pramuka-light/10 text-pramuka-main dark:text-pramuka-light border border-pramuka-main/20 rounded-xl text-xs font-bold tracking-widest uppercase">Kelas</span>
                         
+                        <!-- TOMBOL LEADERBOARD XP DI PROFIL SISWA -->
                         <span onclick="openLeaderboard()" class="px-4 py-2 bg-gradient-to-r from-amber-400/20 to-yellow-500/20 text-amber-600 dark:text-amber-400 border border-amber-400/30 rounded-xl text-xs font-black tracking-widest uppercase flex items-center gap-1 cursor-pointer transition transform hover:scale-105 hover:bg-amber-400/30 shadow-sm" title="Klik untuk melihat Papan Peringkat (Klasemen)!">
                             <i class="ph-fill ph-star"></i> <span id="disp-poin">0 XP</span>
                         </span>
@@ -226,7 +234,15 @@
 
             <!-- History Absen -->
             <div class="glass-panel rounded-[2rem] p-8 shadow-lg bg-white/80 dark:bg-gray-800/80">
-                <h3 class="font-extrabold text-xl mb-6 flex items-center gap-3 text-gray-900 dark:text-white"><i class="ph-fill ph-clock-counter-clockwise text-pramuka-main text-2xl"></i> Riwayat Kehadiran</h3>
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="font-extrabold text-xl flex items-center gap-3 text-gray-900 dark:text-white"><i class="ph-fill ph-clock-counter-clockwise text-pramuka-main text-2xl"></i> Riwayat Kehadiran</h3>
+                    <button onclick="toggleChart()" class="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 font-bold rounded-xl text-xs flex items-center gap-2 hover:bg-gray-200 dark:hover:bg-gray-700 transition border border-gray-200 dark:border-gray-700"><i class="ph-bold ph-chart-pie-slice"></i> Statistik</button>
+                </div>
+                
+                <div id="chart-container" class="hidden mb-6 h-64 bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+
                 <div class="overflow-x-auto rounded-2xl border border-gray-200 dark:border-gray-700 shadow-sm">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead class="bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-400 font-bold border-b border-gray-200 dark:border-gray-700 uppercase tracking-wider text-[11px]">
@@ -240,9 +256,9 @@
 
         <!-- ======================= VIEW ADMIN ======================= -->
         <div id="view-admin" class="hidden space-y-6 animate-fade-in">
-            
             <!-- Admin Header -->
             <div class="flex flex-col md:flex-row gap-6 justify-between items-start md:items-center bg-gradient-to-r from-gray-900 via-gray-800 to-black dark:from-black dark:to-gray-900 text-white p-8 md:p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden border border-gray-700">
+                <!-- Background Decoration -->
                 <div class="absolute -right-20 -top-20 opacity-20 transform rotate-12 blur-sm pointer-events-none">
                     <div class="w-64 h-64 border-[40px] border-pramuka-main rounded-full"></div>
                 </div>
@@ -367,7 +383,7 @@
                 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-5 border-b border-gray-200 dark:border-gray-700 pb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-12 h-12 bg-pramuka-light/20 text-pramuka-main rounded-xl flex items-center justify-center"><i class="ph-bold ph-database text-2xl"></i></div>
-                        <h3 class="font-black text-2xl text-gray-900 dark:text-white tracking-tight">Data Sistem</h3>
+                        <h3 class="font-black text-2xl text-gray-900 dark:text-white tracking-tight">Data Master</h3>
                     </div>
                     
                     <div class="flex flex-wrap gap-4 w-full lg:w-auto">
@@ -379,6 +395,7 @@
 
                         <button id="btn-add-siswa" onclick="openModalSiswa()" class="px-5 py-3 bg-pramuka-main hover:bg-pramuka-dark text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-pramuka-main/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-user-plus text-lg"></i> Tambah Anggota</button>
                         <button id="btn-add-admin" onclick="openModalAdmin()" class="hidden px-5 py-3 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-gray-900/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-shield-plus text-lg"></i> Tambah Admin</button>
+                        <button id="btn-audit-log" onclick="openAuditLog()" class="hidden px-5 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-file-search text-lg"></i> Log Audit</button>
                     </div>
                 </div>
 
@@ -415,18 +432,27 @@
                     </div>
                     
                     <div class="flex flex-wrap gap-3 w-full xl:w-auto items-center bg-gray-100 dark:bg-gray-900 p-2 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-inner">
+                        <!-- Filter Unit Dropdown -->
+                        <div class="flex items-center gap-2 text-sm bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 font-semibold shadow-sm flex-grow sm:flex-grow-0 justify-center">
+                            <i class="ph-bold ph-buildings text-pramuka-main"></i>
+                            <select id="filter-unit" class="bg-transparent outline-none text-gray-700 dark:text-gray-200 cursor-pointer w-full appearance-none">
+                                <option value="">Semua Unit</option>
+                            </select>
+                        </div>
+
                         <!-- Filter Tanggal -->
                         <div class="flex items-center gap-2 text-sm bg-white dark:bg-gray-800 px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 font-semibold shadow-sm flex-grow sm:flex-grow-0 justify-center">
                             <i class="ph-bold ph-calendar-blank text-pramuka-main"></i>
                             <input type="date" id="filter-start" class="bg-transparent outline-none text-gray-700 dark:text-gray-200 cursor-pointer">
-                            <span class="text-gray-400 font-black px-1">/</span>
+                            <span class="text-gray-400 font-black px-1">-</span>
                             <input type="date" id="filter-end" class="bg-transparent outline-none text-gray-700 dark:text-gray-200 cursor-pointer">
                         </div>
                         
                         <div class="flex gap-2 w-full sm:w-auto">
                             <button onclick="loadRekapAdmin()" class="flex-1 sm:flex-none p-3 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-xl transition shadow-sm border border-gray-200 dark:border-gray-700 flex justify-center items-center" title="Refresh Data"><i class="ph-bold ph-arrows-clockwise text-lg text-gray-600 dark:text-gray-300"></i></button>
-                            <button onclick="downloadRekapExcel()" class="flex-1 sm:flex-none px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-emerald-500/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-microsoft-excel-logo text-lg"></i> Export</button>
-                            <button id="btn-arsip-data" onclick="archiveOldData()" class="hidden flex-1 sm:flex-none px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-rose-500/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-archive text-lg"></i> Arsipkan</button>
+                            <button onclick="downloadRekapExcel()" class="flex-1 sm:flex-none px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-emerald-500/20 transition-transform transform hover:-translate-y-1" title="Unduh Excel"><i class="ph-bold ph-microsoft-excel-logo text-lg"></i></button>
+                            <button onclick="downloadRekapPDF()" class="flex-1 sm:flex-none px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-rose-500/20 transition-transform transform hover:-translate-y-1" title="Unduh PDF"><i class="ph-bold ph-file-pdf text-lg"></i> PDF</button>
+                            <button id="btn-arsip-data" onclick="archiveOldData()" class="hidden flex-1 sm:flex-none px-6 py-3 bg-gray-800 hover:bg-gray-900 text-white rounded-xl text-sm flex items-center justify-center gap-2 font-black shadow-lg shadow-gray-800/20 transition-transform transform hover:-translate-y-1"><i class="ph-bold ph-archive text-lg"></i> Arsipkan</button>
                         </div>
                     </div>
                 </div>
@@ -449,19 +475,16 @@
         .modal-overlay { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
     </style>
 
-    <!-- Modal Online Users (BARU) -->
+    <!-- Modal Pengguna Online -->
     <div id="modal-online-users" class="hidden fixed inset-0 modal-overlay z-[300] flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-md rounded-[2.5rem] shadow-2xl animate-fade-in flex flex-col bg-white dark:bg-gray-900 border border-white/20 dark:border-gray-700/50 max-h-[90vh]">
-            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center rounded-t-[2.5rem] bg-gradient-to-r from-emerald-400 to-green-500 shadow-sm relative overflow-hidden">
-                <div class="absolute right-0 top-0 opacity-20 transform rotate-12 scale-150 pointer-events-none"><i class="ph-fill ph-users text-white text-6xl"></i></div>
-                <h3 class="font-black text-xl flex items-center gap-3 text-white drop-shadow-md relative z-10"><i class="ph-fill ph-users text-2xl"></i> Pengguna Aktif</h3>
-                <button onclick="closeModal('modal-online-users')" class="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full transition-all relative z-10"><i class="ph-bold ph-x"></i></button>
+        <div class="bg-white dark:bg-gray-900 w-full max-w-sm rounded-[2.5rem] shadow-2xl flex flex-col border border-gray-200 dark:border-gray-800 overflow-hidden animate-fade-in max-h-[90vh]">
+            <div class="p-5 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-emerald-500 text-white relative">
+                <div class="absolute right-0 top-0 opacity-20 transform scale-150"><i class="ph-fill ph-users-three text-6xl"></i></div>
+                <h3 class="font-black text-lg flex items-center gap-2 relative z-10"><i class="ph-bold ph-users text-xl"></i> Pengguna Aktif</h3>
+                <button onclick="closeModal('modal-online-users')" class="text-white hover:bg-white/20 p-2 rounded-full transition-all relative z-10"><i class="ph-bold ph-x"></i></button>
             </div>
-            <div class="p-6 overflow-y-auto flex-grow" id="online-users-content">
-                <!-- Konten akan dimuat dari JS Firebase -->
-                <div class="text-center p-8 text-gray-400">
-                    <div class="spinner border-t-emerald-500 mx-auto mb-4"></div> Memuat data real-time...
-                </div>
+            <div id="online-users-list" class="p-2 overflow-y-auto flex-grow bg-gray-50 dark:bg-gray-950">
+                <div class="text-center p-8"><div class="spinner border-t-emerald-500 mx-auto"></div></div>
             </div>
         </div>
     </div>
@@ -475,6 +498,7 @@
                 <button onclick="closeModal('modal-leaderboard')" class="text-white/80 hover:text-white bg-black/10 hover:bg-black/20 p-2 rounded-full transition-all relative z-10"><i class="ph-bold ph-x"></i></button>
             </div>
             <div class="p-6 overflow-y-auto flex-grow" id="leaderboard-content">
+                <!-- Konten Leaderboard akan dimuat dari JS -->
                 <div class="text-center p-8 text-gray-400">
                     <div class="spinner border-t-amber-500 mx-auto mb-4"></div> Memuat klasemen...
                 </div>
@@ -536,6 +560,21 @@
         </div>
     </div>
 
+    <!-- Modal Log Audit (Histori Sistem) -->
+    <div id="modal-audit" class="hidden fixed inset-0 modal-overlay z-[200] flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-2xl rounded-[2.5rem] shadow-2xl animate-fade-in flex flex-col bg-white dark:bg-gray-900 border-0 max-h-[90vh]">
+            <div class="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center rounded-t-[2.5rem]">
+                <h3 class="font-black text-xl flex items-center gap-3"><div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg"><i class="ph-fill ph-file-search text-blue-500"></i></div> Log Aktivitas Admin</h3>
+                <button onclick="closeModal('modal-audit')" class="text-gray-400 hover:text-rose-500 bg-gray-50 dark:bg-gray-800 p-2 rounded-full"><i class="ph-bold ph-x"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50 dark:bg-gray-950/50">
+                <div id="audit-content" class="space-y-4">
+                    <div class="text-center p-4 text-gray-400 text-sm">Fitur Log Audit sedang diaktifkan di sisi Server...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Input Status Manual (Izin/Sakit/Alpha) -->
     <div id="modal-manual-absen" class="hidden fixed inset-0 modal-overlay z-[200] flex items-center justify-center p-4">
         <div class="glass-panel w-full max-w-sm rounded-[2.5rem] shadow-2xl animate-fade-in flex flex-col bg-white dark:bg-gray-900 border-0">
@@ -552,7 +591,7 @@
                     <label class="form-label-modern">Status Kehadiran</label>
                     <div class="relative">
                         <select id="man-status" required class="form-input-modern appearance-none pr-10">
-                            <option value="Hadir">✔️ Hadir</option><option value="Izin">✉️ Izin</option><option value="Sakit">💊 Sakit</option><option value="Alpha">❌ Alpha / Tanpa Keterangan</option>
+                            <option value="Hadir">✔️ Hadir</option><option value="Terlambat">⏱️ Terlambat</option><option value="Izin">✉️ Izin</option><option value="Sakit">💊 Sakit</option><option value="Alpha">❌ Alpha / Tanpa Keterangan</option>
                         </select>
                         <i class="ph-bold ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400"></i>
                     </div>
@@ -563,30 +602,6 @@
                 </div>
                 <button type="submit" id="btn-save-man" class="w-full py-4 bg-gray-900 dark:bg-white dark:text-gray-900 text-white font-black tracking-widest uppercase rounded-xl mt-4 hover:bg-black transition-all transform hover:-translate-y-1 shadow-xl">Simpan Status</button>
             </form>
-        </div>
-    </div>
-
-    <!-- Template Ekspor ID Card -->
-    <div id="export-container" style="position: fixed; top: 0; left: -9999px; z-index: -99;">
-        <div id="id-card-export" style="width: 320px; height: 500px; background-color: #ffffff; position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Plus Jakarta Sans', Arial, sans-serif; overflow: hidden; border-radius: 12px; border: 1px solid #e5e7eb;">
-            <div id="card-export-bg" style="width: 100%; height: 140px; background-color: #654321; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 24px;">
-                <span style="color: rgba(255,255,255,0.8); font-size: 10px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase;">Kartu Identitas</span>
-                <p id="card-export-sekolah" style="color: #ffffff; font-size: 14px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; text-align: center; padding: 0 10px;">KMK MANAGEMENT</p>
-            </div>
-            <div style="position: relative; margin-top: -60px; z-index: 10; width: 120px; height: 120px; border-radius: 50%; border: 5px solid #ffffff; background-color: #f3f4f6; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                <img id="card-export-foto" crossOrigin="Anonymous" src="" style="width: 100%; height: 100%; object-fit: cover;">
-            </div>
-            <div style="margin-top: 16px; text-align: center; width: 90%; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
-                <h3 id="card-export-nama" style="font-weight: 800; font-size: 20px; color: #111827; margin: 0; line-height: 1.2; text-transform: capitalize;">Nama Siswa</h3>
-                <p id="card-export-nisn" style="font-size: 14px; color: #4b5563; font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-top: 6px; margin-bottom: 0;">ID: 0000</p>
-                <div style="width: 30px; height: 3px; background-color: #e5e7eb; margin: 16px auto 0 auto; border-radius: 2px;"></div>
-            </div>
-            <div style="margin-bottom: 24px; background-color: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: center; align-items: center;">
-                <div id="card-export-qr"></div>
-            </div>
-            <div style="width: 100%; height: 36px; background-color: #111827; display: flex; justify-content: center; align-items: center;">
-                <p style="color: #9ca3af; font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin: 0;">Sistem Absensi Terpadu</p>
-            </div>
         </div>
     </div>
 
@@ -632,6 +647,7 @@
                 <h3 class="font-black text-lg text-gray-900 dark:text-white flex items-center gap-2"><i class="ph-bold ph-crop text-pramuka-main text-xl"></i> Sesuaikan Foto</h3>
                 <button onclick="cancelCrop()" class="text-gray-400 hover:text-rose-500 bg-gray-50 dark:bg-gray-800 p-2 rounded-full transition-all"><i class="ph-bold ph-x"></i></button>
             </div>
+            <!-- Area Kerja Crop -->
             <div class="w-full bg-gray-100 dark:bg-gray-950 p-4" style="height: 350px;">
                 <img id="image-to-crop" src="" style="display: block; max-width: 100%;">
             </div>
@@ -713,16 +729,43 @@
         </div>
     </div>
 
+    <!-- Template Ekspor ID Card (Desain Simpel & Profesional) -->
+    <div id="export-container" style="position: fixed; top: 0; left: -9999px; z-index: -99;">
+        <div id="id-card-export" style="width: 320px; height: 500px; background-color: #ffffff; position: relative; display: flex; flex-direction: column; align-items: center; font-family: 'Plus Jakarta Sans', Arial, sans-serif; overflow: hidden; border-radius: 12px; border: 1px solid #e5e7eb;">
+            <!-- Header Block Solid -->
+            <div id="card-export-bg" style="width: 100%; height: 140px; background-color: #654321; display: flex; flex-direction: column; justify-content: flex-start; align-items: center; padding-top: 24px;">
+                <span style="color: rgba(255,255,255,0.8); font-size: 10px; font-weight: 800; letter-spacing: 0.3em; text-transform: uppercase;">Kartu Identitas</span>
+                <p id="card-export-sekolah" style="color: #ffffff; font-size: 14px; font-weight: 900; letter-spacing: 0.05em; text-transform: uppercase; margin-top: 4px; text-align: center; padding: 0 10px;">KMK MANAGEMENT</p>
+            </div>
+            <!-- Foto Profil (Overlapping Header) -->
+            <div style="position: relative; margin-top: -60px; z-index: 10; width: 120px; height: 120px; border-radius: 50%; border: 5px solid #ffffff; background-color: #f3f4f6; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <img id="card-export-foto" crossOrigin="Anonymous" src="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <!-- Nama & NISN -->
+            <div style="margin-top: 16px; text-align: center; width: 90%; flex-grow: 1; display: flex; flex-direction: column; align-items: center;">
+                <h3 id="card-export-nama" style="font-weight: 800; font-size: 20px; color: #111827; margin: 0; line-height: 1.2; text-transform: capitalize;">Nama Siswa</h3>
+                <p id="card-export-nisn" style="font-size: 14px; color: #4b5563; font-family: 'Courier New', Courier, monospace; font-weight: bold; margin-top: 6px; margin-bottom: 0;">ID: 0000</p>
+                <div style="width: 30px; height: 3px; background-color: #e5e7eb; margin: 16px auto 0 auto; border-radius: 2px;"></div>
+            </div>
+            <!-- QR Code -->
+            <div style="margin-bottom: 24px; background-color: #ffffff; padding: 10px; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: center; align-items: center;">
+                <div id="card-export-qr"></div>
+            </div>
+            <!-- Footer -->
+            <div style="width: 100%; height: 36px; background-color: #111827; display: flex; justify-content: center; align-items: center;">
+                <p style="color: #9ca3af; font-size: 9px; font-weight: 800; letter-spacing: 0.2em; text-transform: uppercase; margin: 0;">Sistem Absensi Terpadu</p>
+            </div>
+        </div>
+    </div>
 
     <!-- ==================== FIREBASE REAL-TIME PRESENCE ==================== -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot, collection, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
-        // 1. KONFIGURASI FIREBASE ANDA SENDIRI
-        // (Ganti nilai di dalam objek ini dengan config dari Firebase Console Anda nanti)
-       const myFirebaseConfig = {
+        // Konfigurasi dari Screenshot Firebase Anda
+        const myFirebaseConfig = {
           apiKey: "AIzaSyAPLfAjBcpLHgxTI3tZATcsnngvc2kmB0U",
           authDomain: "kmk-absensi-online.firebaseapp.com",
           projectId: "kmk-absensi-online",
@@ -732,153 +775,103 @@
           measurementId: "G-WQV0SLQKK0"
         };
 
-        // Gunakan config dari environment (jika ada) ATAU config manual Anda
-        const envConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const firebaseConfig = Object.keys(envConfig).length > 0 ? envConfig : myFirebaseConfig;
+        let db, auth, currentUserDocRef = null;
 
-        let app, db, auth;
-        let isFirebaseReady = false;
-        
         try {
-            if(firebaseConfig && firebaseConfig.projectId) {
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                isFirebaseReady = true;
-            }
-        } catch (e) { console.log("Menunggu konfigurasi Firebase..."); }
+            const fbApp = initializeApp(myFirebaseConfig);
+            auth = getAuth(fbApp);
+            db = getFirestore(fbApp);
 
-        let unsubscribePresence = null;
-        let currentUserDocId = null;
+            signInAnonymously(auth).catch((error) => console.log("Gagal login anonim ke Firebase:", error));
 
-        // Fungsi Register Online Status
-        window.registerPresence = async (userObj, role) => {
-            if(!isFirebaseReady) return updateUIForMissingFirebase();
-            try {
-                await signInAnonymously(auth);
-                currentUserDocId = String(userObj.nisn || userObj.username);
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    const sess = sessionStorage.getItem('sess_pramuka');
+                    if (sess) {
+                        const parsed = JSON.parse(sess);
+                        registerOnlineUser(user.uid, parsed.user, parsed.role);
+                    }
+                }
+            });
+
+            // Pantau daftar pengguna aktif dari Firebase
+            const usersRef = collection(db, 'kmk_online_users');
+            onSnapshot(usersRef, (snapshot) => {
+                let count = 0;
+                let htmlSiswa = '', htmlAdmin = '';
                 
-                // Menyimpan ke collection 'kmk_online_users'
-                const presenceRef = doc(db, 'kmk_online_users', currentUserDocId);
-                await setDoc(presenceRef, {
-                    id: currentUserDocId,
-                    nama: userObj.nama || userObj.username,
-                    role: role,
-                    sekolah: userObj.sekolah || 'KMK Pusat',
-                    timestamp: Date.now()
+                snapshot.forEach((docSnap) => {
+                    count++;
+                    const data = docSnap.data();
+                    let roleBadge = data.role === 'siswa' ? '<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Siswa</span>' : '<span class="bg-amber-100 text-amber-700 px-2 py-0.5 rounded text-[10px] uppercase font-bold">Admin</span>';
+                    
+                    const itemHTML = `<div class="flex items-center gap-3 p-3 bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 rounded-xl mb-2 shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 overflow-hidden relative border-2 border-emerald-400">
+                            <img src="${data.foto}" onerror="this.src='https://ui-avatars.com/api/?name=${data.nama}&background=random'" class="w-full h-full object-cover">
+                            <div class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></div>
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="text-sm font-bold text-gray-800 dark:text-gray-200 truncate">${data.nama}</h4>
+                            ${roleBadge}
+                        </div>
+                    </div>`;
+
+                    if (data.role === 'siswa') htmlSiswa += itemHTML; else htmlAdmin += itemHTML;
                 });
 
-                startListeningPresence();
-            } catch (err) { 
-                console.warn("Firebase Permission Error ditangani dengan aman."); 
-                updateUIForPermissionError();
-            }
-        };
+                document.getElementById('online-count-disp').innerText = `${count} Online`;
+                
+                let finalHTML = '';
+                if(htmlAdmin !== '') finalHTML += `<h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mt-2 mb-3 px-2">Tim Manajemen</h4>${htmlAdmin}`;
+                if(htmlSiswa !== '') finalHTML += `<h4 class="text-xs font-black text-gray-500 uppercase tracking-widest mt-4 mb-3 px-2">Anggota / Siswa</h4>${htmlSiswa}`;
+                if(count === 0) finalHTML = '<div class="text-center p-8 text-gray-400 text-sm font-bold">Belum ada pengguna aktif.</div>';
 
-        // Fungsi Hapus Online Status
-        window.removePresence = async () => {
-            if(!isFirebaseReady || !currentUserDocId) return;
-            try {
-                if(unsubscribePresence) unsubscribePresence();
-                const presenceRef = doc(db, 'kmk_online_users', currentUserDocId);
-                await deleteDoc(presenceRef);
-            } catch(e) {}
-        };
-
-        // Fungsi Listener Daftar Online
-        function startListeningPresence() {
-            if(!isFirebaseReady) return;
-            const presenceCollection = collection(db, 'kmk_online_users');
-            
-            unsubscribePresence = onSnapshot(presenceCollection, (snapshot) => {
-                const onlineUsers = [];
-                snapshot.forEach(doc => onlineUsers.push(doc.data()));
-                updateOnlineUI(onlineUsers);
+                document.getElementById('online-users-list').innerHTML = finalHTML;
             }, (error) => {
-                console.warn("Firebase Listen Error ditangani dengan aman.");
-                updateUIForPermissionError();
+                console.warn("Security Rules memblokir, harap perbarui aturan Firestore di Console.");
+                document.getElementById('online-users-list').innerHTML = `<div class="p-6 text-center"><div class="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center mx-auto mb-3"><i class="ph-bold ph-warning text-2xl"></i></div><p class="text-sm font-bold text-rose-600 mb-2">Akses Firestore Ditolak</p><p class="text-xs text-gray-500 mb-4">Ubah Rules Firestore Anda menjadi:</p><code class="text-[10px] bg-gray-900 text-green-400 p-3 rounded-lg block text-left">match /kmk_online_users/{doc} {<br>  allow read, write: if true;<br>}</code></div>`;
+            });
+
+        } catch (e) { console.log("Firebase tidak dikonfigurasi."); }
+
+        async function registerOnlineUser(uid, userData, role) {
+            if(!db) return;
+            const docId = uid + "_" + (userData.nisn || userData.username);
+            currentUserDocRef = doc(db, 'kmk_online_users', docId);
+            const namaDisp = userData.nama || userData.username;
+            const fotoDisp = userData.foto || `https://ui-avatars.com/api/?name=${namaDisp}&background=random`;
+            
+            await setDoc(currentUserDocRef, {
+                uid: uid,
+                nama: namaDisp,
+                role: role,
+                foto: fotoDisp,
+                loginAt: serverTimestamp()
+            });
+
+            // Hapus data saat tab ditutup
+            window.addEventListener("beforeunload", () => {
+                if(currentUserDocRef) deleteDoc(currentUserDocRef);
             });
         }
-
-        function updateUIForMissingFirebase() {
-            const container = document.getElementById('online-users-content');
-            if(container) container.innerHTML = `<div class="text-center p-6 text-gray-500 font-bold text-sm">Menunggu Anda memasukkan Config Firebase di kode HTML untuk mengaktifkan fitur ini.</div>`;
-        }
-
-        function updateUIForPermissionError() {
-            const container = document.getElementById('online-users-content');
-            if(container) container.innerHTML = `
-                <div class="p-6 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl text-center">
-                    <i class="ph-fill ph-warning-circle text-rose-500 text-3xl mb-2"></i>
-                    <h4 class="font-black text-rose-600 dark:text-rose-400 text-sm mb-2">Akses Firebase Ditolak</h4>
-                    <p class="text-[11px] text-rose-500 dark:text-rose-300 mb-4 font-medium leading-relaxed">Security Rules Firebase Anda memblokir akses. Jika ini Firebase Anda sendiri, ubah rules Firestore di console menjadi:</p>
-                    <code class="block bg-black/80 text-green-400 p-3 rounded-xl text-left text-[10px] font-mono whitespace-pre overflow-x-auto">match /kmk_online_users/{doc} {\n  allow read, write: if true;\n}</code>
-                </div>`;
-            const badge = document.getElementById('online-count-badge');
-            if(badge) badge.innerText = "Fitur Terkunci";
-        }
-
-        function updateOnlineUI(users) {
-            const countBadge = document.getElementById('online-count-badge');
-            if(countBadge) countBadge.innerText = `${users.length} Online`;
-
-            const container = document.getElementById('online-users-content');
-            if(!container) return;
-
-            if(users.length === 0) {
-                container.innerHTML = `<div class="text-center p-8 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Belum ada pengguna aktif.</div>`;
-                return;
-            }
-
-            // Kelompokkan berdasarkan Role
-            const admins = users.filter(u => u.role !== 'siswa');
-            const siswas = users.filter(u => u.role === 'siswa');
-
-            let html = '<div class="space-y-4">';
-            
-            const renderUserCard = (u) => {
-                const avatar = window.getAvatarUrl ? window.getAvatarUrl(u.nama) : `https://ui-avatars.com/api/?name=${u.nama}`;
-                return `
-                <div class="flex items-center p-3 rounded-2xl bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 shadow-sm transition hover:bg-gray-100 dark:hover:bg-gray-750">
-                    <div class="relative mr-3">
-                        <img src="${avatar}" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm">
-                        <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-emerald-500 border-2 border-white dark:border-gray-800 rounded-full"></div>
-                    </div>
-                    <div class="flex-grow min-w-0">
-                        <h4 class="font-black text-gray-900 dark:text-white truncate text-sm leading-tight">${u.nama}</h4>
-                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-0.5 truncate">${u.role} • ${u.sekolah || 'UMUM'}</p>
-                    </div>
-                </div>`;
-            };
-
-            if(admins.length > 0) {
-                html += `<h4 class="font-black text-xs text-pramuka-main uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 mb-2">Manajemen / Admin</h4>`;
-                admins.forEach(u => html += renderUserCard(u));
-            }
-
-            if(siswas.length > 0) {
-                if(admins.length > 0) html += `<div class="h-2"></div>`; // spacer
-                html += `<h4 class="font-black text-xs text-blue-600 uppercase tracking-widest border-b border-gray-100 dark:border-gray-800 pb-2 mb-2">Anggota / Siswa</h4>`;
-                siswas.forEach(u => html += renderUserCard(u));
-            }
-
-            html += '</div>';
-            container.innerHTML = html;
-        }
-
-        // Pastikan terhapus ketika tab ditutup
-        window.addEventListener('beforeunload', () => {
-            window.removePresence();
-        });
+        
+        // Export function for manual logout clear
+        window.clearOnlineStatus = function() {
+            if(currentUserDocRef) { deleteDoc(currentUserDocRef); currentUserDocRef = null; }
+        };
     </script>
 
     <!-- ==================== JAVASCRIPT UTAMA ==================== -->
     <script>
+        // ======================================================================
         // MASUKKAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI BAWAH INI
-        let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwDWST8OWszil7mwJD4gw6P6nsiLZgrfGQqO7G2eGu6S2PaWNxXSoU7lZ6-SvlPrWcO/exec'; 
+        // ======================================================================
+        let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmlOFuFmj-JYN2tGmfZCdy_6wzOwucY6uYYT9PAIRHSJm_xqp0KlUKGETY5pdxV-vU/exec'; 
 
         let APP = { user: null, role: null, scanMode: 'masuk', html5QrcodeScanner: null, isProcessingScan: false, dataSiswa: [], tempScanData: '' };
         let adminRekapData = [];
+        let myChartInstance = null;
+        let userLocation = null;
 
         // Tema
         const THEMES = {
@@ -898,8 +891,7 @@
             }
         }
         
-        // Ekspor getAvatarUrl ke global agar bisa dipakai Firebase
-        window.getAvatarUrl = function(name) {
+        function getAvatarUrl(name) {
             const safeName = name ? String(name).trim() : 'KMK';
             const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--c-main').trim().substring(1) || '654321';
             return `https://ui-avatars.com/api/?name=${encodeURIComponent(safeName)}&background=${bgColor}&color=fff&size=150&font-weight=bold&rounded=true`;
@@ -917,11 +909,8 @@
             } catch (e) { console.log("Audio API issue"); }
         }
 
-        // ======================================================================
-        // LOGIKA APLIKASI UTAMA
-        // ======================================================================
+        // API Fetcher
         const isDummyURL = SCRIPT_URL.includes('GANTI_DENGAN_URL') || SCRIPT_URL === '';
-        
         async function fetchAPI(action, payload = {}) {
             if (isDummyURL) return new Promise((r) => setTimeout(()=> r({status:'error', message:'API Belum disetup'}), 500));
             try {
@@ -949,33 +938,23 @@
             const payload = { type };
             if (type === 'siswa') { payload.nama = document.getElementById('login-nama').value; payload.nisn = document.getElementById('login-nisn').value; } 
             else { payload.username = document.getElementById('login-user').value; payload.password = document.getElementById('login-pass').value; }
-            
             try {
                 const res = await fetchAPI('login', payload);
                 if (res.status === 'success') {
                     APP.user = res.data; APP.role = res.role; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role}));
-                    Swal.fire({ icon: 'success', title: 'Akses Diberikan', timer: 1000, showConfirmButton: false }); 
-                    initApp();
+                    Swal.fire({ icon: 'success', title: 'Akses Diberikan', timer: 1000, showConfirmButton: false }); initApp();
                 }
             } catch (err) { Swal.fire('Ditolak', err.message || 'Kredensial tidak valid', 'error'); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
-
-        async function handleLogout() {
-            // Hapus presence dari Firebase terlebih dahulu
-            if(window.removePresence) await window.removePresence();
-            
-            sessionStorage.removeItem('sess_pramuka'); 
-            location.reload(); 
+        
+        function logout() { 
+            if(window.clearOnlineStatus) window.clearOnlineStatus();
+            sessionStorage.removeItem('sess_pramuka'); location.reload(); 
         }
 
         function initApp() {
             const sess = sessionStorage.getItem('sess_pramuka'); if (!APP.user && sess) { const parsed = JSON.parse(sess); APP.user = parsed.user; APP.role = parsed.role; }
             if (!APP.user) return; 
-
-            // Daftarkan ke sistem Presence Firebase
-            if(window.registerPresence) {
-                window.registerPresence(APP.user, APP.role);
-            }
 
             document.getElementById('view-login').classList.add('hidden'); document.getElementById('topbar').classList.remove('hidden'); document.getElementById('app-container').classList.remove('hidden');
             document.getElementById('user-info').innerText = APP.user.nama || APP.user.username;
@@ -990,13 +969,8 @@
         function setupViewSiswa() {
             const u = APP.user; document.getElementById('disp-nama').innerText = u.nama; document.getElementById('disp-nisn').innerText = `ID: ${u.nisn}`;
             document.getElementById('disp-kelas').innerText = u.kelas || '-'; document.getElementById('disp-sekolah').innerText = u.sekolah || '-';
-            
-            let tglLahirDisplay = u.tanggal_lahir || '-';
-            if (tglLahirDisplay.includes('T')) {
-                tglLahirDisplay = new Date(tglLahirDisplay).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-            }
+            let tglLahirDisplay = u.tanggal_lahir || '-'; if (tglLahirDisplay.includes('T')) tglLahirDisplay = new Date(tglLahirDisplay).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             document.getElementById('disp-tgl').innerText = tglLahirDisplay; 
-            
             document.getElementById('disp-jk').innerText = (u.jenis_kelamin === 'L' || u.jenis_kelamin === 'Laki-laki' || u.jenis_kelamin === 'l') ? 'Laki-laki' : 'Perempuan';
             document.getElementById('disp-hp').innerText = u.no_hp || '-'; document.getElementById('disp-alamat').innerText = u.alamat || '-';
             document.getElementById('disp-foto').src = u.foto ? u.foto : getAvatarUrl(u.nama); loadHistorySiswa();
@@ -1005,33 +979,17 @@
         async function downloadMyQR() {
             const btn = document.getElementById('btn-download-qr'); const originalText = btn.innerHTML; btn.innerHTML = `<div class="spinner border-t-white mx-auto"></div>`; btn.disabled = true;
             try {
-                const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--c-main').trim() || '#654321';
-                document.getElementById('card-export-bg').style.backgroundColor = mainColor;
-
-                document.getElementById('card-export-nama').innerText = APP.user.nama; 
-                document.getElementById('card-export-nisn').innerText = `ID: ${APP.user.nisn}`; 
-                document.getElementById('card-export-sekolah').innerText = APP.user.sekolah || 'KMK MANAGEMENT'; 
-                
-                const imgExport = document.getElementById('card-export-foto');
-                imgExport.crossOrigin = "Anonymous";
-                imgExport.src = document.getElementById('disp-foto').src;
-                
-                await new Promise((resolve) => {
-                    if (imgExport.complete) resolve();
-                    else { imgExport.onload = resolve; imgExport.onerror = resolve; }
-                });
-
+                const mainColor = getComputedStyle(document.documentElement).getPropertyValue('--c-main').trim() || '#654321'; document.getElementById('card-export-bg').style.backgroundColor = mainColor;
+                document.getElementById('card-export-nama').innerText = APP.user.nama; document.getElementById('card-export-nisn').innerText = `ID: ${APP.user.nisn}`; document.getElementById('card-export-sekolah').innerText = APP.user.sekolah || 'KMK MANAGEMENT'; 
+                const imgExport = document.getElementById('card-export-foto'); imgExport.crossOrigin = "Anonymous"; imgExport.src = document.getElementById('disp-foto').src;
+                await new Promise((resolve) => { if (imgExport.complete) resolve(); else { imgExport.onload = resolve; imgExport.onerror = resolve; } });
                 const qrContainer = document.getElementById('card-export-qr'); qrContainer.innerHTML = '';
                 new QRCode(qrContainer, { text: `PRAMUKA|${APP.user.nisn}|${APP.user.nama}|${APP.user.sekolah}`, width: 110, height: 110, correctLevel : QRCode.CorrectLevel.H, colorDark: "#111827", colorLight: "#ffffff" });
-                
                 await new Promise(r => setTimeout(r, 500)); 
-                
                 const exportEl = document.getElementById('id-card-export');
                 const canvas = await html2canvas(exportEl, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: null, logging: false });
                 const a = document.createElement('a'); a.href = canvas.toDataURL("image/png"); a.download = `ID_Card_KMK_${APP.user.nisn}.png`; a.click();
-            } catch(e) {
-                Swal.fire('Error', 'Gagal memproses ID Card', 'error');
-            } finally { btn.innerHTML = originalText; btn.disabled = false; }
+            } catch(e) { Swal.fire('Error', 'Gagal memproses ID Card', 'error'); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
 
         async function loadHistorySiswa() {
@@ -1041,11 +999,9 @@
                 const res = await fetchAPI('getAbsensi', { nisn: APP.user.nisn });
                 if(res.data.length === 0) { 
                     tb.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-gray-400 font-bold uppercase tracking-widest text-[10px]">Belum Ada Log</td></tr>'; 
-                    document.getElementById('disp-poin').innerText = '0 XP';
-                    return;
+                    document.getElementById('disp-poin').innerText = '0 XP'; return;
                 }
-                const dOpts = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' };
-                let totalXP = 0;
+                const dOpts = { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }; let totalXP = 0;
 
                 tb.innerHTML = res.data.map(d => {
                     const tgl = d.tanggal ? new Date(d.tanggal).toLocaleDateString('id-ID', dOpts) : '-';
@@ -1054,7 +1010,8 @@
                     
                     let bg = 'bg-gray-100 text-gray-700'; 
                     if(d.status === 'Hadir') { bg = 'bg-emerald-100 text-emerald-700'; totalXP += 10; }
-                    else if(d.status === 'Izin' || d.status === 'Sakit') { bg = 'bg-amber-100 text-amber-700'; totalXP += 2; }
+                    else if(d.status === 'Terlambat') { bg = 'bg-amber-100 text-amber-700'; totalXP += 5; } // Tambahan poin jika terlambat
+                    else if(d.status === 'Izin' || d.status === 'Sakit') { bg = 'bg-blue-100 text-blue-700'; totalXP += 2; }
                     else if(d.status === 'Alpha') { bg = 'bg-rose-100 text-rose-700'; totalXP -= 5; }
 
                     return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition"><td class="p-5 font-bold">${tgl}</td><td class="p-5 font-mono text-sm">${msk}</td><td class="p-5 font-mono text-sm">${plg}</td><td class="p-5"><span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border border-current/20 ${bg}">${d.status}</span></td></tr>`;
@@ -1062,31 +1019,55 @@
 
                 document.getElementById('disp-poin').innerText = (totalXP > 0 ? totalXP : 0) + ' XP';
 
+                renderChart(res.data);
+
             } catch(e) { 
                 tb.innerHTML = '<tr><td colspan="4" class="p-4 text-center text-red-500">Gagal memuat log.</td></tr>'; 
                 document.getElementById('disp-poin').innerText = '0 XP';
             }
         }
 
+        function toggleChart() {
+            document.getElementById('chart-container').classList.toggle('hidden');
+        }
+
+        function renderChart(data) {
+            if(!window.Chart) return;
+            const ctx = document.getElementById('attendanceChart'); if(!ctx) return;
+            let hadir = 0, izin = 0, sakit = 0, alpha = 0, telat = 0;
+            data.forEach(d => {
+                if(d.status === 'Hadir') hadir++; else if(d.status === 'Terlambat') telat++; else if(d.status === 'Izin') izin++; else if(d.status === 'Sakit') sakit++; else if(d.status === 'Alpha') alpha++;
+            });
+
+            if(myChartInstance) myChartInstance.destroy();
+            myChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Hadir', 'Terlambat', 'Izin/Sakit', 'Alpha'],
+                    datasets: [{
+                        data: [hadir, telat, (izin+sakit), alpha],
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#f43f5e'],
+                        borderWidth: 0, hoverOffset: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: document.documentElement.classList.contains('dark') ? '#fff' : '#333' } } } }
+            });
+        }
+
         async function openLeaderboard() {
-            openModal('modal-leaderboard');
-            const container = document.getElementById('leaderboard-content');
+            openModal('modal-leaderboard'); const container = document.getElementById('leaderboard-content');
             container.innerHTML = '<div class="text-center p-8 text-gray-400"><div class="spinner border-t-amber-500 mx-auto mb-4"></div> Mengkalkulasi peringkat...</div>';
-            
             try {
                 const payload = { sekolah: APP.user.sekolah, role: APP.role };
                 const res = await fetchAPI('getLeaderboard', payload);
-                
                 if (res.status === 'success' && res.data.length > 0) {
                     let html = '<div class="space-y-3">';
                     res.data.forEach((s, i) => {
                         let rankStyle = 'bg-gray-50 dark:bg-gray-800 border-gray-100 dark:border-gray-700';
                         let rankBadge = `<span class="w-8 h-8 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded-full font-black text-gray-500 text-xs">${i+1}</span>`;
-                        
                         if (i === 0) { rankStyle = 'bg-gradient-to-r from-amber-50 to-yellow-100 dark:from-amber-900/30 dark:to-yellow-900/20 border-amber-300 dark:border-amber-600/50 transform scale-[1.02] shadow-md z-10 relative'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 1">👑</span>`; }
                         else if (i === 1) { rankStyle = 'bg-slate-50 dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 2">🥈</span>`; }
                         else if (i === 2) { rankStyle = 'bg-orange-50 dark:bg-orange-900/20 border-orange-300 dark:border-orange-700/50 shadow-sm'; rankBadge = `<span class="text-3xl drop-shadow-md" title="Peringkat 3">🥉</span>`; }
-
                         html += `
                         <div class="flex items-center p-3 rounded-2xl border ${rankStyle} transition-all">
                             <div class="mr-3 flex justify-center w-10">${rankBadge}</div>
@@ -1101,98 +1082,46 @@
                             </div>
                         </div>`;
                     });
-                    html += '</div>';
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Belum ada data poin XP.</div>';
-                }
-            } catch (e) {
-                container.innerHTML = '<div class="text-center p-8 text-red-500 font-bold text-sm">Gagal memuat papan peringkat.</div>';
-            }
+                    html += '</div>'; container.innerHTML = html;
+                } else container.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold uppercase tracking-widest text-[10px]">Belum ada data poin XP.</div>';
+            } catch (e) { container.innerHTML = '<div class="text-center p-8 text-red-500 font-bold text-sm">Gagal memuat papan peringkat.</div>'; }
         }
 
-        // CROP FOTO
         let cropperInstance = null;
-
         document.getElementById('self-foto-input').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return; 
             if(file.size > 2 * 1024 * 1024) return Swal.fire('Terlalu Besar', 'Maksimal 2MB', 'warning');
-            
             const reader = new FileReader(); 
             reader.onload = function(event) {
-                document.getElementById('image-to-crop').src = event.target.result;
-                openModal('modal-crop');
-                
+                document.getElementById('image-to-crop').src = event.target.result; openModal('modal-crop');
                 if (cropperInstance) cropperInstance.destroy();
-                cropperInstance = new Cropper(document.getElementById('image-to-crop'), { 
-                    aspectRatio: 1, 
-                    viewMode: 1, 
-                    autoCropArea: 1, 
-                    background: false 
-                });
+                cropperInstance = new Cropper(document.getElementById('image-to-crop'), { aspectRatio: 1, viewMode: 1, autoCropArea: 1, background: false });
                 document.getElementById('self-foto-input').value = '';
             }; 
             reader.readAsDataURL(file);
         });
 
-        function cancelCrop() {
-            closeModal('modal-crop');
-            if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; }
-        }
-
+        function cancelCrop() { closeModal('modal-crop'); if (cropperInstance) { cropperInstance.destroy(); cropperInstance = null; } }
         function applyCrop() {
-            if (!cropperInstance) return;
-            const canvas = cropperInstance.getCroppedCanvas({ width: 300, height: 300, imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
-            tempBase64Photo = canvas.toDataURL('image/jpeg', 0.8); 
-            document.getElementById('self-foto-preview').src = tempBase64Photo;
-            cancelCrop();
+            if (!cropperInstance) return; const canvas = cropperInstance.getCroppedCanvas({ width: 300, height: 300, imageSmoothingEnabled: true, imageSmoothingQuality: 'high' });
+            tempBase64Photo = canvas.toDataURL('image/jpeg', 0.8); document.getElementById('self-foto-preview').src = tempBase64Photo; cancelCrop();
         }
 
         function openSelfEdit() {
-            const u = APP.user; 
-            document.getElementById('self-nama').value = u.nama; 
-            document.getElementById('self-kelas').value = u.kelas || ''; 
-            document.getElementById('self-jk').value = (u.jenis_kelamin || '').toUpperCase().startsWith('P') ? 'P' : 'L'; 
-            
-            let tglLahir = u.tanggal_lahir || '';
-            if (tglLahir.includes('T')) tglLahir = tglLahir.split('T')[0];
-            document.getElementById('self-tgl').value = tglLahir; 
-            
-            document.getElementById('self-hp').value = u.no_hp || ''; 
-            document.getElementById('self-alamat').value = u.alamat || '';
-            tempBase64Photo = u.foto || ''; 
-            document.getElementById('self-foto-preview').src = tempBase64Photo ? tempBase64Photo : getAvatarUrl(u.nama); 
-            openModal('modal-self-edit');
+            const u = APP.user; document.getElementById('self-nama').value = u.nama; document.getElementById('self-kelas').value = u.kelas || ''; document.getElementById('self-jk').value = (u.jenis_kelamin || '').toUpperCase().startsWith('P') ? 'P' : 'L'; 
+            let tglLahir = u.tanggal_lahir || ''; if (tglLahir.includes('T')) tglLahir = tglLahir.split('T')[0]; document.getElementById('self-tgl').value = tglLahir; 
+            document.getElementById('self-hp').value = u.no_hp || ''; document.getElementById('self-alamat').value = u.alamat || '';
+            tempBase64Photo = u.foto || ''; document.getElementById('self-foto-preview').src = tempBase64Photo ? tempBase64Photo : getAvatarUrl(u.nama); openModal('modal-self-edit');
         }
 
         async function submitSelfEdit(e) {
             e.preventDefault(); const btn = document.getElementById('btn-save-self'); btn.innerHTML = 'Menyimpan...'; btn.disabled = true;
-            const payload = { 
-                original_nisn: APP.user.nisn, 
-                newData: { 
-                    nama: document.getElementById('self-nama').value, 
-                    kelas: document.getElementById('self-kelas').value, 
-                    jenis_kelamin: document.getElementById('self-jk').value, 
-                    tanggal_lahir: document.getElementById('self-tgl').value, 
-                    no_hp: document.getElementById('self-hp').value, 
-                    alamat: document.getElementById('self-alamat').value 
-                } 
-            }; 
+            const payload = { original_nisn: APP.user.nisn, newData: { nama: document.getElementById('self-nama').value, kelas: document.getElementById('self-kelas').value, jenis_kelamin: document.getElementById('self-jk').value, tanggal_lahir: document.getElementById('self-tgl').value, no_hp: document.getElementById('self-hp').value, alamat: document.getElementById('self-alamat').value } }; 
             if(tempBase64Photo !== '') payload.newData.foto = tempBase64Photo;
-            
             try { 
                 const res = await fetchAPI('updateSiswa', payload); 
-                if(res.status === 'success'){ 
-                    APP.user = { ...APP.user, ...payload.newData }; 
-                    sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role})); 
-                    Swal.fire('Tersimpan', 'Profil diperbarui', 'success'); 
-                    closeModal('modal-self-edit'); 
-                    setupViewSiswa(); 
-                } else {
-                    Swal.fire('Gagal', res.message, 'error'); 
-                }
-            } catch(e) { Swal.fire('Error', 'Kesalahan sistem.', 'error'); } 
-            finally { btn.innerHTML = 'Simpan Data'; btn.disabled = false; }
+                if(res.status === 'success'){ APP.user = { ...APP.user, ...payload.newData }; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role})); Swal.fire('Tersimpan', 'Profil diperbarui', 'success'); closeModal('modal-self-edit'); setupViewSiswa(); } else { Swal.fire('Gagal', res.message, 'error'); }
+            } catch(e) { Swal.fire('Error', 'Kesalahan sistem.', 'error'); } finally { btn.innerHTML = 'Simpan Data'; btn.disabled = false; }
         }
 
         /* --- SCRIPT ADMIN & ANALITICS --- */
@@ -1203,12 +1132,10 @@
             if (APP.role === 'superadmin') { 
                 document.getElementById('master-tabs').classList.remove('hidden'); 
                 document.getElementById('btn-add-admin').classList.remove('hidden'); 
+                document.getElementById('btn-audit-log').classList.remove('hidden'); // Memunculkan tombol Audit Log
                 
                 const btnArsip = document.getElementById('btn-arsip-data');
-                if(btnArsip) {
-                    btnArsip.classList.remove('hidden');
-                    btnArsip.classList.add('flex');
-                }
+                if(btnArsip) { btnArsip.classList.remove('hidden'); btnArsip.classList.add('flex'); }
             }
             navAdmin('stats');
         }
@@ -1222,22 +1149,10 @@
             try {
                 const res = await fetchAPI('getDashboardStats', { role: APP.role, sekolah: APP.user.sekolah });
                 if(res.status === 'success') { 
-                    const total = res.data.totalSiswa || 0;
-                    const hadir = res.data.hadirHariIni || 0;
-                    const izin = (res.data.izinHariIni || 0) + (res.data.sakitHariIni || 0);
-                    const alpha = res.data.alphaHariIni || 0;
-                    
-                    document.getElementById('st-total').innerText = total; 
-                    document.getElementById('st-hadir').innerText = hadir; 
-                    document.getElementById('st-izin').innerText = izin; 
-                    document.getElementById('st-alpha').innerText = alpha; 
-                    
-                    const persentase = total > 0 ? Math.round((hadir / total) * 100) : 0;
-                    document.getElementById('st-persentase').innerText = persentase + '%';
-                    
-                    const progressEl = document.getElementById('st-progress');
-                    setTimeout(() => { progressEl.style.width = persentase + '%'; }, 300);
-                    
+                    const total = res.data.totalSiswa || 0; const hadir = res.data.hadirHariIni || 0; const izin = (res.data.izinHariIni || 0) + (res.data.sakitHariIni || 0); const alpha = res.data.alphaHariIni || 0;
+                    document.getElementById('st-total').innerText = total; document.getElementById('st-hadir').innerText = hadir; document.getElementById('st-izin').innerText = izin; document.getElementById('st-alpha').innerText = alpha; 
+                    const persentase = total > 0 ? Math.round((hadir / total) * 100) : 0; document.getElementById('st-persentase').innerText = persentase + '%';
+                    const progressEl = document.getElementById('st-progress'); setTimeout(() => { progressEl.style.width = persentase + '%'; }, 300);
                     if(persentase >= 85) progressEl.className = 'bg-gradient-to-r from-emerald-400 to-green-300 h-full rounded-full transition-all duration-1000 relative overflow-hidden';
                     else if(persentase >= 60) progressEl.className = 'bg-gradient-to-r from-amber-400 to-yellow-300 h-full rounded-full transition-all duration-1000 relative overflow-hidden';
                     else progressEl.className = 'bg-gradient-to-r from-rose-500 to-red-400 h-full rounded-full transition-all duration-1000 relative overflow-hidden';
@@ -1246,7 +1161,7 @@
             } catch (e) { console.error(e); }
         }
 
-        // Scanner QR Logic
+        // Scanner QR Logic + GPS
         function setScanMode(mode) {
             APP.scanMode = mode;
             document.getElementById('mode-masuk').className = mode === 'masuk' ? "flex-1 sm:flex-none px-6 py-2.5 text-xs font-black tracking-widest rounded-lg bg-white dark:bg-gray-800 shadow-md text-emerald-600 transition-all uppercase" : "flex-1 sm:flex-none px-6 py-2.5 text-xs font-black tracking-widest rounded-lg text-gray-500 bg-transparent transition-all uppercase";
@@ -1256,6 +1171,10 @@
         function startScanner() {
             document.getElementById('btn-start-cam').classList.add('hidden'); document.getElementById('btn-stop-cam').classList.remove('hidden'); document.getElementById('scan-line').classList.remove('hidden');
             
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition((pos) => { userLocation = pos.coords; }, (err) => { console.warn("GPS Ditolak:", err); });
+            }
+
             try { const AudioContext = window.AudioContext || window.webkitAudioContext; if(AudioContext) { const ctx = new AudioContext(); ctx.resume(); } } catch(e){}
 
             if (!APP.html5QrcodeScanner) APP.html5QrcodeScanner = new Html5Qrcode("reader");
@@ -1273,7 +1192,7 @@
             openModal('modal-signature'); setTimeout(clearSignature, 100); 
         }
 
-        // Tanda Tangan
+        // Tanda Tangan & Late Check Logic
         let sigCtx = null, isDrawingSig = false;
         function initSignaturePad() {
             const sigCanvas = document.getElementById('signature-pad'); if (!sigCanvas) return; sigCtx = sigCanvas.getContext('2d');
@@ -1292,13 +1211,24 @@
             }
         }
         function closeSignatureModal() { closeModal('modal-signature'); APP.isProcessingScan = false; if(APP.html5QrcodeScanner) APP.html5QrcodeScanner.resume(); }
+        
         async function submitSignature() {
             const sigCanvas = document.getElementById('signature-pad'); let signatureBase64 = sigCanvas ? sigCanvas.toDataURL('image/png') : '';
             closeModal('modal-signature'); Swal.fire({ title: 'Menyinkronkan...', text: 'Data dikirim ke server', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            
+            let lateStatus = APP.scanMode;
+            if (APP.scanMode === 'masuk') {
+                const now = new Date();
+                if (now.getHours() > 7 || (now.getHours() === 7 && now.getMinutes() > 15)) {
+                    lateStatus = 'Terlambat';
+                }
+            }
+
             try {
-                const payload = { qrData: APP.tempScanData, type: APP.scanMode, scanBy: APP.user.nama || APP.user.username, lokasi_sekolah: APP.role === 'superadmin' ? 'SEMUA' : APP.user.sekolah, signature: signatureBase64 };
+                // Menyisipkan GPS dan Status ke Server
+                const payload = { qrData: APP.tempScanData, type: lateStatus, scanBy: APP.user.nama || APP.user.username, lokasi_sekolah: APP.role === 'superadmin' ? 'SEMUA' : APP.user.sekolah, signature: signatureBase64, gps: userLocation ? `${userLocation.latitude},${userLocation.longitude}` : 'Tidak Ada Akses GPS' };
                 const res = await fetchAPI('scanQR', payload);
-                if (res.status === 'success') { Swal.fire({ icon: 'success', title: 'Terkonfirmasi!', text: res.message, timer: 1500, showConfirmButton: false }); if(APP.role !== 'siswa') loadStatsAdmin(); }
+                if (res.status === 'success') { Swal.fire({ icon: 'success', title: 'Terkonfirmasi!', text: res.message + (lateStatus === 'Terlambat' ? ' (Tercatat Terlambat)' : ''), timer: 2000, showConfirmButton: false }); if(APP.role !== 'siswa') loadStatsAdmin(); }
                 else Swal.fire({ icon: 'warning', title: 'Peringatan', text: res.message });
             } catch (err) { Swal.fire('Error', 'Server Timeout', 'error'); } finally { setTimeout(() => { APP.isProcessingScan = false; if(APP.html5QrcodeScanner) APP.html5QrcodeScanner.resume(); }, 1500); }
         }
@@ -1327,7 +1257,6 @@
 
             tb.innerHTML = filtered.map(s => {
                 let actionBtn = (APP.role === 'pembina') ? `<td class="p-5 text-center text-gray-400 italic text-[10px] uppercase font-bold"><i class="ph-bold ph-lock"></i> Terkunci</td>` : `<td class="p-5 text-center flex gap-2 justify-center"><button onclick="openModalSiswa('${s.nisn}')" class="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-pencil-simple"></i> Edit</button><button onclick="openModalManualAbsen('${s.nisn}')" class="px-3 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-clipboard-text"></i> Absen</button></td>`;
-                
                 return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"><td class="p-5 font-mono text-sm">${s.nisn}</td><td class="p-5 font-black flex items-center gap-4"><img src="${s.foto || getAvatarUrl(s.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm"> ${s.nama}</td><td class="p-5 font-bold">${s.kelas || '-'}</td><td class="p-5 text-sm">${s.sekolah || '-'}</td><td class="p-5 text-sm font-mono">${s.no_hp || '-'}</td>${actionBtn}</tr>`;
             }).join('');
         }
@@ -1340,139 +1269,65 @@
 
         // Manajemen Admin
         async function loadAdminList() {
-            const tb = document.getElementById('table-admin-list'); 
-            tb.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
+            const tb = document.getElementById('table-admin-list'); tb.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
             try { 
                 const res = await fetchAPI('getAdmins', { role: APP.role }); 
                 if(res.status === 'success') {
-                    if(res.data.length === 0) {
-                        tb.innerHTML='<tr><td colspan="5" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return;
-                    }
+                    if(res.data.length === 0) { tb.innerHTML='<tr><td colspan="5" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return; }
                     APP.dataAdmin = res.data;
                     tb.innerHTML = res.data.map(a => {
-                        let actionBtn = `<td class="p-5 text-center flex gap-2 justify-center">
-                            <button onclick="openModalAdmin('${a.username}')" class="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
-                            <button onclick="hapusAdmin('${a.username}')" class="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-trash"></i> Hapus</button>
-                        </td>`;
+                        let actionBtn = `<td class="p-5 text-center flex gap-2 justify-center"><button onclick="openModalAdmin('${a.username}')" class="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-pencil-simple"></i> Edit</button><button onclick="hapusAdmin('${a.username}')" class="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-trash"></i> Hapus</button></td>`;
                         if (a.username === APP.user.username) actionBtn = `<td class="p-5 text-center text-gray-400 italic text-[10px] uppercase font-bold">Anda</td>`;
-
-                        return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
-                            <td class="p-5 font-mono text-sm">${a.username}</td>
-                            <td class="p-5 font-black flex items-center gap-4"><img src="${a.foto || getAvatarUrl(a.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm"> ${a.nama}</td>
-                            <td class="p-5 font-bold uppercase text-[10px] tracking-wider">${a.role}</td>
-                            <td class="p-5 text-sm">${a.sekolah || '-'}</td>
-                            ${actionBtn}
-                        </tr>`;
+                        return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"><td class="p-5 font-mono text-sm">${a.username}</td><td class="p-5 font-black flex items-center gap-4"><img src="${a.foto || getAvatarUrl(a.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm"> ${a.nama}</td><td class="p-5 font-bold uppercase text-[10px] tracking-wider">${a.role}</td><td class="p-5 text-sm">${a.sekolah || '-'}</td>${actionBtn}</tr>`;
                     }).join('');
-                } else {
-                    tb.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500">${res.message}</td></tr>`;
-                }
-            } catch (e) { 
-                tb.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-500">Gagal mengambil data admin</td></tr>'; 
-            }
+                } else tb.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500">${res.message}</td></tr>`;
+            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-500">Gagal mengambil data admin</td></tr>'; }
         }
 
         function openModalAdmin(username=null) { 
             document.getElementById('form-kelola-admin').reset(); 
             if(username) { 
-                const a = APP.dataAdmin.find(x => String(x.username) === String(username)); 
-                if(!a) return; 
+                const a = APP.dataAdmin.find(x => String(x.username) === String(username)); if(!a) return; 
                 document.getElementById('modal-admin-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-pencil-simple text-pramuka-main"></i></div> Edit Admin'; 
-                document.getElementById('adm-action-type').value='edit'; 
-                document.getElementById('adm-original-username').value = a.username; 
-                document.getElementById('adm-nama').value = a.nama; 
-                document.getElementById('adm-user').value = a.username; 
-                document.getElementById('adm-pass').value = a.password; 
-                document.getElementById('adm-role').value = a.role; 
-                document.getElementById('adm-sekolah').value = a.sekolah || ''; 
+                document.getElementById('adm-action-type').value='edit'; document.getElementById('adm-original-username').value = a.username; document.getElementById('adm-nama').value = a.nama; document.getElementById('adm-user').value = a.username; document.getElementById('adm-pass').value = a.password; document.getElementById('adm-role').value = a.role; document.getElementById('adm-sekolah').value = a.sekolah || ''; 
             } else { 
-                document.getElementById('modal-admin-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-shield-plus text-pramuka-main"></i></div> Tambah Admin'; 
-                document.getElementById('adm-action-type').value='add'; 
-                document.getElementById('adm-original-username').value=''; 
+                document.getElementById('modal-admin-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-shield-plus text-pramuka-main"></i></div> Tambah Admin'; document.getElementById('adm-action-type').value='add'; document.getElementById('adm-original-username').value=''; 
             } 
             openModal('modal-admin'); 
         }
 
-        async function submitAdmin(e) {
-            e.preventDefault(); 
-            const btn = document.getElementById('btn-save-admin'); 
-            btn.innerHTML='Memproses...'; btn.disabled=true; 
-            const payload = { 
-                actionType: document.getElementById('adm-action-type').value, 
-                original_username: document.getElementById('adm-original-username').value, 
-                newData: { 
-                    nama: document.getElementById('adm-nama').value, 
-                    username: document.getElementById('adm-user').value, 
-                    password: document.getElementById('adm-pass').value, 
-                    role: document.getElementById('adm-role').value, 
-                    sekolah: document.getElementById('adm-sekolah').value 
-                } 
-            }; 
-            try { 
-                const res = await fetchAPI('saveAdmin', payload); 
-                if(res.status === 'success'){ 
-                    Swal.fire('Disimpan', res.message, 'success'); 
-                    closeModal('modal-admin'); 
-                    loadAdminList(); 
-                } else Swal.fire('Gagal', res.message, 'error'); 
-            } catch(e) { Swal.fire('Error', 'Kesalahan koneksi.', 'error'); } 
-            finally { btn.innerHTML='Simpan Akses'; btn.disabled=false; }
-        }
+        async function submitAdmin(e) { e.preventDefault(); const btn = document.getElementById('btn-save-admin'); btn.innerHTML='Memproses...'; btn.disabled=true; const payload = { actionType: document.getElementById('adm-action-type').value, original_username: document.getElementById('adm-original-username').value, newData: { nama: document.getElementById('adm-nama').value, username: document.getElementById('adm-user').value, password: document.getElementById('adm-pass').value, role: document.getElementById('adm-role').value, sekolah: document.getElementById('adm-sekolah').value } }; try { const res = await fetchAPI('saveAdmin', payload); if(res.status === 'success'){ Swal.fire('Disimpan', res.message, 'success'); closeModal('modal-admin'); loadAdminList(); } else Swal.fire('Gagal', res.message, 'error'); } catch(e) { Swal.fire('Error', 'Kesalahan koneksi.', 'error'); } finally { btn.innerHTML='Simpan Akses'; btn.disabled=false; } }
 
-        async function hapusAdmin(username) {
-            const confirm = await Swal.fire({ title: 'Hapus Admin?', text: "Tindakan ini tidak bisa dibatalkan.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' });
-            if (confirm.isConfirmed) {
-                try {
-                    const res = await fetchAPI('deleteAdmin', { username: username });
-                    if(res.status === 'success') { Swal.fire('Dihapus', res.message, 'success'); loadAdminList(); }
-                    else Swal.fire('Gagal', res.message, 'error');
-                } catch(e) { Swal.fire('Error', 'Kesalahan', 'error'); }
-            }
-        }
+        async function hapusAdmin(username) { const confirm = await Swal.fire({ title: 'Hapus Admin?', text: "Tindakan ini tidak bisa dibatalkan.", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'Hapus' }); if (confirm.isConfirmed) { try { const res = await fetchAPI('deleteAdmin', { username: username }); if(res.status === 'success') { Swal.fire('Dihapus', res.message, 'success'); loadAdminList(); } else Swal.fire('Gagal', res.message, 'error'); } catch(e) { Swal.fire('Error', 'Kesalahan', 'error'); } } }
 
         // Profil Admin
         let tempAdminFoto = '';
-        function openAdminProfile() {
-            document.getElementById('prof-adm-nama').value = APP.user.nama;
-            document.getElementById('prof-adm-pass').value = '';
-            document.getElementById('admin-foto-preview-modal').src = APP.user.foto || getAvatarUrl(APP.user.nama);
-            tempAdminFoto = APP.user.foto || '';
-            openModal('modal-admin-profile');
-        }
+        function openAdminProfile() { document.getElementById('prof-adm-nama').value = APP.user.nama; document.getElementById('prof-adm-pass').value = ''; document.getElementById('admin-foto-preview-modal').src = APP.user.foto || getAvatarUrl(APP.user.nama); tempAdminFoto = APP.user.foto || ''; openModal('modal-admin-profile'); }
 
-        document.getElementById('admin-foto-input').addEventListener('change', function(e) {
-            const file = e.target.files[0]; if(!file) return;
-            if(file.size > 2 * 1024 * 1024) return Swal.fire('Terlalu Besar', 'Maksimal 2MB', 'warning');
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                tempAdminFoto = event.target.result;
-                document.getElementById('admin-foto-preview-modal').src = tempAdminFoto;
-            };
-            reader.readAsDataURL(file);
-        });
+        document.getElementById('admin-foto-input').addEventListener('change', function(e) { const file = e.target.files[0]; if(!file) return; if(file.size > 2 * 1024 * 1024) return Swal.fire('Terlalu Besar', 'Maksimal 2MB', 'warning'); const reader = new FileReader(); reader.onload = function(event) { tempAdminFoto = event.target.result; document.getElementById('admin-foto-preview-modal').src = tempAdminFoto; }; reader.readAsDataURL(file); });
 
-        async function submitAdminProfile(e) {
-            e.preventDefault();
-            const btn = document.getElementById('btn-save-admin-prof');
-            btn.innerHTML = 'Menyimpan...'; btn.disabled = true;
-            
-            const newData = { nama: document.getElementById('prof-adm-nama').value };
-            const newPass = document.getElementById('prof-adm-pass').value;
-            if (newPass.trim() !== '') newData.password = newPass;
-            if (tempAdminFoto !== '') newData.foto = tempAdminFoto;
+        async function submitAdminProfile(e) { e.preventDefault(); const btn = document.getElementById('btn-save-admin-prof'); btn.innerHTML = 'Menyimpan...'; btn.disabled = true; const newData = { nama: document.getElementById('prof-adm-nama').value }; const newPass = document.getElementById('prof-adm-pass').value; if (newPass.trim() !== '') newData.password = newPass; if (tempAdminFoto !== '') newData.foto = tempAdminFoto; try { const res = await fetchAPI('updateAdminProfile', { username: APP.user.username, newData: newData }); if (res.status === 'success') { APP.user = { ...APP.user, ...newData }; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role})); document.getElementById('admin-subtitle').innerText = `Akses: ${APP.role} • ${APP.user.nama}`; document.getElementById('admin-foto-disp').src = APP.user.foto || getAvatarUrl(APP.user.nama); Swal.fire('Berhasil', 'Profil diperbarui', 'success'); closeModal('modal-admin-profile'); } else Swal.fire('Gagal', res.message, 'error'); } catch(e) { Swal.fire('Error', 'Gagal memproses', 'error'); } finally { btn.innerHTML = 'Update Profil'; btn.disabled = false; } }
 
+        // Audit Log
+        async function openAuditLog() {
+            openModal('modal-audit');
+            const cont = document.getElementById('audit-content');
+            cont.innerHTML = '<div class="text-center p-8 text-gray-400"><div class="spinner border-t-blue-500 mx-auto mb-4"></div> Mengambil data log sistem...</div>';
             try {
-                const res = await fetchAPI('updateAdminProfile', { username: APP.user.username, newData: newData });
-                if (res.status === 'success') {
-                    APP.user = { ...APP.user, ...newData };
-                    sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role}));
-                    document.getElementById('admin-subtitle').innerText = `Akses: ${APP.role} • ${APP.user.nama}`;
-                    document.getElementById('admin-foto-disp').src = APP.user.foto || getAvatarUrl(APP.user.nama);
-                    Swal.fire('Berhasil', 'Profil diperbarui', 'success');
-                    closeModal('modal-admin-profile');
-                } else Swal.fire('Gagal', res.message, 'error');
-            } catch(e) { Swal.fire('Error', 'Gagal memproses', 'error'); }
-            finally { btn.innerHTML = 'Update Profil'; btn.disabled = false; }
+                const res = await fetchAPI('getAuditLog', { role: APP.role });
+                if(res.status === 'success' && res.data.length > 0) {
+                    cont.innerHTML = res.data.map(log => {
+                        return `<div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex items-start gap-4">
+                            <div class="p-2 bg-blue-50 text-blue-500 rounded-lg mt-1"><i class="ph-bold ph-activity text-xl"></i></div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-800 dark:text-gray-200">${log.action}</p>
+                                <p class="text-xs text-gray-500 mt-1"><span class="font-bold">${log.actor}</span> pada ${new Date(log.timestamp).toLocaleString('id-ID')}</p>
+                                <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-2">${log.details || ''}</p>
+                            </div>
+                        </div>`;
+                    }).join('');
+                } else { cont.innerHTML = '<div class="text-center p-8 text-gray-400 font-bold text-sm">Belum ada riwayat aktivitas.</div>'; }
+            } catch(e) { cont.innerHTML = '<div class="text-center p-8 text-red-500 font-bold text-sm">Gagal memuat log audit.</div>'; }
         }
 
         // Export, Rekap & Archive
@@ -1480,6 +1335,11 @@
             const tb = document.getElementById('table-admin-rekap'); tb.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
             try {
                 const res = await fetchAPI('getAbsensi', { role: APP.role, sekolah: APP.user.sekolah }); adminRekapData = res.data;
+                
+                const unitSet = new Set(adminRekapData.map(d => d.sekolah).filter(Boolean));
+                const unitSelect = document.getElementById('filter-unit');
+                unitSelect.innerHTML = '<option value="">Semua Unit</option>' + Array.from(unitSet).map(u => `<option value="${u}">${u}</option>`).join('');
+
                 if(res.data.length === 0) { tb.innerHTML='<tr><td colspan="8" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-[10px]">Log Absensi Kosong</td></tr>'; return; }
                 const dOpts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
                 tb.innerHTML = res.data.map(d => {
@@ -1487,7 +1347,7 @@
                     const msk = d.waktu_masuk ? (d.waktu_masuk.includes('T') ? new Date(d.waktu_masuk).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : d.waktu_masuk) : '-'; 
                     const plg = d.waktu_pulang ? (d.waktu_pulang.includes('T') ? new Date(d.waktu_pulang).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : d.waktu_pulang) : '-'; 
                     const imgTtd = (d.tanda_tangan_masuk && d.tanda_tangan_masuk.length > 50) ? `<img src="${d.tanda_tangan_masuk}" class="h-8 mx-auto mix-blend-multiply dark:mix-blend-normal dark:bg-white rounded px-1">` : '<span class="text-gray-300">-</span>';
-                    let bg = 'bg-gray-100 text-gray-700 border-gray-200'; if(d.status === 'Hadir') bg = 'bg-emerald-50 text-emerald-700 border-emerald-200'; else if(d.status === 'Izin' || d.status === 'Sakit') bg = 'bg-amber-50 text-amber-700 border-amber-200'; else if(d.status === 'Alpha') bg = 'bg-rose-50 text-rose-700 border-rose-200';
+                    let bg = 'bg-gray-100 text-gray-700 border-gray-200'; if(d.status === 'Hadir') bg = 'bg-emerald-50 text-emerald-700 border-emerald-200'; else if(d.status === 'Terlambat') bg = 'bg-amber-50 text-amber-700 border-amber-200'; else if(d.status === 'Izin' || d.status === 'Sakit') bg = 'bg-blue-50 text-blue-700 border-blue-200'; else if(d.status === 'Alpha') bg = 'bg-rose-50 text-rose-700 border-rose-200';
                     return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition border-b border-gray-50 dark:border-gray-800/50"><td class="p-5 font-bold">${tgl}</td><td class="p-5 font-mono text-xs">${d.nisn}</td><td class="p-5 font-black">${d.nama}</td><td class="p-5 text-sm">${d.sekolah || '-'}</td><td class="p-5 font-mono text-sm">${msk}</td><td class="p-5 font-mono text-sm">${plg}</td><td class="p-5 text-center">${imgTtd}</td><td class="p-5"><div class="flex flex-col gap-1"><span class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-center border ${bg}">${d.status}</span><span class="text-[9px] text-gray-400 font-bold uppercase truncate max-w-[120px] text-center" title="${d.keterangan||''}">${d.keterangan || ''}</span></div></td></tr>`;
                 }).join('');
             } catch (e) { tb.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-red-500">Koneksi Timeout</td></tr>'; }
@@ -1495,49 +1355,68 @@
 
         function downloadRekapExcel() {
             if(adminRekapData.length === 0) return Swal.fire('Peringatan', 'Tidak ada data untuk diekspor', 'warning');
-            const startStr = document.getElementById('filter-start').value; const endStr = document.getElementById('filter-end').value; let dataToExport = adminRekapData;
-            if (startStr && endStr) { const startDate = new Date(startStr); startDate.setHours(0,0,0,0); const endDate = new Date(endStr); endDate.setHours(23,59,59,999); dataToExport = adminRekapData.filter(d => { if(!d.tanggal) return false; const rowDate = new Date(d.tanggal); return rowDate >= startDate && rowDate <= endDate; }); }
-            if(dataToExport.length === 0) return Swal.fire('Kosong', 'Tidak ada riwayat pada rentang tanggal tersebut.', 'info');
+            const startStr = document.getElementById('filter-start').value; const endStr = document.getElementById('filter-end').value; 
+            const unitFilter = document.getElementById('filter-unit').value;
+            
+            let dataToExport = adminRekapData;
+            
+            if (startStr && endStr) { const startDate = new Date(startStr); startDate.setHours(0,0,0,0); const endDate = new Date(endStr); endDate.setHours(23,59,59,999); dataToExport = dataToExport.filter(d => { if(!d.tanggal) return false; const rowDate = new Date(d.tanggal); return rowDate >= startDate && rowDate <= endDate; }); }
+            if (unitFilter) { dataToExport = dataToExport.filter(d => d.sekolah === unitFilter); }
+            
+            if(dataToExport.length === 0) return Swal.fire('Kosong', 'Tidak ada riwayat pada filter tersebut.', 'info');
 
             const dOpts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
             const excelData = dataToExport.map(d => ({ "Tanggal": d.tanggal ? new Date(d.tanggal).toLocaleDateString('id-ID', dOpts) : '-', "ID (NISN)": d.nisn, "Nama Anggota": d.nama, "Unit/Sekolah": d.sekolah || '-', "Waktu Masuk": d.waktu_masuk ? (d.waktu_masuk.includes('T') ? new Date(d.waktu_masuk).toLocaleTimeString('id-ID') : d.waktu_masuk) : '-', "Waktu Pulang": d.waktu_pulang ? (d.waktu_pulang.includes('T') ? new Date(d.waktu_pulang).toLocaleTimeString('id-ID') : d.waktu_pulang) : '-', "Status": d.status, "Catatan": d.keterangan || '-', "Petugas Akses": d.discan_oleh || '-' }));
             const worksheet = XLSX.utils.json_to_sheet(excelData); const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan_Kehadiran");
             const prefix = APP.role === 'superadmin' ? 'KMK_ALL' : APP.user.sekolah.replace(/\s+/g, '_');
             let fileName = `Report_${prefix}_${new Date().toLocaleDateString('id-ID').replace(/\//g, '')}.xlsx`;
-            if (startStr && endStr) fileName = `Report_${prefix}_(${startStr}_sd_${endStr}).xlsx`;
             XLSX.writeFile(workbook, fileName); Swal.fire({ title: 'Export Berhasil!', text: `${dataToExport.length} data laporan berhasil diunduh.`, icon: 'success', timer: 2000, showConfirmButton: false });
         }
 
-        async function archiveOldData() {
-            const confirm = await Swal.fire({
-                title: 'Arsipkan Data?',
-                text: "Fitur ini akan memindahkan SEMUA data absensi saat ini ke dalam Sheet 'Arsip' baru dan mengosongkan Sheet utama agar aplikasi kembali cepat. Lanjutkan?",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#10b981',
-                cancelButtonColor: '#ef4444',
-                confirmButtonText: 'Ya, Arsipkan!'
+        function downloadRekapPDF() {
+            if(adminRekapData.length === 0) return Swal.fire('Peringatan', 'Tidak ada data untuk diekspor', 'warning');
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF('landscape');
+            
+            const startStr = document.getElementById('filter-start').value; const endStr = document.getElementById('filter-end').value; 
+            const unitFilter = document.getElementById('filter-unit').value;
+            let dataToExport = adminRekapData;
+            
+            if (startStr && endStr) { const startDate = new Date(startStr); startDate.setHours(0,0,0,0); const endDate = new Date(endStr); endDate.setHours(23,59,59,999); dataToExport = dataToExport.filter(d => { if(!d.tanggal) return false; const rowDate = new Date(d.tanggal); return rowDate >= startDate && rowDate <= endDate; }); }
+            if (unitFilter) { dataToExport = dataToExport.filter(d => d.sekolah === unitFilter); }
+            if(dataToExport.length === 0) return Swal.fire('Kosong', 'Tidak ada riwayat pada filter tersebut.', 'info');
+
+            doc.setFontSize(18);
+            doc.text('Laporan Rekapitulasi Absensi KMK', 14, 22);
+            doc.setFontSize(11);
+            doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')} | Filter Unit: ${unitFilter || 'Semua Unit'}`, 14, 30);
+            
+            const tableData = dataToExport.map(d => [
+                d.tanggal ? new Date(d.tanggal).toLocaleDateString('id-ID') : '-',
+                d.nisn, d.nama, d.sekolah || '-',
+                d.waktu_masuk ? (d.waktu_masuk.includes('T') ? new Date(d.waktu_masuk).toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : d.waktu_masuk) : '-',
+                d.status
+            ]);
+
+            doc.autoTable({
+                startY: 35,
+                head: [['Tanggal', 'NISN', 'Nama Anggota', 'Unit', 'Waktu Masuk', 'Status']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [101, 67, 33] }
             });
 
-            if (confirm.isConfirmed) {
-                const btn = document.getElementById('btn-arsip-data');
-                const origText = btn.innerHTML;
-                btn.innerHTML = '<div class="spinner mx-auto"></div>'; btn.disabled = true;
+            doc.save(`Laporan_PDF_KMK_${new Date().getTime()}.pdf`);
+        }
 
+        async function archiveOldData() {
+            const confirm = await Swal.fire({ title: 'Arsipkan Data?', text: "Fitur ini akan memindahkan SEMUA data absensi saat ini ke dalam Sheet 'Arsip' baru dan mengosongkan Sheet utama agar aplikasi kembali cepat. Lanjutkan?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#10b981', cancelButtonColor: '#ef4444', confirmButtonText: 'Ya, Arsipkan!' });
+            if (confirm.isConfirmed) {
+                const btn = document.getElementById('btn-arsip-data'); const origText = btn.innerHTML; btn.innerHTML = '<div class="spinner mx-auto"></div>'; btn.disabled = true;
                 try {
                     const res = await fetchAPI('archiveData');
-                    if (res.status === 'success') {
-                        Swal.fire('Berhasil!', res.message, 'success');
-                        loadRekapAdmin(); 
-                        loadStatsAdmin();
-                    } else {
-                        Swal.fire('Gagal', res.message, 'error');
-                    }
-                } catch (e) {
-                    Swal.fire('Error', 'Gagal menghubungi server.', 'error');
-                } finally {
-                    btn.innerHTML = origText; btn.disabled = false;
-                }
+                    if (res.status === 'success') { Swal.fire('Berhasil!', res.message, 'success'); loadRekapAdmin(); loadStatsAdmin(); } else { Swal.fire('Gagal', res.message, 'error'); }
+                } catch (e) { Swal.fire('Error', 'Gagal menghubungi server.', 'error'); } finally { btn.innerHTML = origText; btn.disabled = false; }
             }
         }
 
@@ -1548,6 +1427,15 @@
             @keyframes scan { 0%, 100% { top: 5%; opacity: 0; } 10%, 90% { opacity: 1; } 50% { top: 95%; opacity: 1; } }
         `;
         document.head.appendChild(styleSheet);
+
+        // PWA Virtual Service Worker (Agar bisa "Add to Homescreen" di Chrome/Android)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `self.addEventListener('install', (e) => { self.skipWaiting(); }); self.addEventListener('activate', (e) => { e.waitUntil(clients.claim()); }); self.addEventListener('fetch', (e) => { });`;
+                const blob = new Blob([swCode], {type: 'application/javascript'});
+                navigator.serviceWorker.register(URL.createObjectURL(blob)).then(reg => console.log('Sistem PWA Bersiap')).catch(err => console.log('PWA Bypass', err));
+            });
+        }
 
         window.addEventListener('load', () => { initApp(); initSignaturePad(); });
     </script>
