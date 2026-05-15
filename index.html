@@ -871,7 +871,7 @@
         // ======================================================================
         // MASUKKAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA DI BAWAH INI
         // ======================================================================
-        let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxYVNdYNQoh0LPxQh3aPf9TbKo14SbJJptYv1CUGlOJjOYZHPgzt99qn58nNdqvQXa1/exec'; 
+        let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby2JcOLrhq5a3uLh1LxgWE6zeMMXkWpXY8e-Gyul5e6VgOr_2QKZnHp1lA6gFzHnnov/exec'; 
 
         let APP = { user: null, role: null, scanMode: 'masuk', html5QrcodeScanner: null, isProcessingScan: false, dataSiswa: [], tempScanData: '' };
         let adminRekapData = [];
@@ -920,8 +920,25 @@
             if (isDummyURL) return new Promise((r) => setTimeout(()=> r({status:'error', message:'API Belum disetup'}), 500));
             try {
                 const response = await fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: action, ...payload }) });
-                const result = await response.json(); if (result.status === 'error') throw new Error(result.message); return result;
-            } catch (error) { throw error; }
+                const textResponse = await response.text();
+                
+                let result;
+                try {
+                    result = JSON.parse(textResponse);
+                } catch(err) {
+                    console.error("Backend Error Response:", textResponse);
+                    throw new Error("Respon server tidak valid. Cek Console.");
+                }
+                
+                // PERBAIKAN: Memisahkan pelemparan error agar pesan asli "Siswa tidak ditemukan" bisa muncul ke layar
+                if (result.status === 'error') {
+                    throw new Error(result.message); 
+                }
+                
+                return result;
+            } catch (error) { 
+                throw new Error(error.message === 'Failed to fetch' ? 'Koneksi terputus dari server. Pastikan internet stabil.' : error.message); 
+            }
         }
 
         function toggleTheme() {
@@ -988,7 +1005,8 @@
             document.getElementById('disp-kelas').innerText = u.kelas || '-'; document.getElementById('disp-sekolah').innerText = u.sekolah || '-';
             let tglLahirDisplay = u.tanggal_lahir || '-'; if (tglLahirDisplay.includes('T')) tglLahirDisplay = new Date(tglLahirDisplay).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
             document.getElementById('disp-tgl').innerText = tglLahirDisplay; 
-            document.getElementById('disp-jk').innerText = (u.jenis_kelamin === 'L' || u.jenis_kelamin === 'Laki-laki' || u.jenis_kelamin === 'l') ? 'Laki-laki' : 'Perempuan';
+            // PERBAIKAN: Memastikan string tidak error saat dibaca (pencegahan crash)
+            document.getElementById('disp-jk').innerText = String(u.jenis_kelamin || '').toUpperCase().startsWith('L') ? 'Laki-laki' : 'Perempuan';
             document.getElementById('disp-hp').innerText = u.no_hp || '-'; document.getElementById('disp-alamat').innerText = u.alamat || '-';
             document.getElementById('disp-foto').src = u.foto ? u.foto : getAvatarUrl(u.nama); loadHistorySiswa();
         }
@@ -1125,7 +1143,9 @@
         }
 
         function openSelfEdit() {
-            const u = APP.user; document.getElementById('self-nama').value = u.nama; document.getElementById('self-kelas').value = u.kelas || ''; document.getElementById('self-jk').value = (u.jenis_kelamin || '').toUpperCase().startsWith('P') ? 'P' : 'L'; 
+            const u = APP.user; document.getElementById('self-nama').value = u.nama; document.getElementById('self-kelas').value = u.kelas || ''; 
+            // PERBAIKAN: Membaca jenis kelamin lebih aman dengan merubahnya menjadi String terlebih dahulu
+            document.getElementById('self-jk').value = String(u.jenis_kelamin || '').toUpperCase().startsWith('P') ? 'P' : 'L'; 
             let tglLahir = u.tanggal_lahir || ''; if (tglLahir.includes('T')) tglLahir = tglLahir.split('T')[0]; document.getElementById('self-tgl').value = tglLahir; 
             document.getElementById('self-hp').value = u.no_hp || ''; document.getElementById('self-alamat').value = u.alamat || '';
             tempBase64Photo = u.foto || ''; document.getElementById('self-foto-preview').src = tempBase64Photo ? tempBase64Photo : getAvatarUrl(u.nama); openModal('modal-self-edit');
@@ -1138,7 +1158,8 @@
             try { 
                 const res = await fetchAPI('updateSiswa', payload); 
                 if(res.status === 'success'){ APP.user = { ...APP.user, ...payload.newData }; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role})); Swal.fire('Tersimpan', 'Profil diperbarui', 'success'); closeModal('modal-self-edit'); setupViewSiswa(); } else { Swal.fire('Gagal', res.message, 'error'); }
-            } catch(e) { Swal.fire('Error', 'Kesalahan sistem.', 'error'); } finally { btn.innerHTML = 'Simpan Data'; btn.disabled = false; }
+            // PERBAIKAN: Pesan error diubah agar lebih deskriptif
+            } catch(e) { Swal.fire('Gagal Menyimpan', e.message, 'error'); } finally { btn.innerHTML = 'Simpan Data'; btn.disabled = false; }
         }
 
         /* --- SCRIPT ADMIN & ANALITICS --- */
@@ -1300,8 +1321,60 @@
             }).join('');
         }
 
-        function openModalSiswa(nisn=null) { document.getElementById('form-edit-siswa').reset(); if(nisn){ const s=APP.dataSiswa.find(x=>String(x.nisn)===String(nisn)); if(!s)return; document.getElementById('modal-siswa-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-pencil-simple text-pramuka-main"></i></div> Edit Anggota'; document.getElementById('edit-s-action-type').value='edit'; document.getElementById('edit-s-original-nisn').value=s.nisn; document.getElementById('edit-s-nama').value=s.nama; document.getElementById('edit-s-nisn').value=s.nisn; document.getElementById('edit-s-kelas').value=s.kelas||''; document.getElementById('edit-s-sekolah').value=s.sekolah||''; document.getElementById('edit-s-jk').value=(s.jenis_kelamin||'').toUpperCase().startsWith('P')?'P':'L'; }else{ document.getElementById('modal-siswa-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-user-plus text-pramuka-main"></i></div> Tambah Anggota'; document.getElementById('edit-s-action-type').value='add'; document.getElementById('edit-s-original-nisn').value=''; document.getElementById('edit-s-sekolah').value=APP.role==='superadmin'?'':APP.user.sekolah; } document.getElementById('edit-s-sekolah').readOnly=APP.role!=='superadmin'; openModal('modal-edit-siswa'); }
-        async function submitSiswa(e){ e.preventDefault(); const btn=document.getElementById('btn-save-siswa'); btn.innerHTML='Memproses...'; btn.disabled=true; const payload={ actionType:document.getElementById('edit-s-action-type').value, original_nisn:document.getElementById('edit-s-original-nisn').value, newData:{ nisn:document.getElementById('edit-s-nisn').value, nama:document.getElementById('edit-s-nama').value, kelas:document.getElementById('edit-s-kelas').value, sekolah:document.getElementById('edit-s-sekolah').value, jenis_kelamin:document.getElementById('edit-s-jk').value } }; try{ const res=await fetchAPI('saveSiswa', payload); if(res.status==='success'){ Swal.fire('Disimpan', res.message, 'success'); closeModal('modal-edit-siswa'); loadSiswaAdmin(); } else Swal.fire('Gagal', res.message, 'error'); }catch(e){ Swal.fire('Error', 'Kesalahan koneksi.', 'error'); }finally{ btn.innerHTML='Simpan Data'; btn.disabled=false; } }
+        function openModalSiswa(nisn=null) { 
+            document.getElementById('form-edit-siswa').reset(); 
+            if(nisn){ 
+                const s=APP.dataSiswa.find(x=>String(x.nisn)===String(nisn)); 
+                if(!s)return; 
+                document.getElementById('modal-siswa-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-pencil-simple text-pramuka-main"></i></div> Edit Anggota'; 
+                document.getElementById('edit-s-action-type').value='edit'; 
+                document.getElementById('edit-s-original-nisn').value=s.nisn; 
+                document.getElementById('edit-s-nama').value=s.nama; 
+                document.getElementById('edit-s-nisn').value=s.nisn; 
+                document.getElementById('edit-s-kelas').value=s.kelas||''; 
+                document.getElementById('edit-s-sekolah').value=s.sekolah||''; 
+                
+                // PERBAIKAN: Mencegah crash jika s.jenis_kelamin berbentuk angka/null
+                document.getElementById('edit-s-jk').value=String(s.jenis_kelamin||'').toUpperCase().startsWith('P')?'P':'L'; 
+            }else{ 
+                document.getElementById('modal-siswa-title').innerHTML='<div class="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg"><i class="ph-fill ph-user-plus text-pramuka-main"></i></div> Tambah Anggota'; 
+                document.getElementById('edit-s-action-type').value='add'; 
+                document.getElementById('edit-s-original-nisn').value=''; 
+                document.getElementById('edit-s-sekolah').value=APP.role==='superadmin'?'':APP.user.sekolah; 
+            } 
+            document.getElementById('edit-s-sekolah').readOnly=APP.role!=='superadmin'; 
+            openModal('modal-edit-siswa'); 
+        }
+
+        async function submitSiswa(e){ 
+            e.preventDefault(); 
+            const btn=document.getElementById('btn-save-siswa'); 
+            btn.innerHTML='Memproses...'; btn.disabled=true; 
+            const payload={ 
+                actionType:document.getElementById('edit-s-action-type').value, 
+                original_nisn:document.getElementById('edit-s-original-nisn').value, 
+                newData:{ 
+                    nisn:document.getElementById('edit-s-nisn').value, 
+                    nama:document.getElementById('edit-s-nama').value, 
+                    kelas:document.getElementById('edit-s-kelas').value, 
+                    sekolah:document.getElementById('edit-s-sekolah').value, 
+                    jenis_kelamin:document.getElementById('edit-s-jk').value 
+                } 
+            }; 
+            try{ 
+                const res=await fetchAPI('saveSiswa', payload); 
+                if(res.status==='success'){ 
+                    Swal.fire('Disimpan', res.message, 'success'); 
+                    closeModal('modal-edit-siswa'); 
+                    loadSiswaAdmin(); 
+                } else Swal.fire('Gagal', res.message, 'error'); 
+            // PERBAIKAN: Memunculkan pesan error sebenarnya agar lebih informatif
+            }catch(e){ 
+                Swal.fire('Gagal Menyimpan', e.message, 'error'); 
+            }finally{ 
+                btn.innerHTML='Simpan Data'; btn.disabled=false; 
+            } 
+        }
         
         function openModalManualAbsen(nisn) { const s = APP.dataSiswa.find(x => String(x.nisn) === String(nisn)); if(!s) return; document.getElementById('man-nisn').value = s.nisn; document.getElementById('man-nama').value = s.nama; document.getElementById('man-sekolah').value = s.sekolah; document.getElementById('man-disp-nama').innerText = `${s.nama} (${s.nisn})`; document.getElementById('man-status').value = 'Hadir'; document.getElementById('man-ket').value = ''; openModal('modal-manual-absen'); }
         async function submitManualAbsen(e) { e.preventDefault(); const btn = document.getElementById('btn-save-man'); btn.innerHTML='Menyimpan...'; btn.disabled = true; const payload = { nisn: document.getElementById('man-nisn').value, nama: document.getElementById('man-nama').value, sekolah: document.getElementById('man-sekolah').value, status: document.getElementById('man-status').value, keterangan: document.getElementById('man-ket').value, scanBy: APP.user.nama }; try { const res = await fetchAPI('manualAbsen', payload); if(res.status === 'success'){ Swal.fire('Berhasil', 'Status Tersimpan', 'success'); closeModal('modal-manual-absen'); loadStatsAdmin(); } else Swal.fire('Gagal', res.message, 'error'); } catch(e){ Swal.fire('Error', 'Kesalahan', 'error'); } finally { btn.innerHTML = 'Simpan Status'; btn.disabled = false; } }
