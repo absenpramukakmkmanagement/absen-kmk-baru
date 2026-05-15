@@ -407,7 +407,7 @@
                 <div id="mview-siswa" class="overflow-x-auto animate-fade-in border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead class="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-[11px] uppercase tracking-widest text-gray-500 font-black">
-                            <tr><th class="p-5">NISN</th><th class="p-5">Profil Anggota</th><th class="p-5">Kelas</th><th class="p-5">Sekolah</th><th class="p-5">Kontak</th><th class="p-5 text-center">Manajemen</th></tr>
+                            <tr><th class="p-5">NISN</th><th class="p-5 text-center">Profil</th><th class="p-5">Nama Anggota</th><th class="p-5">Kelas</th><th class="p-5">Sekolah</th><th class="p-5">Kontak</th><th class="p-5 text-center">Manajemen</th></tr>
                         </thead>
                         <tbody id="table-admin-siswa" class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800/50"></tbody>
                     </table>
@@ -416,7 +416,7 @@
                 <div id="mview-admin" class="hidden overflow-x-auto animate-fade-in border border-gray-200 dark:border-gray-700 rounded-2xl shadow-sm">
                     <table class="w-full text-left text-sm whitespace-nowrap">
                         <thead class="bg-gray-100 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 text-[11px] uppercase tracking-widest text-gray-500 font-black">
-                            <tr><th class="p-5">Username</th><th class="p-5">Profil Manajemen</th><th class="p-5">Otoritas</th><th class="p-5">Unit</th><th class="p-5 text-center">Aksi</th></tr>
+                            <tr><th class="p-5">Username</th><th class="p-5 text-center">Profil</th><th class="p-5">Nama Manajemen</th><th class="p-5">Otoritas</th><th class="p-5">Unit</th><th class="p-5 text-center">Aksi</th></tr>
                         </thead>
                         <tbody id="table-admin-list" class="divide-y divide-gray-100 dark:divide-gray-800 bg-white dark:bg-gray-800/50"></tbody>
                     </table>
@@ -855,9 +855,14 @@
             });
         }
         
-        // Export function for manual logout clear
-        window.clearOnlineStatus = function() {
-            if(currentUserDocRef) { deleteDoc(currentUserDocRef); currentUserDocRef = null; }
+        // PERBAIKAN: Export function diubah menjadi async agar bisa ditunggu (await)
+        window.clearOnlineStatus = async function() {
+            if(currentUserDocRef) { 
+                try {
+                    await deleteDoc(currentUserDocRef); 
+                    currentUserDocRef = null; 
+                } catch(e) { console.error("Gagal hapus status online", e); }
+            }
         };
     </script>
 
@@ -941,15 +946,27 @@
             try {
                 const res = await fetchAPI('login', payload);
                 if (res.status === 'success') {
+                    // PERBAIKAN: Menukar data NISN & Nama jika terbalik dari API
+                    if (res.data && res.data.nisn && res.data.nama && String(res.data.nisn).match(/[a-zA-Z]/) && String(res.data.nama).match(/^[0-9]+$/)) {
+                        const temp = res.data.nisn; res.data.nisn = res.data.nama; res.data.nama = temp;
+                    }
                     APP.user = res.data; APP.role = res.role; sessionStorage.setItem('sess_pramuka', JSON.stringify({user: APP.user, role: APP.role}));
                     Swal.fire({ icon: 'success', title: 'Akses Diberikan', timer: 1000, showConfirmButton: false }); initApp();
                 }
             } catch (err) { Swal.fire('Ditolak', err.message || 'Kredensial tidak valid', 'error'); } finally { btn.innerHTML = originalText; btn.disabled = false; }
         }
         
-        function logout() { 
-            if(window.clearOnlineStatus) window.clearOnlineStatus();
-            sessionStorage.removeItem('sess_pramuka'); location.reload(); 
+        // PERBAIKAN: Fungsi logout dibuat async agar menunggu proses clearOnlineStatus selesai
+        async function logout() { 
+            const btnLogout = document.querySelector('button[onclick="logout()"]');
+            if(btnLogout) btnLogout.innerHTML = '<div class="spinner border-t-red-600 mx-auto"></div> Tunggu...';
+            
+            if(window.clearOnlineStatus) {
+                await window.clearOnlineStatus(); // Tunggu sampai status terhapus di Firebase
+            }
+            
+            sessionStorage.removeItem('sess_pramuka'); 
+            location.reload(); 
         }
 
         function initApp() {
@@ -1245,19 +1262,41 @@
         }
 
         async function loadSiswaAdmin() {
-            const tb = document.getElementById('table-admin-siswa'); tb.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
-            try { const res = await fetchAPI('getSiswa', { role: APP.role, sekolah: APP.user.sekolah }); APP.dataSiswa = res.data; filterSiswaTabel(); } catch (e) { tb.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-500">Gagal mengambil data</td></tr>'; }
+            const tb = document.getElementById('table-admin-siswa'); tb.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
+            try { 
+                const res = await fetchAPI('getSiswa', { role: APP.role, sekolah: APP.user.sekolah }); 
+                
+                // PERBAIKAN: Menukar data NISN & Nama jika terbalik dari API
+                APP.dataSiswa = res.data.map(item => {
+                    if (item.nisn && item.nama && String(item.nisn).match(/[a-zA-Z]/) && String(item.nama).match(/^[0-9]+$/)) {
+                        const temp = item.nisn; item.nisn = item.nama; item.nama = temp;
+                    }
+                    return item;
+                });
+
+                filterSiswaTabel(); 
+            } catch (e) { tb.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-red-500">Gagal mengambil data</td></tr>'; }
         }
 
         function filterSiswaTabel() {
             const tb = document.getElementById('table-admin-siswa'); const keyword = document.getElementById('search-siswa').value.toLowerCase();
-            if(!APP.dataSiswa || APP.dataSiswa.length === 0) { tb.innerHTML='<tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return; }
+            if(!APP.dataSiswa || APP.dataSiswa.length === 0) { tb.innerHTML='<tr><td colspan="7" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return; }
             const filtered = APP.dataSiswa.filter(s => s.nama.toLowerCase().includes(keyword) || s.nisn.toString().includes(keyword));
-            if(filtered.length === 0) { tb.innerHTML='<tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Pencarian Tidak Ditemukan</td></tr>'; return; }
+            if(filtered.length === 0) { tb.innerHTML='<tr><td colspan="7" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Pencarian Tidak Ditemukan</td></tr>'; return; }
 
             tb.innerHTML = filtered.map(s => {
                 let actionBtn = (APP.role === 'pembina') ? `<td class="p-5 text-center text-gray-400 italic text-[10px] uppercase font-bold"><i class="ph-bold ph-lock"></i> Terkunci</td>` : `<td class="p-5 text-center flex gap-2 justify-center"><button onclick="openModalSiswa('${s.nisn}')" class="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-pencil-simple"></i> Edit</button><button onclick="openModalManualAbsen('${s.nisn}')" class="px-3 py-2 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-clipboard-text"></i> Absen</button></td>`;
-                return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"><td class="p-5 font-mono text-sm">${s.nisn}</td><td class="p-5 font-black flex items-center gap-4"><img src="${s.foto || getAvatarUrl(s.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm"> ${s.nama}</td><td class="p-5 font-bold">${s.kelas || '-'}</td><td class="p-5 text-sm">${s.sekolah || '-'}</td><td class="p-5 text-sm font-mono">${s.no_hp || '-'}</td>${actionBtn}</tr>`;
+                
+                // Susunan Rapih: 1. NISN | 2. Profil | 3. Nama
+                return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition">
+                    <td class="p-5 font-mono text-sm font-bold text-gray-700 dark:text-gray-300">${s.nisn}</td>
+                    <td class="p-5 text-center"><img src="${s.foto || getAvatarUrl(s.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm mx-auto"></td>
+                    <td class="p-5 font-black text-gray-900 dark:text-white uppercase">${s.nama}</td>
+                    <td class="p-5 font-bold">${s.kelas || '-'}</td>
+                    <td class="p-5 text-sm">${s.sekolah || '-'}</td>
+                    <td class="p-5 text-sm font-mono">${s.no_hp || '-'}</td>
+                    ${actionBtn}
+                </tr>`;
             }).join('');
         }
 
@@ -1269,19 +1308,19 @@
 
         // Manajemen Admin
         async function loadAdminList() {
-            const tb = document.getElementById('table-admin-list'); tb.innerHTML = '<tr><td colspan="5" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
+            const tb = document.getElementById('table-admin-list'); tb.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
             try { 
                 const res = await fetchAPI('getAdmins', { role: APP.role }); 
                 if(res.status === 'success') {
-                    if(res.data.length === 0) { tb.innerHTML='<tr><td colspan="5" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return; }
+                    if(res.data.length === 0) { tb.innerHTML='<tr><td colspan="6" class="p-8 text-center text-gray-400 font-bold uppercase tracking-widest text-xs">Database Kosong</td></tr>'; return; }
                     APP.dataAdmin = res.data;
                     tb.innerHTML = res.data.map(a => {
                         let actionBtn = `<td class="p-5 text-center flex gap-2 justify-center"><button onclick="openModalAdmin('${a.username}')" class="px-3 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-pencil-simple"></i> Edit</button><button onclick="hapusAdmin('${a.username}')" class="px-3 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-black transition uppercase tracking-wider"><i class="ph-bold ph-trash"></i> Hapus</button></td>`;
                         if (a.username === APP.user.username) actionBtn = `<td class="p-5 text-center text-gray-400 italic text-[10px] uppercase font-bold">Anda</td>`;
-                        return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"><td class="p-5 font-mono text-sm">${a.username}</td><td class="p-5 font-black flex items-center gap-4"><img src="${a.foto || getAvatarUrl(a.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm"> ${a.nama}</td><td class="p-5 font-bold uppercase text-[10px] tracking-wider">${a.role}</td><td class="p-5 text-sm">${a.sekolah || '-'}</td>${actionBtn}</tr>`;
+                        return `<tr class="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition"><td class="p-5 font-mono text-sm font-bold text-gray-700 dark:text-gray-300">${a.username}</td><td class="p-5 text-center"><img src="${a.foto || getAvatarUrl(a.nama)}" onerror="this.onerror=null;this.src=getAvatarUrl('KMK')" class="w-10 h-10 rounded-xl object-cover border border-gray-200 shadow-sm mx-auto"></td><td class="p-5 font-black text-gray-900 dark:text-white uppercase">${a.nama}</td><td class="p-5 font-bold uppercase text-[10px] tracking-wider">${a.role}</td><td class="p-5 text-sm">${a.sekolah || '-'}</td>${actionBtn}</tr>`;
                     }).join('');
-                } else tb.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-red-500">${res.message}</td></tr>`;
-            } catch (e) { tb.innerHTML = '<tr><td colspan="5" class="p-6 text-center text-red-500">Gagal mengambil data admin</td></tr>'; }
+                } else tb.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-500">${res.message}</td></tr>`;
+            } catch (e) { tb.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-500">Gagal mengambil data admin</td></tr>'; }
         }
 
         function openModalAdmin(username=null) { 
@@ -1334,7 +1373,15 @@
         async function loadRekapAdmin() {
             const tb = document.getElementById('table-admin-rekap'); tb.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-gray-400"><div class="spinner border-t-gray-400 mx-auto"></div></td></tr>';
             try {
-                const res = await fetchAPI('getAbsensi', { role: APP.role, sekolah: APP.user.sekolah }); adminRekapData = res.data;
+                const res = await fetchAPI('getAbsensi', { role: APP.role, sekolah: APP.user.sekolah }); 
+                
+                // PERBAIKAN: Menukar data NISN & Nama jika terbalik dari API
+                adminRekapData = res.data.map(item => {
+                    if (item.nisn && item.nama && String(item.nisn).match(/[a-zA-Z]/) && String(item.nama).match(/^[0-9]+$/)) {
+                        const temp = item.nisn; item.nisn = item.nama; item.nama = temp;
+                    }
+                    return item;
+                });
                 
                 const unitSet = new Set(adminRekapData.map(d => d.sekolah).filter(Boolean));
                 const unitSelect = document.getElementById('filter-unit');
