@@ -356,7 +356,17 @@
                             <div class="bg-white p-3 rounded-2xl shadow-xl mb-3 relative z-10">
                                 <div id="qrcode-display"></div>
                             </div>
-                            <p class="text-[10px] text-gray-400 mb-6 font-medium tracking-wider">SCAN QR INI UNTUK PRESENSI</p>
+                            
+                            <!-- Signature Section (New) -->
+                            <div class="w-full flex justify-between items-end px-2 mt-2 mb-6 relative z-10">
+                                <div class="text-[8px] text-gray-400 text-left leading-tight">
+                                    Kartu ini berlaku<br>sebagai identitas resmi<br>selama menjadi anggota.
+                                </div>
+                                <div class="flex flex-col items-center min-w-[80px]">
+                                    <img id="siswa-ttd" src="" class="h-10 object-contain mb-1 hidden" alt="Tanda Tangan">
+                                    <div class="text-[8px] text-brand-gold border-t border-brand-gold/30 pt-1 px-2 font-medium tracking-wider w-full text-center mt-1">TANDA TANGAN</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -396,7 +406,7 @@
                                 <h3 class="text-xl font-bold text-white mb-1">Absensi Mandiri</h3>
                                 <p class="text-sm text-gray-400">Scan QR Code yang disediakan oleh Pembina.</p>
                             </div>
-                            <button onclick="openScanner()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-lg transition-all hover:scale-105 whitespace-nowrap">
+                            <button onclick="openScanner()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl flex items-center justify-center gap-2 shadow-lg transition-all hover:scale-105 whitespace-nowrap">
                                 <i class="ph-bold ph-scan"></i> Buka Scanner
                             </button>
                         </div>
@@ -425,22 +435,22 @@
 
             <!-- Mobile Bottom Nav -->
             <div class="md:hidden fixed bottom-0 left-0 w-full glass rounded-t-3xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-40">
-                <button class="flex flex-col items-center text-brand-gold">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="flex flex-col items-center text-brand-gold transition-colors">
                     <i class="ph-fill ph-house text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Home</span>
                 </button>
-                <button onclick="showInfoModal('Jadwal Ekstrakurikuler', '<div class=\'p-3 bg-white/5 rounded-lg border border-white/5 mb-2\'><p class=\'font-bold text-brand-gold\'>Pramuka</p><p class=\'text-xs text-gray-400\'>Sabtu, 14:00 - 16:00 WIB</p></div><div class=\'p-3 bg-white/5 rounded-lg border border-white/5\'><p class=\'font-bold text-blue-400\'>PMR</p><p class=\'text-xs text-gray-400\'>Jumat, 15:00 - 16:30 WIB</p></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300">
+                <button onclick="showInfoModal('Jadwal Ekstrakurikuler', '<div class=\'p-3 bg-white/5 rounded-lg border border-white/5 mb-2\'><p class=\'font-bold text-brand-gold\'>Pramuka</p><p class=\'text-xs text-gray-400\'>Sabtu, 14:00 - 16:00 WIB</p></div><div class=\'p-3 bg-white/5 rounded-lg border border-white/5\'><p class=\'font-bold text-blue-400\'>PMR</p><p class=\'text-xs text-gray-400\'>Jumat, 15:00 - 16:30 WIB</p></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-colors">
                     <i class="ph ph-calendar-check text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Jadwal</span>
                 </button>
-                <button onclick="openScanner()" class="flex flex-col items-center justify-center w-14 h-14 bg-brand-gold text-brand-dark rounded-full -mt-8 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                <button onclick="openScanner()" class="flex flex-col items-center justify-center w-14 h-14 bg-brand-gold text-brand-dark rounded-full -mt-8 shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:scale-105 transition-transform active:scale-95">
                     <i class="ph-bold ph-scan text-2xl"></i>
                 </button>
-                <button onclick="showInfoModal('Riwayat Terakhir', '<p class=\'text-center text-gray-500 py-4\'>Menampilkan riwayat bulan ini...</p><div class=\'flex justify-between items-center border-b border-white/10 py-3\'><div class=\'text-left\'><p class=\'font-semibold text-white text-sm\'>Pertemuan Rutin</p><p class=\'text-xs text-gray-500\'>Sabtu ini</p></div><span class=\'text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded text-xs\'>Hadir</span></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300">
+                <button onclick="showInfoModal('Riwayat Terakhir', '<p class=\'text-center text-gray-500 py-4\'>Menampilkan riwayat bulan ini...</p><div class=\'flex justify-between items-center border-b border-white/10 py-3\'><div class=\'text-left\'><p class=\'font-semibold text-white text-sm\'>Pertemuan Rutin</p><p class=\'text-xs text-gray-500\'>Sabtu ini</p></div><span class=\'text-emerald-400 bg-emerald-500/20 px-2 py-1 rounded text-xs\'>Hadir</span></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-colors">
                     <i class="ph ph-clock-counter-clockwise text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Riwayat</span>
                 </button>
-                <button onclick="logout()" class="flex flex-col items-center text-red-400">
+                <button onclick="logout()" class="flex flex-col items-center text-red-400 hover:text-red-300 transition-colors">
                     <i class="ph ph-sign-out text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Logout</span>
                 </button>
@@ -448,18 +458,28 @@
         </div>
 
         <!-- View: Admin Dashboard -->
-        <div id="view-dashboard-admin" class="page-view hide-page w-full min-h-screen flex">
-            <!-- Sidebar Desktop -->
-            <aside class="hidden lg:flex w-64 glass flex-col justify-between border-r border-white/10 sticky top-0 h-screen">
+        <div id="view-dashboard-admin" class="page-view hide-page w-full min-h-screen flex relative">
+            
+            <!-- Mobile Sidebar Overlay -->
+            <div id="admin-sidebar-overlay" onclick="toggleAdminSidebar()" class="fixed inset-0 bg-black/80 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity duration-300 opacity-0"></div>
+
+            <!-- Sidebar Desktop & Mobile -->
+            <aside id="admin-sidebar" class="fixed lg:static inset-y-0 left-0 z-50 w-64 glass flex flex-col justify-between border-r border-white/10 h-screen transform -translate-x-full lg:translate-x-0 transition-transform duration-300 bg-brand-dark lg:bg-transparent shadow-2xl lg:shadow-none">
                 <div>
-                    <div class="p-6 border-b border-white/10 flex items-center gap-3">
-                        <i class="ph-fill ph-hexagon text-brand-gold text-3xl"></i>
-                        <div>
-                            <h2 class="font-bold text-white text-lg">KMK Mgt.</h2>
-                            <p class="text-xs text-blue-400">Admin Panel</p>
+                    <div class="p-6 border-b border-white/10 flex items-center justify-between lg:justify-start gap-3">
+                        <div class="flex items-center gap-3">
+                            <i class="ph-fill ph-hexagon text-brand-gold text-3xl"></i>
+                            <div>
+                                <h2 class="font-bold text-white text-lg">KMK Mgt.</h2>
+                                <p class="text-xs text-blue-400">Admin Panel</p>
+                            </div>
                         </div>
+                        <!-- Close button for mobile -->
+                        <button class="lg:hidden text-gray-400 hover:text-white" onclick="toggleAdminSidebar()">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
                     </div>
-                    <nav class="p-4 space-y-2">
+                    <nav class="p-4 space-y-2 overflow-y-auto max-h-[calc(100vh-160px)]">
                         <button id="nav-dashboard" onclick="switchAdminTab('dashboard')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 bg-brand-gold/20 text-brand-gold rounded-xl border border-brand-gold/30 font-medium transition-colors">
                             <i class="ph-fill ph-squares-four text-xl"></i> Dashboard
                         </button>
@@ -485,11 +505,14 @@
             </aside>
 
             <!-- Admin Main Content -->
-            <div class="flex-1 overflow-y-auto">
+            <div class="flex-1 overflow-y-auto relative w-full lg:w-auto">
                 <!-- Topbar -->
-                <header class="glass sticky top-0 z-30 px-6 py-4 flex justify-between items-center border-b border-white/10">
+                <header class="glass sticky top-0 z-30 px-4 md:px-6 py-4 flex justify-between items-center border-b border-white/10">
                     <div class="flex items-center gap-4">
-                        <button class="lg:hidden text-gray-300 text-2xl"><i class="ph ph-list"></i></button>
+                        <!-- Hamburger Button (Mobile) -->
+                        <button onclick="toggleAdminSidebar()" class="lg:hidden text-gray-300 text-2xl hover:text-white transition-colors">
+                            <i class="ph ph-list"></i>
+                        </button>
                         <h2 class="text-xl font-bold text-white hidden sm:block">Admin Workspace</h2>
                     </div>
                     <div class="flex items-center gap-4">
@@ -497,7 +520,7 @@
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
                             <span class="text-xs text-gray-300 font-medium">API Connected</span>
                         </div>
-                        <div class="flex items-center gap-3 border-l border-white/10 pl-4">
+                        <div class="flex items-center gap-3 border-l-0 sm:border-l border-white/10 sm:pl-4">
                             <div class="text-right hidden sm:block">
                                 <p id="admin-name" class="text-sm font-bold text-white">Super Admin</p>
                                 <p class="text-[10px] text-gray-400">Master Akses</p>
@@ -580,7 +603,7 @@
                             <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live Scan Log
                         </h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-400">
+                            <table class="w-full text-left text-sm text-gray-400 min-w-[600px]">
                                 <thead class="text-xs text-gray-500 uppercase bg-white/5">
                                     <tr>
                                         <th class="px-4 py-3 rounded-tl-lg">Waktu</th>
@@ -600,39 +623,41 @@
 
                 <!-- TAB 2: DATA SISWA -->
                 <div id="admin-tab-datasiswa" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
-                    <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-                        <div class="w-full md:w-1/2">
+                    <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 mb-4">
+                        <div class="w-full xl:w-auto">
                             <h2 class="text-2xl font-bold text-white">Database Siswa</h2>
-                            <p class="text-sm text-gray-400">Menampilkan seluruh data siswa yang terdaftar di Google Sheets.</p>
+                            <p class="text-sm text-gray-400">Menampilkan seluruh data siswa yang terdaftar.</p>
                         </div>
-                        <div class="w-full md:w-1/2 flex flex-col sm:flex-row gap-3 justify-end">
-                            <!-- Fitur Pencarian Ditambahkan di sini -->
+                        <div class="w-full xl:w-auto flex flex-col sm:flex-row gap-3 justify-end items-stretch sm:items-center">
+                            <!-- Fitur Pencarian Ditambahkan di sini (Stacked on mobile) -->
                             <div class="relative w-full sm:w-64">
                                 <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                                <input type="text" id="search-siswa-input" placeholder="Cari nama / NISN..." class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-brand-gold transition-all">
+                                <input type="text" id="search-siswa-input" placeholder="Cari nama / NISN..." class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-brand-gold transition-all">
                             </div>
-                            <button onclick="openStudentModal()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow-lg transition-colors whitespace-nowrap">
-                                <i class="ph-bold ph-user-plus"></i> Tambah
-                            </button>
-                            <button onclick="fetchDaftarSiswa(true)" class="px-4 py-2 bg-brand-gold text-brand-dark font-bold rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-brand-accent transition-colors whitespace-nowrap">
-                                <i class="ph-bold ph-arrows-clockwise"></i> Sync
-                            </button>
+                            <div class="flex gap-2 w-full sm:w-auto">
+                                <button onclick="openStudentModal()" class="flex-1 sm:flex-none px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg flex items-center justify-center gap-2 shadow-lg transition-colors whitespace-nowrap">
+                                    <i class="ph-bold ph-user-plus"></i> Tambah
+                                </button>
+                                <button onclick="fetchDaftarSiswa(true)" class="flex-1 sm:flex-none px-4 py-2.5 bg-brand-gold text-brand-dark font-bold rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-brand-accent transition-colors whitespace-nowrap">
+                                    <i class="ph-bold ph-arrows-clockwise"></i> Sync
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="glass p-6 rounded-3xl border border-white/5">
+                    <div class="glass p-4 sm:p-6 rounded-3xl border border-white/5">
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-400">
+                            <table class="w-full text-left text-sm text-gray-400 min-w-[600px]">
                                 <thead class="text-xs text-gray-500 uppercase bg-white/5">
                                     <tr>
                                         <th class="px-4 py-3 rounded-tl-lg">NISN</th>
                                         <th class="px-4 py-3">Nama Lengkap</th>
                                         <th class="px-4 py-3">Asal Sekolah</th>
-                                        <th class="px-4 py-3 rounded-tr-lg">Tindakan</th>
+                                        <th class="px-4 py-3 rounded-tr-lg text-center">Tindakan</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-datasiswa">
-                                    <tr><td colspan="4" class="text-center py-8">Klik Sinkronisasi Data untuk memuat...</td></tr>
+                                    <tr><td colspan="4" class="text-center py-8">Klik Sync untuk memuat data...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -645,18 +670,22 @@
                     <p class="text-sm text-gray-400 mb-6">Rekapitulasi absensi harian kegiatan Ekstrakurikuler.</p>
                     
                     <div class="glass p-6 rounded-3xl border border-white/5">
-                        <div class="flex flex-wrap gap-4 mb-6">
-                            <select class="bg-brand-dark border border-white/10 text-sm text-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-gold">
+                        <div class="flex flex-col sm:flex-row flex-wrap gap-4 mb-6 items-center">
+                            <select class="bg-brand-dark border border-white/10 text-sm text-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-gold w-full sm:w-auto">
                                 <option>Semua Ekstrakurikuler</option>
                                 <option>Pramuka</option>
                                 <option>PMR</option>
                             </select>
-                            <input type="date" class="bg-brand-dark border border-white/10 text-sm text-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-brand-gold" style="color-scheme: dark;">
-                            <button onclick="showToast('Filter diterapkan', 'success')" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors">Terapkan Filter</button>
+                            <input type="date" class="bg-brand-dark border border-white/10 text-sm text-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-gold w-full sm:w-auto" style="color-scheme: dark;">
+                            <button onclick="showToast('Filter diterapkan', 'success')" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors">Terapkan Filter</button>
+                            <!-- Tombol Unduh Rekap Ditambahkan -->
+                            <button onclick="exportDataToCSV('absensi')" class="w-full sm:w-auto px-6 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2 sm:ml-auto">
+                                <i class="ph-bold ph-download-simple"></i> Unduh Rekap (.csv)
+                            </button>
                         </div>
 
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-gray-400">
+                            <table class="w-full text-left text-sm text-gray-400 min-w-[500px]">
                                 <thead class="text-xs text-gray-500 uppercase bg-white/5">
                                     <tr>
                                         <th class="px-4 py-3 rounded-tl-lg">Tanggal & Waktu</th>
@@ -688,7 +717,7 @@
                                 <label class="block text-sm font-medium text-gray-300 mb-2">Isi Pesan</label>
                                 <textarea required rows="4" placeholder="Ketik pesan pengumuman di sini..." class="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-brand-gold transition-all resize-none"></textarea>
                             </div>
-                            <button type="submit" class="px-6 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl flex items-center gap-2 hover:bg-brand-accent transition-colors">
+                            <button type="submit" class="w-full sm:w-auto px-6 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-brand-accent transition-colors">
                                 <i class="ph-bold ph-paper-plane-right"></i> Kirim ke Semua Siswa
                             </button>
                         </form>
@@ -742,11 +771,11 @@
 
         <!-- Pop-Up Modal (Generic Info) -->
         <div id="info-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-            <div class="w-full max-w-sm relative glass p-6 rounded-3xl text-center">
+            <div class="w-full max-w-sm relative glass p-6 rounded-3xl text-center mx-4">
                 <button onclick="closeInfoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
                     <i class="ph-bold ph-x text-lg"></i>
                 </button>
-                <h3 id="info-modal-title" class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Informasi</h3>
+                <h3 id="info-modal-title" class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2 pr-6">Informasi</h3>
                 <div id="info-modal-content" class="text-sm text-gray-300 space-y-3 text-left">
                     <!-- content -->
                 </div>
@@ -755,7 +784,7 @@
 
         <!-- Pop-Up Modal (Generate QR Sesi) -->
         <div id="qr-session-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-            <div class="w-full max-w-sm relative glass-gold p-8 rounded-3xl text-center flex flex-col items-center shadow-2xl border-brand-gold/30">
+            <div class="w-full max-w-sm relative glass-gold p-8 rounded-3xl text-center flex flex-col items-center shadow-2xl border-brand-gold/30 mx-4">
                 <button onclick="closeQRSession()" class="absolute -top-4 -right-4 text-white hover:text-red-400 transition-colors bg-brand-dark border border-white/10 p-2 rounded-full z-10">
                     <i class="ph-bold ph-x text-xl"></i>
                 </button>
@@ -770,39 +799,70 @@
 
         <!-- Pop-Up Modal (Tambah/Edit Siswa) -->
         <div id="student-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
-            <div class="w-full max-w-md relative glass p-6 rounded-3xl">
+            <div class="w-full max-w-md relative glass p-6 rounded-3xl mx-4 max-h-[90vh] overflow-y-auto">
                 <button onclick="closeStudentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
                     <i class="ph-bold ph-x text-lg"></i>
                 </button>
-                <h3 id="student-modal-title" class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Tambah Siswa</h3>
+                <h3 id="student-modal-title" class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2 pr-6">Tambah Siswa</h3>
                 <form id="student-form" onsubmit="saveStudent(event)" class="space-y-4">
                     <input type="hidden" id="student-original-nisn">
                     <div>
                         <label class="block text-xs font-medium text-gray-300 mb-1">NISN / ID</label>
-                        <input type="text" id="student-nisn" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                        <input type="text" id="student-nisn" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-300 mb-1">Nama Lengkap</label>
-                        <input type="text" id="student-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                        <input type="text" id="student-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-medium text-gray-300 mb-1">Kelas</label>
-                            <input type="text" id="student-kelas" placeholder="Cth: VII-A" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                            <input type="text" id="student-kelas" placeholder="Cth: VII-A" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-gray-300 mb-1">Eskul</label>
-                            <input type="text" id="student-eskul" placeholder="Cth: Pramuka" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                            <input type="text" id="student-eskul" placeholder="Cth: Pramuka" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                         </div>
                     </div>
                     <div>
                         <label class="block text-xs font-medium text-gray-300 mb-1">Asal Sekolah</label>
-                        <input type="text" id="student-sekolah" placeholder="Cth: SMPN 1" class="w-full bg-white/5 border border-white/10 rounded-lg py-2 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                        <input type="text" id="student-sekolah" placeholder="Cth: SMPN 1" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                     </div>
-                    <button type="submit" id="btn-save-student" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
+                    
+                    <!-- Fitur Tanda Tangan (New) -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Tanda Tangan Digital (Opsional)</label>
+                        <div class="bg-white rounded-lg p-1 relative border border-white/10">
+                            <canvas id="signature-pad" class="w-full h-24 rounded cursor-crosshair touch-none" width="400" height="150"></canvas>
+                            <button type="button" onclick="clearSignature()" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow transition-colors">Hapus</button>
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1">Gambar tanda tangan di dalam kotak putih. Biarkan kosong jika mengedit tanpa merubah tanda tangan.</p>
+                    </div>
+
+                    <button type="submit" id="btn-save-student" class="w-full mt-2 px-4 py-3.5 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
                         <i class="ph-bold ph-floppy-disk"></i> Simpan Data
                     </button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Pop-Up Modal (Tanda Tangan Absen) -->
+        <div id="absen-sig-modal" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="w-full max-w-sm relative glass p-6 rounded-3xl mx-4">
+                <button onclick="cancelAbsenSignature()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+                <h3 class="text-xl font-bold text-brand-gold mb-2 border-b border-white/10 pb-2">Konfirmasi Kehadiran</h3>
+                <p class="text-xs text-gray-400 mb-4">Silakan tanda tangan di bawah ini untuk mengonfirmasi kehadiran.</p>
+                
+                <div class="bg-white rounded-lg p-1 relative border border-white/10 mb-4">
+                    <canvas id="absen-signature-pad" class="w-full h-32 rounded cursor-crosshair touch-none bg-white" width="300" height="150"></canvas>
+                    <button type="button" onclick="clearAbsenSignature()" class="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white text-[10px] px-2 py-1 rounded shadow transition-colors">Hapus</button>
+                </div>
+                
+                <button onclick="submitAbsenSignature()" id="btn-submit-absen" class="w-full px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
+                    <i class="ph-bold ph-check-circle"></i> Simpan & Absen
+                </button>
             </div>
         </div>
 
@@ -819,6 +879,15 @@
         let html5QrcodeScanner = null;
         let currentChart = null;
         let dummySiswa = []; 
+
+        // --- Signature Pad Variables ---
+        let sigCanvas, sigCtx;
+        let isDrawingSig = false;
+
+        // --- Absen Signature Pad Variables ---
+        let absenSigCanvas, absenSigCtx;
+        let isDrawingAbsenSig = false;
+        let pendingAbsenNisn = null;
 
         // Init App
         window.onload = () => {
@@ -847,7 +916,9 @@
             }, 2500); 
             
             setupAutoSuggest();
-            setupSearchAdmin(); // Init search input admin
+            setupSearchAdmin(); 
+            initSignaturePad(); // Initialize Signature Pad
+            initAbsenSignaturePad(); // Initialize Absen Signature Pad
         };
 
         // --- Navigation Logic ---
@@ -907,6 +978,27 @@
             showToast('Berhasil logout', 'success');
         }
 
+        // --- SIDEBAR MOBILE LOGIC ---
+        function toggleAdminSidebar(forceShow = null) {
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('admin-sidebar-overlay');
+            
+            const isShowing = sidebar.classList.contains('translate-x-0');
+            const shouldShow = forceShow !== null ? forceShow : !isShowing;
+
+            if (shouldShow) {
+                sidebar.classList.remove('-translate-x-full');
+                sidebar.classList.add('translate-x-0');
+                overlay.classList.remove('hidden');
+                setTimeout(() => overlay.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.remove('translate-x-0');
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('opacity-0');
+                setTimeout(() => overlay.classList.add('hidden'), 300);
+            }
+        }
+
         // --- MODAL UTILITIES ---
         function showInfoModal(title, contentHtml) {
             const modal = document.getElementById('info-modal');
@@ -932,7 +1024,6 @@
             
             display.innerHTML = '';
             
-            // Format data di dalam QR Code
             const today = new Date();
             timeText.innerText = today.toLocaleDateString('id-ID');
             const qrData = JSON.stringify({ type: 'sesi_absen', date: today.toDateString() });
@@ -957,6 +1048,174 @@
             setTimeout(() => { modal.style.display = 'none'; }, 300);
         }
 
+        // --- SIGNATURE PAD LOGIC ---
+        function initSignaturePad() {
+            sigCanvas = document.getElementById('signature-pad');
+            if (!sigCanvas) return;
+            sigCtx = sigCanvas.getContext('2d');
+            
+            sigCtx.lineWidth = 3;
+            sigCtx.lineCap = 'round';
+            sigCtx.strokeStyle = '#0B1B3D'; 
+
+            // Mouse Events
+            sigCanvas.addEventListener('mousedown', startDrawingSig);
+            sigCanvas.addEventListener('mousemove', drawSig);
+            sigCanvas.addEventListener('mouseup', stopDrawingSig);
+            sigCanvas.addEventListener('mouseout', stopDrawingSig);
+
+            // Touch Events (Mobile)
+            sigCanvas.addEventListener('touchstart', handleTouchStartSig, {passive: false});
+            sigCanvas.addEventListener('touchmove', handleTouchMoveSig, {passive: false});
+            sigCanvas.addEventListener('touchend', stopDrawingSig);
+        }
+
+        function getPointerPosSig(e) {
+            const rect = sigCanvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * (sigCanvas.width / rect.width),
+                y: (clientY - rect.top) * (sigCanvas.height / rect.height)
+            };
+        }
+
+        function startDrawingSig(e) {
+            isDrawingSig = true;
+            const pos = getPointerPosSig(e);
+            sigCtx.beginPath();
+            sigCtx.moveTo(pos.x, pos.y);
+        }
+
+        function drawSig(e) {
+            if (!isDrawingSig) return;
+            e.preventDefault(); 
+            const pos = getPointerPosSig(e);
+            sigCtx.lineTo(pos.x, pos.y);
+            sigCtx.stroke();
+        }
+
+        function handleTouchStartSig(e) {
+            e.preventDefault(); 
+            startDrawingSig(e);
+        }
+
+        function handleTouchMoveSig(e) {
+            e.preventDefault(); 
+            drawSig(e);
+        }
+
+        function stopDrawingSig() {
+            isDrawingSig = false;
+            if(sigCtx) sigCtx.closePath();
+        }
+
+        function clearSignature() {
+            if(!sigCtx) return;
+            sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height);
+        }
+
+        function getSignatureBase64() {
+            if(!sigCanvas) return "";
+            const blankCanvas = document.createElement('canvas');
+            blankCanvas.width = sigCanvas.width;
+            blankCanvas.height = sigCanvas.height;
+            if (sigCanvas.toDataURL() === blankCanvas.toDataURL()) {
+                return ""; // Canvas kosong
+            }
+            // Kompres gambar menjadi JPEG dengan kualitas rendah agar string base64 tidak terlalu panjang di Google Sheets
+            return sigCanvas.toDataURL('image/jpeg', 0.5); 
+        }
+
+        // --- ABSEN SIGNATURE PAD LOGIC ---
+        function initAbsenSignaturePad() {
+            absenSigCanvas = document.getElementById('absen-signature-pad');
+            if (!absenSigCanvas) return;
+            absenSigCtx = absenSigCanvas.getContext('2d');
+            
+            absenSigCtx.lineWidth = 3;
+            absenSigCtx.lineCap = 'round';
+            absenSigCtx.strokeStyle = '#0B1B3D'; 
+
+            absenSigCanvas.addEventListener('mousedown', startDrawingAbsenSig);
+            absenSigCanvas.addEventListener('mousemove', drawAbsenSig);
+            absenSigCanvas.addEventListener('mouseup', stopDrawingAbsenSig);
+            absenSigCanvas.addEventListener('mouseout', stopDrawingAbsenSig);
+
+            absenSigCanvas.addEventListener('touchstart', handleTouchStartAbsenSig, {passive: false});
+            absenSigCanvas.addEventListener('touchmove', handleTouchMoveAbsenSig, {passive: false});
+            absenSigCanvas.addEventListener('touchend', stopDrawingAbsenSig);
+        }
+
+        function getPointerPosAbsenSig(e) {
+            const rect = absenSigCanvas.getBoundingClientRect();
+            let clientX = e.clientX;
+            let clientY = e.clientY;
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            }
+            return {
+                x: (clientX - rect.left) * (absenSigCanvas.width / rect.width),
+                y: (clientY - rect.top) * (absenSigCanvas.height / rect.height)
+            };
+        }
+
+        function startDrawingAbsenSig(e) {
+            isDrawingAbsenSig = true;
+            const pos = getPointerPosAbsenSig(e);
+            absenSigCtx.beginPath();
+            absenSigCtx.moveTo(pos.x, pos.y);
+        }
+
+        function drawAbsenSig(e) {
+            if (!isDrawingAbsenSig) return;
+            e.preventDefault(); 
+            const pos = getPointerPosAbsenSig(e);
+            absenSigCtx.lineTo(pos.x, pos.y);
+            absenSigCtx.stroke();
+        }
+
+        function handleTouchStartAbsenSig(e) { e.preventDefault(); startDrawingAbsenSig(e); }
+        function handleTouchMoveAbsenSig(e) { e.preventDefault(); drawAbsenSig(e); }
+        function stopDrawingAbsenSig() {
+            isDrawingAbsenSig = false;
+            if(absenSigCtx) absenSigCtx.closePath();
+        }
+
+        function clearAbsenSignature() {
+            if(!absenSigCtx) return;
+            absenSigCtx.clearRect(0, 0, absenSigCanvas.width, absenSigCanvas.height);
+        }
+
+        function getAbsenSignatureBase64() {
+            if(!absenSigCanvas) return "";
+            const blankCanvas = document.createElement('canvas');
+            blankCanvas.width = absenSigCanvas.width;
+            blankCanvas.height = absenSigCanvas.height;
+            if (absenSigCanvas.toDataURL() === blankCanvas.toDataURL()) {
+                return ""; 
+            }
+            return absenSigCanvas.toDataURL('image/jpeg', 0.5); 
+        }
+
+        function cancelAbsenSignature() {
+            const modal = document.getElementById('absen-sig-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { 
+                modal.style.display = 'none'; 
+                try {
+                    if (html5QrcodeScanner) html5QrcodeScanner.resume();
+                } catch(e) {}
+            }, 300);
+        }
+
         // --- EXPORT TO CSV LOGIC ---
         function exportDataToCSV(type) {
             showToast(`Mempersiapkan data ${type}...`, 'success');
@@ -974,30 +1233,28 @@
                     csvContent += `${siswa.nisn},"${siswa.nama}","${siswa.sekolah}"\n`;
                 });
             } else if (type === 'absensi') {
-                fileName = "Laporan_Absensi_Live.csv";
-                csvContent += "Waktu,Nama Siswa,Eskul,Sekolah,Status\n";
+                fileName = "Laporan_Kehadiran.csv";
+                csvContent += "Tanggal & Waktu,Nama Siswa,Kegiatan,Keterangan\n";
                 
-                // Mengambil data dari tabel HTML yang sudah dirender di dashboard
-                const rows = document.querySelectorAll('#live-log-table tr');
-                if(rows.length === 0 || rows[0].innerText.includes('Belum ada data')) {
-                     showToast('Belum ada data log hari ini.', 'error');
+                // Menarik data dari tabel rekap kehadiran yang lebih lengkap
+                const rows = document.querySelectorAll('#table-kehadiran tr');
+                if(rows.length === 0 || rows[0].innerText.includes('Data absensi akan muncul') || rows[0].innerText.includes('Belum ada data')) {
+                     showToast('Belum ada data absensi untuk diunduh.', 'error');
                      return;
                 }
                 
                 rows.forEach(row => {
                     const cols = row.querySelectorAll('td');
-                    if (cols.length === 5) {
+                    if (cols.length === 4) {
                         const waktu = cols[0].innerText;
                         const nama = cols[1].innerText.trim();
-                        const eskul = cols[2].innerText;
-                        const sekolah = cols[3].innerText;
-                        const status = cols[4].innerText;
-                        csvContent += `"${waktu}","${nama}","${eskul}","${sekolah}","${status}"\n`;
+                        const kegiatan = cols[2].innerText;
+                        const status = cols[3].innerText;
+                        csvContent += `"${waktu}","${nama}","${kegiatan}","${status}"\n`;
                     }
                 });
             }
 
-            // Memicu unduhan file
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
@@ -1035,6 +1292,11 @@
                 activeBtn.classList.add('bg-brand-gold/20', 'text-brand-gold', 'border-brand-gold/30');
             }
 
+            // Tutup sidebar di layar HP saat tab dipilih
+            if (window.innerWidth < 1024) {
+                toggleAdminSidebar(false);
+            }
+
             if(tabName === 'datasiswa') {
                 renderDataSiswa();
             }
@@ -1046,7 +1308,7 @@
             if (searchInput) {
                 searchInput.addEventListener('input', function(e) {
                     const searchTerm = e.target.value.toLowerCase();
-                    renderDataSiswa(searchTerm); // Panggil fungsi render dengan filter
+                    renderDataSiswa(searchTerm); 
                 });
             }
         }
@@ -1061,7 +1323,6 @@
 
             tbody.innerHTML = '';
             
-            // Logika Penyaringan (Filter)
             const filteredData = dummySiswa.filter(siswa => {
                 return siswa.nama.toLowerCase().includes(filter) || siswa.nisn.includes(filter);
             });
@@ -1077,8 +1338,8 @@
                         <td class="px-4 py-3 font-mono text-brand-gold">${siswa.nisn || '-'}</td>
                         <td class="px-4 py-3 text-white font-medium">${siswa.nama}</td>
                         <td class="px-4 py-3">${siswa.sekolah || 'Data Sekolah Kosong'}</td>
-                        <td class="px-4 py-3">
-                            <button onclick="openStudentModal('${siswa.nisn}')" class="text-blue-400 hover:text-blue-300 px-2 bg-blue-500/10 py-1 rounded transition-colors"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="openStudentModal('${siswa.nisn}')" class="text-blue-400 hover:text-blue-300 px-3 bg-blue-500/10 py-1.5 rounded transition-colors whitespace-nowrap"><i class="ph-bold ph-pencil-simple"></i> Edit</button>
                         </td>
                     </tr>
                 `;
@@ -1093,6 +1354,7 @@
             
             form.reset();
             document.getElementById('student-original-nisn').value = '';
+            clearSignature(); // Bersihkan canvas setiap modal dibuka
 
             if (nisn) {
                 title.innerText = 'Edit Siswa';
@@ -1104,6 +1366,8 @@
                     document.getElementById('student-kelas').value = student.kelas || '';
                     document.getElementById('student-eskul').value = student.eskul || '';
                     document.getElementById('student-sekolah').value = student.sekolah || '';
+                    // Note: Kami biarkan canvas tanda tangan kosong saat edit.
+                    // Jika admin tidak menggambar apa-apa, backend tidak akan merubah TTD lamanya.
                 }
             } else {
                 title.innerText = 'Tambah Siswa Baru';
@@ -1128,6 +1392,8 @@
             btn.disabled = true;
 
             const originalNisn = document.getElementById('student-original-nisn').value;
+            const ttdData = getSignatureBase64(); // Ambil base64 dari canvas
+
             const payload = {
                 action: originalNisn ? 'edit_siswa' : 'add_siswa',
                 original_nisn: originalNisn,
@@ -1135,7 +1401,8 @@
                 nama: document.getElementById('student-nama').value,
                 kelas: document.getElementById('student-kelas').value,
                 eskul: document.getElementById('student-eskul').value,
-                sekolah: document.getElementById('student-sekolah').value
+                sekolah: document.getElementById('student-sekolah').value,
+                ttd: ttdData // Tambahkan ttd ke payload
             };
 
             try {
@@ -1150,7 +1417,7 @@
                 if (responseData.status === 'success') {
                     showToast(originalNisn ? 'Data siswa diperbarui!' : 'Siswa baru ditambahkan!', 'success');
                     closeStudentModal();
-                    fetchDaftarSiswa(true); // Muat ulang tabel
+                    fetchDaftarSiswa(true); 
                 } else {
                     showToast(responseData.message, 'error');
                 }
@@ -1300,6 +1567,14 @@
             document.getElementById('siswa-eskul').innerText = data.eskul;
             document.getElementById('siswa-foto').src = data.foto;
             
+            const ttdImg = document.getElementById('siswa-ttd');
+            if (data.ttd && data.ttd.length > 50) {
+                ttdImg.src = data.ttd;
+                ttdImg.classList.remove('hidden');
+            } else {
+                ttdImg.classList.add('hidden');
+            }
+            
             document.getElementById('qrcode-display').innerHTML = '';
             new QRCode(document.getElementById("qrcode-display"), {
                 text: JSON.stringify({nisn: data.nisn, type: 'absen'}),
@@ -1318,8 +1593,8 @@
             
             html2canvas(card, {
                 backgroundColor: '#0B1B3D',
-                scale: 3, // Skala diperbesar untuk kualitas HD
-                useCORS: true // Sangat penting agar foto profil bisa didownload
+                scale: 3, 
+                useCORS: true 
             }).then(canvas => {
                 const link = document.createElement('a');
                 link.download = `ID_CARD_${currentUser.nama.replace(/\s+/g, '_')}.png`;
@@ -1475,13 +1750,8 @@
 
         async function onScanSuccess(decodedText, decodedResult) {
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.pause();
+                try { html5QrcodeScanner.pause(true); } catch(e) {}
             }
-
-            const resBox = document.getElementById('scan-result');
-            resBox.classList.remove('hidden');
-            resBox.className = 'mt-4 p-3 rounded-xl bg-blue-500/20 text-blue-400 text-center font-semibold text-sm border border-blue-500/30';
-            resBox.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Memproses Absensi ke Server...`;
 
             try {
                 let qrData;
@@ -1491,12 +1761,48 @@
                     qrData = { nisn: decodedText };
                 }
 
+                pendingAbsenNisn = qrData.nisn;
+                
+                // Tampilkan Modal TTD Absen
+                const modal = document.getElementById('absen-sig-modal');
+                clearAbsenSignature();
+                modal.style.display = 'flex';
+                void modal.offsetWidth;
+                modal.style.opacity = '1';
+
+            } catch (err) {
+                showToast("Gagal membaca QR.", "error");
+                setTimeout(() => { 
+                    try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e){} 
+                }, 2000);
+            }
+        }
+
+        async function submitAbsenSignature() {
+            const ttdData = getAbsenSignatureBase64();
+            if(!ttdData) {
+                showToast('Tanda tangan wajib diisi!', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('btn-submit-absen');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memproses...';
+            btn.disabled = true;
+
+            const resBox = document.getElementById('scan-result');
+            resBox.classList.remove('hidden');
+            resBox.className = 'mt-4 p-3 rounded-xl bg-blue-500/20 text-blue-400 text-center font-semibold text-sm border border-blue-500/30';
+            resBox.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Memproses Absensi ke Server...`;
+
+            try {
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                     body: JSON.stringify({
                         action: 'record_absen',
-                        nisn: qrData.nisn
+                        nisn: pendingAbsenNisn,
+                        ttd_absen: ttdData
                     }),
                     redirect: 'follow'
                 });
@@ -1508,6 +1814,7 @@
                     resBox.innerHTML = `<i class="ph-bold ph-check-circle text-lg"></i> Berhasil Absen: ${responseData.data.waktu}`;
                     
                     showToast(`Absen Berhasil: ${responseData.data.nama}`, "success");
+                    cancelAbsenSignature();
                     
                     setTimeout(() => {
                         closeScanner();
@@ -1518,14 +1825,24 @@
                     resBox.innerHTML = `<i class="ph-bold ph-warning-circle text-lg"></i> Gagal: ${responseData.message}`;
                     showToast(responseData.message, "error");
                     
-                    setTimeout(() => { if (html5QrcodeScanner) html5QrcodeScanner.resume(); }, 2500);
+                    cancelAbsenSignature();
+                    setTimeout(() => { 
+                        try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e){} 
+                    }, 2500);
                 }
 
             } catch (err) {
                 resBox.className = 'mt-4 p-3 rounded-xl bg-red-500/20 text-red-400 text-center font-semibold text-sm border border-red-500/30';
                 resBox.innerHTML = `<i class="ph-bold ph-warning-circle text-lg"></i> Error koneksi API.`;
                 showToast("Terjadi gangguan jaringan.", "error");
-                setTimeout(() => { if (html5QrcodeScanner) html5QrcodeScanner.resume(); }, 2500);
+                
+                cancelAbsenSignature();
+                setTimeout(() => { 
+                    try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e){} 
+                }, 2500);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         }
 
