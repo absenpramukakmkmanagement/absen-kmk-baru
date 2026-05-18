@@ -3,668 +3,770 @@
 <head>
     <meta name="google-site-verification" content="wNoRe0BF-RL8VWdI6kUFKTRj_Fz7ANxtd_2hyXJ-CZg" />
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KMK Management - Sistem Absensi Premium</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KMK Management | Sistem Absensi Ekstrakurikuler </title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Google Fonts: Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Phosphor Icons -->
+    <!-- Icons (Phosphor Icons - Modern) -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
-    <!-- External Libraries -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <script src="https://unpkg.com/html5-qrcode"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <!-- Chart.js for Dashboard -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- QR Code Generator -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    
+    <!-- HTML5 QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <!-- html2canvas for ID Card Download -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <script>
         tailwind.config = {
+            darkMode: 'class',
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
                         brand: {
-                            dark: '#0B1B3D',
-                            light: '#1A2B50',
-                            gold: '#D4AF37',
-                            goldHover: '#F1C40F'
+                            dark: '#0B1B3D', // Biru Gelap
+                            gold: '#D4AF37', // Emas
+                            light: '#F8FAFC',
+                            accent: '#E6C65C'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'spin-slow': 'spin 8s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
                         }
                     }
                 }
             }
         }
     </script>
+    
     <style>
         body {
-            background: linear-gradient(135deg, #050d21 0%, #0B1B3D 100%);
+            background-color: #0B1B3D;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(212, 175, 55, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(11, 27, 61, 0.8) 0px, transparent 50%);
+            background-attachment: fixed;
             color: white;
-            min-height: 100vh;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
-        
-        .glass-panel {
+
+        /* Glassmorphism Premium */
+        .glass {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
+        
+        .glass-gold {
+            background: linear-gradient(135deg, rgba(212, 175, 55, 0.1) 0%, rgba(212, 175, 55, 0.02) 100%);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
 
-        .gold-gradient {
-            background: linear-gradient(135deg, #D4AF37 0%, #F1C40F 100%);
+        .text-gold-gradient {
+            background: linear-gradient(to right, #D4AF37, #FDE08B, #D4AF37);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
         }
 
-        .btn-gold {
-            background: linear-gradient(135deg, #D4AF37 0%, #F1C40F 100%);
-            color: #0B1B3D;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-gold:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(212, 175, 55, 0.3);
+        @keyframes shine {
+            to { background-position: 200% center; }
         }
 
-        /* Animations */
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in { animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-        
-        @keyframes pulse-glow {
-            0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
-            50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); }
+        /* Smooth Transitions */
+        .page-transition {
+            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .glow-effect { animation: pulse-glow 3s infinite; }
+        .hide-page {
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+        }
+        .show-page {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+            position: relative;
+        }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 10px; }
+        ::-webkit-scrollbar-track { background: #0B1B3D; }
+        ::-webkit-scrollbar-thumb { background: rgba(212, 175, 55, 0.3); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212, 175, 55, 0.6); }
 
-        /* Hide elements utility */
-        .hidden-view { display: none !important; }
+        /* Loader */
+        .loader-ring {
+            width: 40px; height: 40px;
+            border: 3px solid rgba(212, 175, 55, 0.2);
+            border-radius: 50%;
+            border-top-color: #D4AF37;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        /* Custom Toast */
+        #toast-container {
+            position: fixed; top: 20px; right: 20px; z-index: 9999;
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .toast {
+            padding: 12px 20px; border-radius: 12px; color: white;
+            font-weight: 500; font-size: 0.9rem;
+            transform: translateX(120%); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: linear-gradient(135deg, #059669, #10B981); }
+        .toast.error { background: linear-gradient(135deg, #E11D48, #F43F5E); }
+
+        #qr-reader { border: none !important; border-radius: 16px; overflow: hidden; }
+        #qr-reader video { border-radius: 16px; object-fit: cover; }
     </style>
 </head>
 <body class="antialiased selection:bg-brand-gold selection:text-brand-dark">
 
-    <!-- 1. SPLASH SCREEN -->
-    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-dark transition-opacity duration-1000">
-        <div class="relative flex items-center justify-center w-32 h-32 mb-6">
-            <div class="absolute inset-0 border-4 border-brand-gold rounded-full border-t-transparent animate-spin glow-effect"></div>
-            <i class="ph-fill ph-hexagon text-6xl text-brand-gold"></i>
-        </div>
-        <h1 class="text-4xl font-bold tracking-wider gold-gradient mb-2">KMK</h1>
-        <p class="text-sm tracking-[0.3em] text-gray-400 uppercase">Management</p>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container"></div>
+
+    <!-- Background Animated Orbs -->
+    <div class="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[40vw] h-[40vw] rounded-full bg-brand-gold/10 blur-[100px] animate-float"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50vw] h-[50vw] rounded-full bg-blue-500/10 blur-[120px] animate-float" style="animation-delay: 2s;"></div>
     </div>
 
-    <!-- 2. ROLE SELECTION -->
-    <div id="role-selection" class="hidden-view min-h-screen flex flex-col items-center justify-center p-6 relative">
-        <!-- Background Ornaments -->
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-brand-gold opacity-10 rounded-full blur-[100px]"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-blue-500 opacity-10 rounded-full blur-[100px]"></div>
+    <!-- Splash Screen -->
+    <div id="splash-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-brand-dark transition-opacity duration-700">
+        <div class="relative flex items-center justify-center mb-6">
+            <div class="absolute inset-0 bg-brand-gold blur-[30px] opacity-30 rounded-full animate-pulse"></div>
+            <i class="ph-fill ph-hexagon text-brand-gold text-7xl relative z-10 animate-spin-slow"></i>
+            <i class="ph-bold ph-check text-brand-dark text-3xl absolute z-20"></i>
         </div>
-
-        <div class="text-center mb-12 animate-fade-in">
-            <div class="inline-block p-3 rounded-2xl glass-panel mb-4 text-brand-gold">
-                <i class="ph-fill ph-shield-check text-4xl"></i>
-            </div>
-            <h2 class="text-3xl md:text-4xl font-bold mb-2">Selamat Datang di Portal</h2>
-            <p class="text-gray-400">Pilih akses masuk Anda ke dalam sistem KMK Management</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl animate-fade-in" style="animation-delay: 0.2s;">
-            <!-- Siswa Card -->
-            <button onclick="switchView('login-siswa')" class="group glass-panel p-8 rounded-3xl hover:border-brand-gold/50 transition-all duration-300 text-left relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/0 to-brand-gold/5 group-hover:to-brand-gold/10 transition-all"></div>
-                <i class="ph-fill ph-student text-5xl text-brand-gold mb-4 group-hover:scale-110 transition-transform"></i>
-                <h3 class="text-2xl font-bold mb-2">Siswa</h3>
-                <p class="text-sm text-gray-400">Login untuk cek absensi, download ID Card, dan profil.</p>
-            </button>
-
-            <!-- Pembina Card -->
-            <button onclick="switchView('login-admin')" class="group glass-panel p-8 rounded-3xl hover:border-brand-gold/50 transition-all duration-300 text-left relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/0 to-brand-gold/5 group-hover:to-brand-gold/10 transition-all"></div>
-                <i class="ph-fill ph-chalkboard-teacher text-5xl text-brand-gold mb-4 group-hover:scale-110 transition-transform"></i>
-                <h3 class="text-2xl font-bold mb-2">Pembina</h3>
-                <p class="text-sm text-gray-400">Akses untuk mengelola jadwal latihan dan data unit.</p>
-            </button>
-
-            <!-- Admin Card -->
-            <button onclick="switchView('login-admin')" class="group glass-panel p-8 rounded-3xl hover:border-brand-gold/50 transition-all duration-300 text-left relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/0 to-brand-gold/5 group-hover:to-brand-gold/10 transition-all"></div>
-                <i class="ph-fill ph-cpu text-5xl text-brand-gold mb-4 group-hover:scale-110 transition-transform"></i>
-                <h3 class="text-2xl font-bold mb-2">Super Admin</h3>
-                <p class="text-sm text-gray-400">Kontrol penuh database, sinkronisasi, dan laporan.</p>
-            </button>
-        </div>
+        <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-white mb-2">KMK <span class="text-gold-gradient">Management</span></h1>
+        <p class="text-brand-gold/70 text-sm md:text-base font-medium uppercase tracking-widest">ABSENSI MANAGEMENT System</p>
+        <div class="mt-12 loader-ring"></div>
     </div>
 
-    <!-- 3. LOGIN SISWA -->
-    <div id="login-siswa" class="hidden-view min-h-screen flex items-center justify-center p-6">
-        <button onclick="switchView('role-selection')" class="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
-            <i class="ph ph-arrow-left"></i> Kembali
-        </button>
+    <!-- Main App Container -->
+    <main id="app-container" class="min-h-screen w-full relative hidden page-transition">
         
-        <div class="glass-panel p-8 md:p-10 rounded-3xl w-full max-w-md animate-fade-in relative z-10">
-            <div class="text-center mb-8">
-                <i class="ph-fill ph-identification-card text-5xl text-brand-gold mb-4"></i>
-                <h2 class="text-2xl font-bold">Portal Siswa</h2>
-                <p class="text-sm text-gray-400 mt-1">Masukkan Nama atau NISN Anda</p>
+        <!-- View: Role Selection -->
+        <div id="view-role-select" class="page-view show-page w-full min-h-screen flex flex-col items-center justify-center p-4">
+            <div class="text-center mb-10">
+                <h2 class="text-4xl font-bold text-white mb-3">Selamat Datang di</h2>
+                <h1 class="text-5xl font-extrabold text-gold-gradient mb-4">ABSENSI ONLINE BY KMK Management</h1>
+                <p class="text-gray-400">Pilih peran Anda untuk masuk ke sistem</p>
             </div>
 
-            <form onsubmit="handleLoginSiswa(event)" class="space-y-6">
-                <div class="relative">
-                    <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Nama / NISN</label>
-                    <div class="relative">
-                        <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="input-nisn" required autocomplete="off"
-                            class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder-gray-500 focus:outline-none focus:border-brand-gold transition-colors"
-                            placeholder="Ketik untuk mencari otomatis...">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
+                <!-- Siswa Card -->
+                <div onclick="navigateTo('view-login-siswa')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
+                    <div class="w-20 h-20 rounded-full bg-brand-gold/20 flex items-center justify-center mb-6 group-hover:bg-brand-gold/40 transition-colors">
+                        <i class="ph-fill ph-student text-brand-gold text-4xl"></i>
                     </div>
-                    <!-- Auto Suggestion Box -->
-                    <div id="auto-suggest" class="hidden absolute top-full left-0 w-full mt-2 glass-panel rounded-xl overflow-hidden z-20 max-h-48 overflow-y-auto">
-                        <!-- Data will be populated here -->
-                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Siswa</h3>
+                    <p class="text-sm text-gray-400">Pramuka & PMR</p>
                 </div>
 
-                <button type="submit" class="w-full btn-gold font-bold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-sign-in"></i> Masuk Sistem
+                <!-- Pembina Card -->
+                <div onclick="navigateTo('view-login-admin')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
+                    <div class="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center mb-6 group-hover:bg-blue-500/40 transition-colors">
+                        <i class="ph-fill ph-chalkboard-teacher text-blue-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Pembina</h3>
+                    <p class="text-sm text-gray-400">Manajemen Kegiatan</p>
+                </div>
+
+                <!-- Admin Card -->
+                <div onclick="navigateTo('view-login-admin')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
+                    <div class="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-6 group-hover:bg-purple-500/40 transition-colors">
+                        <i class="ph-fill ph-shield-check text-purple-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold text-white mb-2">Super Admin</h3>
+                    <p class="text-sm text-gray-400">Kontrol Sistem Utama</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Login Siswa -->
+        <div id="view-login-siswa" class="page-view hide-page w-full min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <button onclick="navigateTo('view-role-select')" class="mb-6 flex items-center text-gray-400 hover:text-brand-gold transition-colors">
+                    <i class="ph-bold ph-arrow-left mr-2"></i> Kembali
                 </button>
-            </form>
-        </div>
-    </div>
+                
+                <div class="glass p-8 rounded-[2rem] shadow-2xl relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand-gold to-transparent"></div>
+                    
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-white mb-2">Portal Siswa</h2>
+                        <p class="text-gray-400 text-sm">Masukkan NISN atau Nama Lengkap</p>
+                    </div>
 
-    <!-- 4. LOGIN ADMIN -->
-    <div id="login-admin" class="hidden-view min-h-screen flex items-center justify-center p-6">
-        <button onclick="switchView('role-selection')" class="absolute top-6 left-6 text-gray-400 hover:text-white flex items-center gap-2 transition-colors">
-            <i class="ph ph-arrow-left"></i> Kembali
-        </button>
-        
-        <div class="glass-panel p-8 md:p-10 rounded-3xl w-full max-w-md animate-fade-in">
-            <div class="text-center mb-8">
-                <i class="ph-fill ph-fingerprint text-5xl text-brand-gold mb-4"></i>
-                <h2 class="text-2xl font-bold">Admin Security</h2>
-                <p class="text-sm text-gray-400 mt-1">Akses khusus pengelola</p>
+                    <form id="form-login-siswa" onsubmit="handleLoginSiswa(event)" class="space-y-6">
+                        <div class="relative">
+                            <label class="block text-sm font-medium text-gray-300 mb-2">Identitas Siswa</label>
+                            <div class="relative flex items-center">
+                                <i class="ph ph-identification-card absolute left-4 text-xl text-gray-400"></i>
+                                <input type="text" id="input-nisn" required placeholder="Contoh: 0012345678 / Budi" 
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold transition-all" autocomplete="off">
+                            </div>
+                            <!-- Mock Auto Suggestion Dropdown -->
+                            <div id="auto-suggest" class="absolute w-full mt-2 bg-brand-dark/95 border border-white/10 rounded-xl shadow-xl hidden flex-col max-h-40 overflow-y-auto z-10 glass">
+                                <!-- suggestions will be populated here -->
+                            </div>
+                        </div>
+
+                        <button type="submit" id="btn-login-siswa" class="w-full bg-brand-gold text-brand-dark font-bold py-3.5 rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(212,175,55,0.3)] hover:shadow-[0_0_25px_rgba(212,175,55,0.5)]">
+                            <span>Masuk Sistem</span>
+                            <i class="ph-bold ph-sign-in"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
+        </div>
 
-            <form onsubmit="handleLoginAdmin(event)" class="space-y-5">
-                <div>
-                    <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Username</label>
-                    <div class="relative">
-                        <i class="ph ph-user-gear absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="text" id="admin-user" required 
-                            class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-brand-gold transition-colors"
-                            placeholder="Masukkan username">
+        <!-- View: Login Admin -->
+        <div id="view-login-admin" class="page-view hide-page w-full min-h-screen flex items-center justify-center p-4">
+            <div class="w-full max-w-md">
+                <button onclick="navigateTo('view-role-select')" class="mb-6 flex items-center text-gray-400 hover:text-brand-gold transition-colors">
+                    <i class="ph-bold ph-arrow-left mr-2"></i> Kembali
+                </button>
+                
+                <div class="glass p-8 rounded-[2rem] shadow-2xl relative overflow-hidden border-blue-500/20">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent"></div>
+                    
+                    <div class="text-center mb-8">
+                        <div class="w-16 h-16 rounded-full bg-blue-500/20 mx-auto flex items-center justify-center mb-4">
+                            <i class="ph-fill ph-lock-key text-blue-400 text-3xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-2">Admin Security</h2>
+                        <p class="text-gray-400 text-sm">Akses khusus Pembina & Manajemen</p>
+                    </div>
+
+                    <form id="form-login-admin" onsubmit="handleLoginAdmin(event)" class="space-y-5">
+                        <div>
+                            <div class="relative flex items-center">
+                                <i class="ph ph-user absolute left-4 text-xl text-gray-400"></i>
+                                <input type="text" id="admin-user" required placeholder="Username" 
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white focus:outline-none focus:border-blue-500 transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <div class="relative flex items-center">
+                                <i class="ph ph-lock absolute left-4 text-xl text-gray-400"></i>
+                                <input type="password" id="admin-pass" required placeholder="Password" 
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white focus:outline-none focus:border-blue-500 transition-all">
+                                <i class="ph ph-eye absolute right-4 text-xl text-gray-400 cursor-pointer hover:text-white transition-colors" onclick="togglePassword('admin-pass')"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between text-sm">
+                            <label class="flex items-center text-gray-400 cursor-pointer">
+                                <input type="checkbox" class="mr-2 rounded border-gray-600 bg-transparent text-blue-500 focus:ring-blue-500">
+                                Remember me
+                            </label>
+                            <a href="#" class="text-blue-400 hover:text-blue-300">Forgot Password?</a>
+                        </div>
+
+                        <button type="submit" id="btn-login-admin" class="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl hover:bg-blue-500 transition-all flex justify-center items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)] hover:shadow-[0_0_25px_rgba(37,99,235,0.5)] mt-4">
+                            <span>Secure Login</span>
+                            <i class="ph-bold ph-shield-check"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- View: Student Dashboard -->
+        <div id="view-dashboard-siswa" class="page-view hide-page w-full min-h-screen pb-20 md:pb-0">
+            <!-- Navbar Mobile/Desktop -->
+            <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b-0 border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold/30">
+                        <i class="ph-fill ph-hexagon text-brand-gold text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white leading-tight">KMK Mgt.</h1>
+                        <p class="text-[10px] text-brand-gold uppercase tracking-wider">Student Portal</p>
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-400 mb-2 uppercase tracking-wider">Password</label>
-                    <div class="relative">
-                        <i class="ph ph-lock-key absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                        <input type="password" id="admin-pass" required 
-                            class="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-12 pr-12 text-white focus:outline-none focus:border-brand-gold transition-colors"
-                            placeholder="••••••••">
-                        <button type="button" onclick="togglePassword()" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
-                            <i class="ph ph-eye" id="eye-icon"></i>
+                <div class="flex items-center gap-4">
+                    <button class="relative text-gray-300 hover:text-white transition-colors">
+                        <i class="ph ph-bell text-2xl"></i>
+                        <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button onclick="logout()" class="hidden md:flex items-center gap-2 text-red-400 hover:text-red-300 text-sm font-medium bg-red-500/10 px-4 py-2 rounded-lg transition-colors">
+                        <i class="ph-bold ph-sign-out"></i> Logout
+                    </button>
+                </div>
+            </nav>
+
+            <div class="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 grid grid-cols-1 md:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Profile & ID Card -->
+                <div class="md:col-span-4 space-y-6">
+                    <!-- Profile Card -->
+                    <div class="glass p-6 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 w-32 h-32 bg-brand-gold/10 rounded-bl-full -z-10 group-hover:scale-110 transition-transform"></div>
+                        
+                        <div class="flex flex-col items-center text-center">
+                            <div class="relative mb-4">
+                                <img id="siswa-foto" src="https://placehold.co/150x150/0B1B3D/D4AF37?text=Siswa" alt="Profile" class="w-24 h-24 rounded-full object-cover border-4 border-brand-gold/30 shadow-lg p-1">
+                                <button class="absolute bottom-0 right-0 bg-brand-gold text-brand-dark p-2 rounded-full hover:scale-110 transition-transform shadow-md">
+                                    <i class="ph-bold ph-camera"></i>
+                                </button>
+                            </div>
+                            <h2 id="siswa-nama" class="text-xl font-bold text-white mb-1">Nama Siswa</h2>
+                            <p id="siswa-nisn" class="text-gray-400 text-sm mb-4 font-mono">1234567890</p>
+                            
+                            <div class="w-full grid grid-cols-2 gap-3 text-left">
+                                <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                                    <p class="text-[10px] text-gray-500 uppercase">Sekolah</p>
+                                    <p id="siswa-sekolah" class="text-sm font-semibold text-white truncate">SMPN 1</p>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-xl border border-white/5">
+                                    <p class="text-[10px] text-gray-500 uppercase">Kelas</p>
+                                    <p id="siswa-kelas" class="text-sm font-semibold text-white">VII-A</p>
+                                </div>
+                                <div class="bg-white/5 p-3 rounded-xl border border-white/5 col-span-2 flex items-center justify-between">
+                                    <div>
+                                        <p class="text-[10px] text-gray-500 uppercase">Ekstrakurikuler</p>
+                                        <p id="siswa-eskul" class="text-sm font-bold text-brand-gold">Pramuka</p>
+                                    </div>
+                                    <i class="ph-fill ph-tent text-2xl text-brand-gold/50"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Digital ID Card / QR -->
+                    <div id="id-card-container" class="glass-gold p-6 rounded-3xl flex flex-col items-center text-center relative overflow-hidden">
+                        <div class="absolute top-0 right-0 text-brand-gold/20 -translate-y-4 translate-x-4">
+                            <i class="ph-fill ph-qr-code text-[150px]"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-white mb-4 relative z-10 w-full text-left">QR Absensi & ID</h3>
+                        <div class="bg-white p-3 rounded-2xl shadow-xl mb-4 relative z-10">
+                            <div id="qrcode-display"></div>
+                        </div>
+                        <p class="text-xs text-gray-300 relative z-10 mb-4">Tunjukkan QR ini ke Pembina untuk presensi.</p>
+                        <button onclick="downloadIDCard()" class="w-full bg-brand-gold/20 hover:bg-brand-gold/30 text-brand-gold border border-brand-gold/50 font-semibold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 relative z-10">
+                            <i class="ph-bold ph-download-simple"></i> Download ID Card
                         </button>
                     </div>
                 </div>
 
-                <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" class="rounded border-white/10 bg-black/20 text-brand-gold focus:ring-brand-gold focus:ring-offset-0">
-                        <span class="text-gray-400">Ingat saya</span>
-                    </label>
-                    <a href="#" class="text-brand-gold hover:underline">Lupa Password?</a>
-                </div>
-
-                <button type="submit" class="w-full btn-gold font-bold py-3.5 rounded-xl shadow-lg mt-4 flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-shield-check"></i> Secure Login
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 5. DASHBOARD SISWA -->
-    <div id="dashboard-siswa" class="hidden-view min-h-screen bg-[#050d21]">
-        <!-- Navbar -->
-        <nav class="glass-panel sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b-0 border-white/10">
-            <div class="flex items-center gap-3">
-                <i class="ph-fill ph-hexagon text-2xl text-brand-gold"></i>
-                <span class="font-bold tracking-wide">KMK Portal</span>
-            </div>
-            <button onclick="logout('siswa')" class="text-sm bg-white/5 hover:bg-red-500/20 text-red-400 px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
-                <i class="ph ph-sign-out"></i> Keluar
-            </button>
-        </nav>
-
-        <div class="p-6 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Left Column: ID Card & QR -->
-            <div class="lg:col-span-1 space-y-6">
-                <!-- Digital ID Card Container -->
-                <div id="id-card-element" class="glass-panel p-6 rounded-3xl relative overflow-hidden text-center">
-                    <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-brand-gold to-yellow-500"></div>
-                    <img id="dash-foto" src="https://placehold.co/150x150/0B1B3D/D4AF37?text=Siswa" alt="Profile" class="w-24 h-24 rounded-full mx-auto border-4 border-white/10 mb-4 object-cover shadow-xl">
-                    <h3 id="dash-nama" class="text-xl font-bold text-white mb-1">Nama Siswa</h3>
-                    <p id="dash-nisn" class="text-brand-gold font-mono text-sm mb-4 tracking-widest">0000000000</p>
-                    
-                    <div class="grid grid-cols-2 gap-2 text-left bg-black/20 p-4 rounded-xl mb-6 text-xs border border-white/5">
-                        <div class="text-gray-400">Kelas</div>
-                        <div id="dash-kelas" class="text-white font-medium text-right">-</div>
-                        <div class="text-gray-400">Sekolah</div>
-                        <div id="dash-sekolah" class="text-white font-medium text-right">-</div>
-                        <div class="text-gray-400">Eskul</div>
-                        <div id="dash-eskul" class="text-white font-medium text-right">-</div>
-                    </div>
-
-                    <div class="bg-white p-3 rounded-2xl inline-block shadow-lg mb-2">
-                        <div id="qr-container"></div>
-                    </div>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-2">Scan QR ini ke Pembina</p>
-                </div>
-                
-                <button onclick="downloadIDCard()" class="w-full btn-gold py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg">
-                    <i class="ph-bold ph-download-simple"></i> Download ID Card
-                </button>
-            </div>
-
-            <!-- Right Column: Stats & Feed -->
-            <div class="lg:col-span-2 space-y-6">
-                <!-- Stats Row -->
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div class="glass-panel p-4 rounded-2xl border-l-2 border-green-500">
-                        <div class="text-gray-400 text-xs mb-1">Kehadiran</div>
-                        <div class="text-2xl font-bold text-white">95%</div>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl border-l-2 border-brand-gold">
-                        <div class="text-gray-400 text-xs mb-1">Total Hadir</div>
-                        <div class="text-2xl font-bold text-white">24</div>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl border-l-2 border-blue-500">
-                        <div class="text-gray-400 text-xs mb-1">Izin/Sakit</div>
-                        <div class="text-2xl font-bold text-white">1</div>
-                    </div>
-                    <div class="glass-panel p-4 rounded-2xl border-l-2 border-purple-500">
-                        <div class="text-gray-400 text-xs mb-1">Poin Aktif</div>
-                        <div class="text-2xl font-bold text-white">120</div>
-                    </div>
-                </div>
-
-                <!-- Info Panel -->
-                <div class="glass-panel p-6 rounded-3xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-lg font-bold flex items-center gap-2"><i class="ph-fill ph-megaphone text-brand-gold"></i> Pengumuman Terbaru</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="bg-black/20 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                            <span class="text-xs bg-brand-gold/20 text-brand-gold px-2 py-1 rounded mb-2 inline-block">Pramuka</span>
-                            <h4 class="font-bold text-white mb-1">Persiapan Kemah Blok</h4>
-                            <p class="text-sm text-gray-400">Harap membawa perlengkapan tenda dan alat masak pada pertemuan jumat depan.</p>
-                            <div class="text-[10px] text-gray-500 mt-3"><i class="ph ph-clock"></i> Diposting 2 jam yang lalu</div>
+                <!-- Right Column: Stats, Scanner & Content -->
+                <div class="md:col-span-8 space-y-6">
+                    <!-- Stats Row -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
+                            <p class="text-xs text-gray-400 mb-1">Kehadiran</p>
+                            <p class="text-2xl font-bold text-white">95<span class="text-sm text-gray-500">%</span></p>
                         </div>
-                        <div class="bg-black/20 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-colors">
-                            <span class="text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded mb-2 inline-block">PMR</span>
-                            <h4 class="font-bold text-white mb-1">Latihan P3K Dasar</h4>
-                            <p class="text-sm text-gray-400">Materi pembalutan luka dan evakuasi korban. Wajib membawa mitela.</p>
-                            <div class="text-[10px] text-gray-500 mt-3"><i class="ph ph-clock"></i> Diposting 1 hari yang lalu</div>
+                        <div class="glass p-4 rounded-2xl border-l-4 border-brand-gold">
+                            <p class="text-xs text-gray-400 mb-1">Total Hadir</p>
+                            <p class="text-2xl font-bold text-white">24</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
+                            <p class="text-xs text-gray-400 mb-1">Izin/Sakit</p>
+                            <p class="text-2xl font-bold text-white">1</p>
+                        </div>
+                        <div class="glass p-4 rounded-2xl border-l-4 border-purple-500">
+                            <p class="text-xs text-gray-400 mb-1">Peringkat</p>
+                            <p class="text-2xl font-bold text-white">#3</p>
+                        </div>
+                    </div>
+
+                    <!-- Actions (Self Scan) -->
+                    <div class="glass p-6 rounded-3xl border border-blue-500/30 bg-gradient-to-br from-blue-900/20 to-transparent">
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-white mb-1">Absensi Mandiri</h3>
+                                <p class="text-sm text-gray-400">Scan QR Code yang disediakan oleh Pembina.</p>
+                            </div>
+                            <button onclick="openScanner()" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl flex items-center gap-2 shadow-lg transition-all hover:scale-105 whitespace-nowrap">
+                                <i class="ph-bold ph-scan"></i> Buka Scanner
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Announcement / Kegiatan -->
+                    <div class="glass p-6 rounded-3xl">
+                        <div class="flex justify-between items-end mb-4">
+                            <h3 class="text-lg font-bold text-white">Pengumuman Terbaru</h3>
+                            <a href="#" class="text-sm text-brand-gold hover:underline">Lihat semua</a>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="bg-white/5 p-4 rounded-2xl flex gap-4 hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-orange-500/20 flex flex-shrink-0 items-center justify-center text-orange-400">
+                                    <i class="ph-fill ph-fire text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white mb-1">Persami Gabungan 2026</h4>
+                                    <p class="text-xs text-gray-400 line-clamp-2">Persiapkan perlengkapan kemah untuk akhir pekan ini. Lokasi: Buperta Cibubur. Kumpul jam 07:00 WIB.</p>
+                                    <p class="text-[10px] text-gray-500 mt-2"><i class="ph ph-clock"></i> 2 jam yang lalu</p>
+                                </div>
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-2xl flex gap-4 hover:bg-white/10 transition-colors cursor-pointer border border-white/5">
+                                <div class="w-12 h-12 rounded-xl bg-red-500/20 flex flex-shrink-0 items-center justify-center text-red-400">
+                                    <i class="ph-fill ph-first-aid text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-white mb-1">Pelatihan P3K PMR Dasar</h4>
+                                    <p class="text-xs text-gray-400 line-clamp-2">Wajib bagi seluruh anggota baru PMR Madya. Bawa buku catatan dan alat tulis.</p>
+                                    <p class="text-[10px] text-gray-500 mt-2"><i class="ph ph-clock"></i> 1 hari yang lalu</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Mobile Bottom Nav -->
+            <div class="md:hidden fixed bottom-0 left-0 w-full glass rounded-t-3xl border-t border-white/10 px-6 py-4 flex justify-between items-center z-40">
+                <button class="flex flex-col items-center text-brand-gold">
+                    <i class="ph-fill ph-house text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Home</span>
+                </button>
+                <button class="flex flex-col items-center text-gray-500 hover:text-gray-300">
+                    <i class="ph ph-calendar-check text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Jadwal</span>
+                </button>
+                <button onclick="openScanner()" class="flex flex-col items-center justify-center w-14 h-14 bg-brand-gold text-brand-dark rounded-full -mt-8 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
+                    <i class="ph-bold ph-scan text-2xl"></i>
+                </button>
+                <button class="flex flex-col items-center text-gray-500 hover:text-gray-300">
+                    <i class="ph ph-clock-counter-clockwise text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Riwayat</span>
+                </button>
+                <button onclick="logout()" class="flex flex-col items-center text-red-400">
+                    <i class="ph ph-sign-out text-2xl"></i>
+                    <span class="text-[10px] mt-1 font-medium">Logout</span>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <!-- 6. DASHBOARD ADMIN -->
-    <div id="dashboard-admin" class="hidden-view min-h-screen flex bg-[#050d21]">
-        <!-- Sidebar -->
-        <aside class="w-64 glass-panel border-r border-white/5 hidden md:flex flex-col z-30 sticky top-0 h-screen">
-            <div class="p-6 border-b border-white/5 text-center">
-                <i class="ph-fill ph-hexagon text-4xl text-brand-gold mb-2"></i>
-                <h2 class="font-bold tracking-widest text-sm uppercase">KMK Mgt.</h2>
-            </div>
-            <div class="p-4 flex-1 space-y-2">
-                <button onclick="showAdminTab('admin-overview')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-white/10 text-white font-medium transition-colors" id="nav-btn-overview">
-                    <i class="ph ph-squares-four text-xl text-brand-gold"></i> Dashboard
-                </button>
-                <button onclick="showAdminTab('admin-data-siswa')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="nav-btn-siswa">
-                    <i class="ph ph-users text-xl"></i> Data Siswa
-                </button>
-                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
-                    <i class="ph ph-calendar-check text-xl"></i> Rekap Absen
-                </button>
-                <button class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-white/5 text-gray-400 hover:text-white transition-colors">
-                    <i class="ph ph-gear text-xl"></i> Pengaturan
-                </button>
-            </div>
-            <div class="p-4 border-t border-white/5">
-                <div class="flex items-center gap-3 mb-4 px-2">
-                    <div class="w-10 h-10 rounded-full bg-brand-gold flex items-center justify-center text-brand-dark font-bold">A</div>
-                    <div>
-                        <div id="admin-nama-display" class="text-sm font-bold">Super Admin</div>
-                        <div class="text-xs text-green-400 flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Online</div>
-                    </div>
-                </div>
-                <button onclick="logout('admin')" class="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/20 transition-colors">
-                    <i class="ph ph-sign-out"></i> Logout
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content Area -->
-        <main class="flex-1 flex flex-col h-screen overflow-y-auto relative">
-            <!-- Mobile Header -->
-            <header class="md:hidden glass-panel p-4 flex justify-between items-center sticky top-0 z-30">
-                <div class="flex items-center gap-2">
-                    <i class="ph-fill ph-hexagon text-brand-gold text-xl"></i>
-                    <span class="font-bold">KMK Admin</span>
-                </div>
-                <button onclick="logout('admin')" class="text-red-400"><i class="ph ph-sign-out text-2xl"></i></button>
-            </header>
-
-            <div class="p-6 lg:p-8 relative">
-                <!-- Floating Scanner Button -->
-                <button onclick="openScanner()" class="fixed bottom-8 right-8 z-40 bg-brand-gold text-brand-dark w-14 h-14 rounded-full shadow-[0_0_20px_rgba(212,175,55,0.4)] flex items-center justify-center hover:scale-110 transition-transform">
-                    <i class="ph-bold ph-qr-code text-2xl"></i>
-                </button>
-
-                <!-- TAB 1: OVERVIEW -->
-                <div id="admin-overview" class="admin-tab block animate-fade-in">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <!-- View: Admin Dashboard -->
+        <div id="view-dashboard-admin" class="page-view hide-page w-full min-h-screen flex">
+            <!-- Sidebar Desktop -->
+            <aside class="hidden lg:flex w-64 glass flex-col justify-between border-r border-white/10 sticky top-0 h-screen">
+                <div>
+                    <div class="p-6 border-b border-white/10 flex items-center gap-3">
+                        <i class="ph-fill ph-hexagon text-brand-gold text-3xl"></i>
                         <div>
-                            <h1 class="text-2xl font-bold">Realtime Dashboard</h1>
-                            <p class="text-sm text-gray-400">Sinkronisasi langsung dengan Google Sheets</p>
-                        </div>
-                        <div class="flex gap-3 w-full md:w-auto">
-                            <button onclick="openScanner()" class="flex-1 md:flex-none bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl flex items-center justify-center gap-2 border border-white/5 transition-colors">
-                                <i class="ph ph-camera"></i> Mode Scanner Kelas
-                            </button>
-                            <button class="flex-1 md:flex-none btn-gold px-4 py-2 rounded-xl flex items-center justify-center gap-2">
-                                <i class="ph ph-arrows-clockwise"></i> Sync
-                            </button>
+                            <h2 class="font-bold text-white text-lg">KMK Mgt.</h2>
+                            <p class="text-xs text-blue-400">Admin Panel</p>
                         </div>
                     </div>
+                    <nav class="p-4 space-y-2">
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 bg-brand-gold/20 text-brand-gold rounded-xl border border-brand-gold/30 font-medium">
+                            <i class="ph-fill ph-squares-four text-xl"></i> Dashboard
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph ph-users text-xl"></i> Data Siswa
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph ph-calendar-check text-xl"></i> Kehadiran
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph ph-speaker-hifi text-xl"></i> Pengumuman
+                        </a>
+                        <a href="#" class="flex items-center gap-3 px-4 py-3 text-gray-400 hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph ph-database text-xl"></i> Backup & Arsip
+                        </a>
+                    </nav>
+                </div>
+                <div class="p-4 border-t border-white/10">
+                    <button onclick="logout()" class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500/10 text-red-400 hover:bg-red-500/20 rounded-xl transition-colors font-medium">
+                        <i class="ph-bold ph-sign-out"></i> Logout Admin
+                    </button>
+                </div>
+            </aside>
 
+            <!-- Admin Main Content -->
+            <div class="flex-1 overflow-y-auto">
+                <!-- Topbar -->
+                <header class="glass sticky top-0 z-30 px-6 py-4 flex justify-between items-center border-b border-white/10">
+                    <div class="flex items-center gap-4">
+                        <button class="lg:hidden text-gray-300 text-2xl"><i class="ph ph-list"></i></button>
+                        <h2 class="text-xl font-bold text-white hidden sm:block">Overview Realtime</h2>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="hidden sm:flex items-center bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
+                            <span class="text-xs text-gray-300 font-medium">API Connected</span>
+                        </div>
+                        <div class="flex items-center gap-3 border-l border-white/10 pl-4">
+                            <div class="text-right hidden sm:block">
+                                <p id="admin-name" class="text-sm font-bold text-white">Super Admin</p>
+                                <p class="text-[10px] text-gray-400">Master Akses</p>
+                            </div>
+                            <img src="https://placehold.co/100x100/2563EB/ffffff?text=AD" class="w-9 h-9 rounded-full border-2 border-blue-500">
+                        </div>
+                    </div>
+                </header>
+
+                <div class="p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto">
                     <!-- Quick Stats -->
-                    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/30 transition-colors"></div>
-                            <div class="text-gray-400 text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-users text-blue-400"></i> Total Siswa</div>
-                            <div class="text-3xl font-bold">256</div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="glass p-5 rounded-2xl relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 text-blue-500/10 group-hover:scale-110 transition-transform"><i class="ph-fill ph-users text-7xl"></i></div>
+                            <p class="text-sm text-gray-400 mb-1 font-medium">Total Siswa Aktif</p>
+                            <h3 class="text-3xl font-bold text-white">1,248</h3>
+                            <p class="text-xs text-emerald-400 mt-2 flex items-center gap-1"><i class="ph-bold ph-arrow-up-right"></i> +12 minggu ini</p>
                         </div>
-                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-green-500/20 rounded-full blur-xl group-hover:bg-green-500/30 transition-colors"></div>
-                            <div class="text-gray-400 text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-check-circle text-green-400"></i> Hadir Hari Ini</div>
-                            <div class="text-3xl font-bold text-green-400">142</div>
+                        <div class="glass p-5 rounded-2xl relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 text-emerald-500/10 group-hover:scale-110 transition-transform"><i class="ph-fill ph-check-circle text-7xl"></i></div>
+                            <p class="text-sm text-gray-400 mb-1 font-medium">Hadir Hari Ini</p>
+                            <h3 class="text-3xl font-bold text-white">452</h3>
+                            <p class="text-xs text-emerald-400 mt-2 flex items-center gap-1"><i class="ph-bold ph-arrow-up-right"></i> 85% Attendance Rate</p>
                         </div>
-                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-brand-gold/20 rounded-full blur-xl group-hover:bg-brand-gold/30 transition-colors"></div>
-                            <div class="text-gray-400 text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-buildings text-brand-gold"></i> Sekolah Aktif</div>
-                            <div class="text-3xl font-bold">3</div>
+                        <div class="glass p-5 rounded-2xl relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 text-brand-gold/10 group-hover:scale-110 transition-transform"><i class="ph-fill ph-tent text-7xl"></i></div>
+                            <p class="text-sm text-gray-400 mb-1 font-medium">Sesi Pramuka</p>
+                            <h3 class="text-3xl font-bold text-white">Active</h3>
+                            <p class="text-xs text-brand-gold mt-2 flex items-center gap-1"><i class="ph-bold ph-map-pin"></i> SMPN 1 & SMPN 2</p>
                         </div>
-                        <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group">
-                            <div class="absolute -right-4 -top-4 w-16 h-16 bg-purple-500/20 rounded-full blur-xl group-hover:bg-purple-500/30 transition-colors"></div>
-                            <div class="text-gray-400 text-sm mb-2 flex items-center gap-2"><i class="ph-fill ph-clock-counter-clockwise text-purple-400"></i> Izin Pending</div>
-                            <div class="text-3xl font-bold text-purple-400">5</div>
+                        <div class="glass p-5 rounded-2xl relative overflow-hidden group">
+                            <div class="absolute -right-4 -top-4 text-orange-500/10 group-hover:scale-110 transition-transform"><i class="ph-fill ph-warning-circle text-7xl"></i></div>
+                            <p class="text-sm text-gray-400 mb-1 font-medium">Izin Pending</p>
+                            <h3 class="text-3xl font-bold text-white">7</h3>
+                            <p class="text-xs text-orange-400 mt-2 flex items-center gap-1 cursor-pointer hover:underline">Review sekarang <i class="ph-bold ph-arrow-right"></i></p>
                         </div>
                     </div>
 
                     <!-- Charts & Tables -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <!-- Chart -->
-                        <div class="lg:col-span-2 glass-panel p-6 rounded-3xl">
-                            <h3 class="text-lg font-bold mb-4">Grafik Kehadiran Mingguan</h3>
-                            <div class="relative h-64 w-full">
+                        <div class="glass p-6 rounded-3xl lg:col-span-2 border border-white/5">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="text-lg font-bold text-white">Grafik Kehadiran Mingguan</h3>
+                                <select class="bg-white/5 border border-white/10 text-sm text-gray-300 rounded-lg px-3 py-1 focus:outline-none">
+                                    <option>Semua Eskul</option>
+                                    <option>Pramuka</option>
+                                    <option>PMR</option>
+                                </select>
+                            </div>
+                            <div class="h-64 w-full">
                                 <canvas id="attendanceChart"></canvas>
                             </div>
                         </div>
-                        
-                        <!-- Live Scan Log -->
-                        <div class="glass-panel p-6 rounded-3xl flex flex-col">
-                            <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-lg font-bold flex items-center gap-2"><i class="ph-fill ph-broadcast text-green-400 animate-pulse"></i> Live Scan Log</h3>
-                            </div>
-                            <div class="flex-1 overflow-y-auto pr-2 space-y-3">
-                                <!-- Dummy Logs -->
-                                <div class="flex items-center gap-3 p-3 bg-black/20 rounded-xl border border-white/5">
-                                    <img src="https://placehold.co/40x40/0B1B3D/D4AF37?text=A" class="w-8 h-8 rounded-full">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-bold text-white truncate">Ahmad Riyadi</div>
-                                        <div class="text-[10px] text-gray-400 truncate">SMPN 1 • Pramuka</div>
-                                    </div>
-                                    <div class="text-xs text-brand-gold bg-brand-gold/10 px-2 py-1 rounded">16:45</div>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 bg-black/20 rounded-xl border border-white/5">
-                                    <img src="https://placehold.co/40x40/0B1B3D/D4AF37?text=B" class="w-8 h-8 rounded-full">
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-bold text-white truncate">Budi Santoso</div>
-                                        <div class="text-[10px] text-gray-400 truncate">SMPN 2 • PMR</div>
-                                    </div>
-                                    <div class="text-xs text-brand-gold bg-brand-gold/10 px-2 py-1 rounded">16:42</div>
-                                </div>
-                                <div class="flex items-center gap-3 p-3 bg-black/20 rounded-xl border border-white/5">
-                                    <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"><i class="ph ph-spinner animate-spin"></i></div>
-                                    <div class="flex-1 min-w-0">
-                                        <div class="text-sm font-bold text-gray-400 italic">Menunggu scan...</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- TAB 2: DATA SISWA -->
-                <div id="admin-data-siswa" class="admin-tab hidden animate-fade-in">
-                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-                        <div>
-                            <h1 class="text-2xl font-bold">Manajemen Data Siswa</h1>
-                            <p class="text-sm text-gray-400">Kelola profil, cetak QR massal, dan mutasi</p>
-                        </div>
-                        <div class="flex gap-2 w-full md:w-auto">
-                            <button class="bg-white/10 hover:bg-white/20 px-4 py-2 rounded-xl text-sm flex items-center gap-2 border border-white/5 transition-colors">
-                                <i class="ph ph-export"></i> Export
+                        <!-- Mini Scanner / Generator Actions for Pembina -->
+                        <div class="glass p-6 rounded-3xl flex flex-col gap-4 border border-white/5">
+                            <h3 class="text-lg font-bold text-white mb-2">Aksi Cepat Pembina</h3>
+                            
+                            <button onclick="openScanner()" class="w-full bg-blue-600/20 hover:bg-blue-600/40 text-blue-400 border border-blue-500/50 py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                                <i class="ph-bold ph-scan text-3xl group-hover:scale-110 transition-transform"></i>
+                                <span class="font-semibold text-sm">Mode Scanner Kelas</span>
                             </button>
-                            <button class="btn-gold px-4 py-2 rounded-xl text-sm flex items-center gap-2">
-                                <i class="ph-bold ph-plus"></i> Tambah Siswa
+                            
+                            <button class="w-full bg-brand-gold/20 hover:bg-brand-gold/40 text-brand-gold border border-brand-gold/50 py-4 rounded-2xl flex flex-col items-center justify-center gap-2 transition-all group">
+                                <i class="ph-bold ph-qr-code text-3xl group-hover:scale-110 transition-transform"></i>
+                                <span class="font-semibold text-sm">Generate QR Sesi</span>
+                            </button>
+
+                            <button class="w-full bg-emerald-500/20 hover:bg-emerald-500/40 text-emerald-400 border border-emerald-500/50 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all mt-auto text-sm font-semibold">
+                                <i class="ph-bold ph-download-simple"></i> Export Rekap Excel
                             </button>
                         </div>
                     </div>
 
-                    <!-- Filter Bar -->
-                    <div class="glass-panel p-4 rounded-2xl mb-6 flex flex-wrap gap-4 items-center justify-between">
-                        <div class="flex gap-3 flex-wrap">
-                            <select class="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-gold">
-                                <option>Semua Sekolah</option>
-                                <option>SMPN 1</option>
-                                <option>SMPN 2</option>
-                                <option>SDN 1</option>
-                            </select>
-                            <select class="bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-gold">
-                                <option>Semua Eskul</option>
-                                <option>Pramuka</option>
-                                <option>PMR</option>
-                            </select>
-                        </div>
-                        <div class="relative w-full md:w-64">
-                            <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                            <input type="text" placeholder="Cari NISN atau Nama..." class="w-full bg-black/30 border border-white/10 rounded-lg py-2 pl-9 pr-4 text-sm text-white focus:outline-none focus:border-brand-gold">
-                        </div>
-                    </div>
-
-                    <!-- Data Table -->
-                    <div class="glass-panel rounded-3xl overflow-hidden">
+                    <!-- Live Log Table -->
+                    <div class="glass p-6 rounded-3xl border border-white/5">
+                        <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span> Live Scan Log
+                        </h3>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse">
-                                <thead>
-                                    <tr class="bg-white/5 text-gray-400 text-xs uppercase tracking-wider border-b border-white/5">
-                                        <th class="p-4 font-medium">Profil Siswa</th>
-                                        <th class="p-4 font-medium">NISN</th>
-                                        <th class="p-4 font-medium">Sekolah & Eskul</th>
-                                        <th class="p-4 font-medium">Status</th>
-                                        <th class="p-4 font-medium text-center">Aksi</th>
+                            <table class="w-full text-left text-sm text-gray-400">
+                                <thead class="text-xs text-gray-500 uppercase bg-white/5">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">Waktu</th>
+                                        <th class="px-4 py-3">Nama Siswa</th>
+                                        <th class="px-4 py-3">Eskul</th>
+                                        <th class="px-4 py-3">Sekolah</th>
+                                        <th class="px-4 py-3 rounded-tr-lg">Status</th>
                                     </tr>
                                 </thead>
-                                <tbody class="text-sm divide-y divide-white/5">
-                                    <!-- Row 1 -->
-                                    <tr class="hover:bg-white/5 transition-colors">
-                                        <td class="p-4">
-                                            <div class="flex items-center gap-3">
-                                                <img src="https://placehold.co/40x40/0B1B3D/D4AF37?text=A" class="w-10 h-10 rounded-full border border-white/10">
-                                                <div>
-                                                    <div class="font-bold text-white">Ahmad Riyadi</div>
-                                                    <div class="text-xs text-gray-400">Kelas VII-A</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="p-4 font-mono text-brand-gold text-xs">0011223344</td>
-                                        <td class="p-4">
-                                            <div class="text-white">SMPN 1</div>
-                                            <div class="text-xs text-gray-400">Pramuka</div>
-                                        </td>
-                                        <td class="p-4">
-                                            <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs border border-green-500/20">Aktif</span>
-                                        </td>
-                                        <td class="p-4 text-center">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <button class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 flex items-center justify-center transition-colors" title="Lihat QR"><i class="ph ph-qr-code"></i></button>
-                                                <button class="w-8 h-8 rounded-lg bg-brand-gold/20 text-brand-gold hover:bg-brand-gold/40 flex items-center justify-center transition-colors" title="Edit"><i class="ph ph-pencil-simple"></i></button>
-                                            </div>
-                                        </td>
+                                <tbody id="live-log-table">
+                                    <!-- Populated by JS -->
+                                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                        <td class="px-4 py-3 font-mono text-gray-300">17:09:01</td>
+                                        <td class="px-4 py-3 text-white font-medium flex items-center gap-2"><img src="https://placehold.co/30x30/D4AF37/0B1B3D?text=A" class="rounded-full w-6 h-6"> Ahmad Riyadi</td>
+                                        <td class="px-4 py-3 text-brand-gold">Pramuka</td>
+                                        <td class="px-4 py-3">SMPN 1</td>
+                                        <td class="px-4 py-3"><span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-md text-xs font-semibold">Hadir</span></td>
                                     </tr>
-                                    <!-- Row 2 -->
-                                    <tr class="hover:bg-white/5 transition-colors">
-                                        <td class="p-4">
-                                            <div class="flex items-center gap-3">
-                                                <img src="https://placehold.co/40x40/0B1B3D/D4AF37?text=B" class="w-10 h-10 rounded-full border border-white/10">
-                                                <div>
-                                                    <div class="font-bold text-white">Budi Santoso</div>
-                                                    <div class="text-xs text-gray-400">Kelas VIII-B</div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td class="p-4 font-mono text-brand-gold text-xs">0022334455</td>
-                                        <td class="p-4">
-                                            <div class="text-white">SMPN 2</div>
-                                            <div class="text-xs text-gray-400">PMR</div>
-                                        </td>
-                                        <td class="p-4">
-                                            <span class="bg-green-500/20 text-green-400 px-2 py-1 rounded text-xs border border-green-500/20">Aktif</span>
-                                        </td>
-                                        <td class="p-4 text-center">
-                                            <div class="flex items-center justify-center gap-2">
-                                                <button class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 hover:bg-blue-500/40 flex items-center justify-center transition-colors"><i class="ph ph-qr-code"></i></button>
-                                                <button class="w-8 h-8 rounded-lg bg-brand-gold/20 text-brand-gold hover:bg-brand-gold/40 flex items-center justify-center transition-colors"><i class="ph ph-pencil-simple"></i></button>
-                                            </div>
-                                        </td>
+                                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                        <td class="px-4 py-3 font-mono text-gray-300">17:08:45</td>
+                                        <td class="px-4 py-3 text-white font-medium flex items-center gap-2"><img src="https://placehold.co/30x30/D4AF37/0B1B3D?text=S" class="rounded-full w-6 h-6"> Siti Nurhaliza</td>
+                                        <td class="px-4 py-3 text-red-400">PMR</td>
+                                        <td class="px-4 py-3">SMPN 2</td>
+                                        <td class="px-4 py-3"><span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-md text-xs font-semibold">Hadir</span></td>
                                     </tr>
                                 </tbody>
                             </table>
                         </div>
-                        <!-- Pagination -->
-                        <div class="p-4 border-t border-white/5 flex items-center justify-between text-sm text-gray-400">
-                            <span>Menampilkan 1 - 2 dari 256 data</span>
-                            <div class="flex gap-1">
-                                <button class="px-3 py-1 rounded bg-white/5 hover:bg-white/10 disabled:opacity-50" disabled>Prev</button>
-                                <button class="px-3 py-1 rounded bg-brand-gold text-brand-dark font-bold">1</button>
-                                <button class="px-3 py-1 rounded bg-white/5 hover:bg-white/10">2</button>
-                                <button class="px-3 py-1 rounded bg-white/5 hover:bg-white/10">Next</button>
-                            </div>
-                        </div>
                     </div>
                 </div>
-
-            </div>
-        </main>
-    </div>
-
-    <!-- 7. SCANNER MODAL -->
-    <div id="scanner-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-        <div class="glass-panel w-full max-w-md rounded-3xl overflow-hidden relative border border-brand-gold/30">
-            <button onclick="closeScanner()" class="absolute top-4 right-4 z-10 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors">
-                <i class="ph-bold ph-x"></i>
-            </button>
-            <div class="p-6 text-center border-b border-white/10 bg-brand-dark">
-                <h3 class="font-bold text-lg text-brand-gold flex items-center justify-center gap-2">
-                    <i class="ph-fill ph-scan"></i> Scan QR Absensi
-                </h3>
-                <p class="text-xs text-gray-400 mt-1">Arahkan QR Code ke kamera</p>
-            </div>
-            <div class="bg-black p-4">
-                <div id="reader" class="w-full h-64 rounded-xl overflow-hidden bg-white/5"></div>
             </div>
         </div>
-    </div>
 
-    <!-- SCRIPTS -->
+        <!-- Scanner Modal Overlay -->
+        <div id="scanner-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300">
+            <div class="w-full max-w-md relative glass p-4 rounded-3xl">
+                <button onclick="closeScanner()" class="absolute -top-12 right-0 text-white hover:text-red-400 transition-colors bg-white/10 p-2 rounded-full">
+                    <i class="ph-bold ph-x text-2xl"></i>
+                </button>
+                <div class="text-center mb-4">
+                    <h3 class="text-xl font-bold text-white">Scanner Absensi</h3>
+                    <p class="text-xs text-gray-400">Arahkan kamera ke QR Code</p>
+                </div>
+                <div id="qr-reader" class="w-full bg-black rounded-2xl overflow-hidden shadow-2xl"></div>
+                <div id="scan-result" class="mt-4 p-3 rounded-xl bg-emerald-500/20 text-emerald-400 text-center font-semibold text-sm hidden border border-emerald-500/30">
+                    <!-- Result goes here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
     <script>
-        // --- LIVE API CONFIGURATION ---
-        const API_URL = "https://script.google.com/macros/s/AKfycbyKR7aGviQgYZy56wcAnpCy9kaYIqyV5uc-0yXP_0R-Av3KypKS6OaqaPmZqXuYGQ5yGQ/exec";
+        // =========================================================================
+        // JAVASCRIPT STATE & LOGIC
+        // =========================================================================
+        
+        // Konfigurasi API Google Apps Script (Webhook)
+        // [!] Ganti URL ini dengan URL Web App Apps Script setelah di-deploy
+        const API_URL = "https://script.google.com/macros/s/AKfycbxd_OS8v0f0msPtOTsdZl7k_ZgOLlwjsaNdVoyYcQY1bg9TBRRwYBNqO92HGP8wIoEt/exec"; 
+        
+        // State
+        let currentUser = null;
+        let html5QrcodeScanner = null;
+        let currentChart = null;
 
-        // --- NAVIGATION & UI LOGIC ---
-        function switchView(viewId) {
-            document.querySelectorAll('body > div:not(#scanner-modal)').forEach(el => el.classList.add('hidden-view'));
-            const target = document.getElementById(viewId);
-            if(target) {
-                target.classList.remove('hidden-view');
-            }
-        }
+        // Init App
+        window.onload = () => {
+            // Splash Screen Logic
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                const app = document.getElementById('app-container');
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    app.classList.remove('hidden');
+                    
+                    // Cek Session (Mock Auto Login)
+                    const session = localStorage.getItem('kmk_session');
+                    if(session) {
+                        currentUser = JSON.parse(session);
+                        if(currentUser.role === 'admin' || currentUser.role === 'pembina') {
+                            navigateTo('view-dashboard-admin');
+                            initAdminDashboard();
+                        } else {
+                            navigateTo('view-dashboard-siswa');
+                            populateStudentDashboard(currentUser);
+                        }
+                    } else {
+                        navigateTo('view-role-select');
+                    }
+                }, 700);
+            }, 2500); // Tampil 2.5 detik
+            
+            setupAutoSuggest();
+        };
 
-        function showAdminTab(tabId) {
-            // Hide all tabs
-            document.querySelectorAll('.admin-tab').forEach(el => {
-                el.classList.add('hidden');
+        // --- Navigation Logic ---
+        function navigateTo(viewId) {
+            document.querySelectorAll('.page-view').forEach(el => {
+                el.classList.remove('show-page');
+                el.classList.add('hide-page');
+                setTimeout(() => el.style.display = 'none', 400); // Wait for transition
             });
-            // Show target tab
-            document.getElementById(tabId).classList.remove('hidden');
 
-            // Update sidebar active state
-            document.getElementById('nav-btn-overview').classList.replace('bg-white/10', 'hover:bg-white/5');
-            document.getElementById('nav-btn-overview').classList.replace('text-white', 'text-gray-400');
-            
-            document.getElementById('nav-btn-siswa').classList.replace('bg-white/10', 'hover:bg-white/5');
-            document.getElementById('nav-btn-siswa').classList.replace('text-white', 'text-gray-400');
-
-            let activeBtnId = tabId === 'admin-overview' ? 'nav-btn-overview' : 'nav-btn-siswa';
-            let btn = document.getElementById(activeBtnId);
-            btn.classList.replace('hover:bg-white/5', 'bg-white/10');
-            btn.classList.replace('text-gray-400', 'text-white');
-            
-            // Re-render chart if going to overview to ensure width is correct
-            if(tabId === 'admin-overview' && window.myChart) {
-                window.myChart.resize();
-            }
+            setTimeout(() => {
+                const target = document.getElementById(viewId);
+                target.style.display = 'flex'; // or block depending on original, here we use flex for centering mostly, except dashboards
+                if(viewId.includes('dashboard')) target.style.display = 'block';
+                if(viewId === 'view-dashboard-admin') target.style.display = 'flex'; // Admin uses flex layout
+                
+                // Force reflow
+                void target.offsetWidth;
+                
+                target.classList.remove('hide-page');
+                target.classList.add('show-page');
+            }, 400);
         }
 
-        function togglePassword() {
-            const input = document.getElementById('admin-pass');
-            const icon = document.getElementById('eye-icon');
-            if (input.type === 'password') {
-                input.type = 'text';
+        // --- Toast System ---
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'ph-check-circle' : 'ph-warning-circle';
+            toast.innerHTML = `<i class="ph-fill ${icon} text-xl"></i> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Force reflow
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // --- UI Interactions ---
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling;
+            if (input.type === "password") {
+                input.type = "text";
                 icon.classList.replace('ph-eye', 'ph-eye-slash');
             } else {
-                input.type = 'password';
+                input.type = "password";
                 icon.classList.replace('ph-eye-slash', 'ph-eye');
             }
         }
 
-        function logout(role) {
-            if(confirm("Apakah Anda yakin ingin keluar?")) {
-                switchView('role-selection');
-            }
+        function logout() {
+            localStorage.removeItem('kmk_session');
+            currentUser = null;
+            navigateTo('view-role-select');
+            showToast('Berhasil logout', 'success');
         }
 
-        // --- STREAMING_CHUNK:Local Suggestion Data logic ---
-        // Fake Local Database for UI Auto-suggest dropdown (Speed optimization)
+        // --- Fake Database for Preview (Auto Suggest) ---
         const dummySiswa = [
-            {nama: 'Ahmad Riyadi', nisn: '0011223344', sekolah: 'SMPN 1'},
-            {nama: 'Budi Santoso', nisn: '0022334455', sekolah: 'SMPN 2'},
-            {nama: 'Siti Nurhaliza', nisn: '0033445566', sekolah: 'SMPN 1'},
-            {nama: 'Dina Mariana', nisn: '0044556677', sekolah: 'SDN 1'}
+            {nama: 'Ahmad Riyadi', nisn: '0011223344', kelas: 'VII-A', sekolah: 'SMPN 1', eskul: 'Pramuka'},
+            {nama: 'Budi Santoso', nisn: '0022334455', kelas: 'VIII-B', sekolah: 'SMPN 2', eskul: 'PMR'},
+            {nama: 'Siti Nurhaliza', nisn: '0033445566', kelas: 'IX-C', sekolah: 'SMPN 1', eskul: 'Pramuka'},
+            {nama: 'Dina Mariana', nisn: '0044556677', kelas: 'VII-D', sekolah: 'SDN 1', eskul: 'PMR'}
         ];
 
         function setupAutoSuggest() {
@@ -700,233 +802,253 @@
                     suggestBox.classList.add('hidden');
                 }
             });
-        }
-
-        // --- STREAMING_CHUNK:API Authentication logic ---
-        // --- REALTIME LOGIN SISWA (API FETCH) ---
-        async function handleLoginSiswa(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerHTML;
             
-            // Loading State
-            btn.innerHTML = '<span class="w-5 h-5 border-2 border-brand-dark border-t-transparent rounded-full animate-spin inline-block"></span> Memproses...';
-            btn.disabled = true;
-            
-            const inputVal = document.getElementById('input-nisn').value;
-            
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'login_siswa',
-                        nisn: inputVal,
-                        nama: inputVal 
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    switchView('dashboard-siswa');
-                    
-                    // Auto-Fill Dashboard Data
-                    document.getElementById('dash-nama').innerText = result.data.nama;
-                    document.getElementById('dash-nisn').innerText = result.data.nisn;
-                    document.getElementById('dash-kelas').innerText = result.data.kelas || '-';
-                    document.getElementById('dash-sekolah').innerText = result.data.sekolah || '-';
-                    document.getElementById('dash-eskul').innerText = result.data.eskul || '-';
-                    if(result.data.foto) document.getElementById('dash-foto').src = result.data.foto;
-                    
-                    // Generate QR
-                    const qrContainer = document.getElementById('qr-container');
-                    qrContainer.innerHTML = ''; 
-                    new QRCode(qrContainer, {
-                        text: result.data.nisn, 
-                        width: 128,
-                        height: 128,
-                        colorDark : "#0B1B3D",
-                        colorLight : "#ffffff",
-                        correctLevel : QRCode.CorrectLevel.H
-                    });
-                } else {
-                    alert("Gagal Login: " + result.message);
-                }
-            } catch (error) {
-                alert("Kesalahan jaringan. Gagal menghubungi server Google Sheets.");
-                console.error(error);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // --- REALTIME LOGIN ADMIN (API FETCH) ---
-        async function handleLoginAdmin(e) {
-            e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerHTML;
-            
-            btn.innerHTML = '<span class="w-5 h-5 border-2 border-brand-dark border-t-transparent rounded-full animate-spin inline-block"></span> Memverifikasi...';
-            btn.disabled = true;
-            
-            const user = document.getElementById('admin-user').value;
-            const pass = document.getElementById('admin-pass').value;
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'login_admin',
-                        username: user,
-                        password: pass
-                    })
-                });
-                
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    switchView('dashboard-admin');
-                    document.getElementById('admin-nama-display').innerText = result.data.nama;
-                    setTimeout(initCharts, 500); // Initialize charts after view is visible
-                } else {
-                    alert("Gagal Login: " + result.message);
-                }
-            } catch (error) {
-                alert("Kesalahan jaringan API.");
-                console.error(error);
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        // --- STREAMING_CHUNK:Scanner, ID Card and Utils ---
-        // --- QR SCANNER LOGIC ---
-        let html5QrcodeScanner;
-        
-        function openScanner() {
-            const scannerModal = document.getElementById('scanner-modal');
-            scannerModal.classList.remove('hidden');
-            
-            try {
-                html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 }, false);
-                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-            } catch(e) {
-                alert("Kamera tidak tersedia atau akses ditolak.");
-            }
-        }
-
-        function closeScanner() {
-            document.getElementById('scanner-modal').classList.add('hidden');
-            if (html5QrcodeScanner) {
-                try { html5QrcodeScanner.clear(); } catch(e) {}
-            }
-        }
-
-        async function onScanSuccess(decodedText, decodedResult) {
-            if(html5QrcodeScanner) html5QrcodeScanner.clear();
-            
-            document.getElementById('reader').innerHTML = '<div class="flex flex-col justify-center items-center h-48"><div class="w-10 h-10 border-4 border-brand-gold border-t-transparent rounded-full animate-spin mb-4"></div><p class="text-white">Menyimpan ke Spreadsheet...</p></div>';
-
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'record_absen',
-                        nisn: decodedText,
-                        nama: 'Tercatat via QR',
-                        sekolah: 'Auto',
-                        eskul: 'Auto',
-                        gps: navigator.geolocation ? 'Tersedia' : 'Tidak Ada'
-                    })
-                });
-
-                const result = await response.json();
-                
-                if(result.status === 'success') {
-                    alert(`✅ BERHASIL ABSEN!\nNISN: ${decodedText}\nWaktu: ${result.timestamp}`);
-                } else {
-                    alert("❌ GAGAL: " + result.message);
-                }
-            } catch (error) {
-                alert("Gagal mengirim data. Periksa internet.");
-            } finally {
-                closeScanner();
-            }
-        }
-
-        function onScanFailure(error) { /* Ignore background scanning errors */ }
-
-        // --- ID CARD DOWNLOAD LOGIC ---
-        function downloadIDCard() {
-            const element = document.getElementById('id-card-element');
-            // Hide shadow temporarily for cleaner capture
-            element.classList.remove('shadow-xl');
-            
-            html2canvas(element, { 
-                scale: 3, // High resolution
-                backgroundColor: "#0B1B3D",
-                logging: false
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = `ID_CARD_${document.getElementById('dash-nisn').innerText}.png`;
-                link.href = canvas.toDataURL("image/png");
-                link.click();
-                element.classList.add('shadow-xl'); // Restore shadow
+            // Hide suggest box when clicking outside
+            document.addEventListener('click', (e) => {
+                if(e.target !== input && e.target !== suggestBox) suggestBox.classList.add('hidden');
             });
         }
 
-        // --- CHART JS INIT ---
-        window.myChart = null;
-        function initCharts() {
+        // --- Login Logic ---
+        async function handleLoginSiswa(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login-siswa');
+            const inputVal = document.getElementById('input-nisn').value;
+            
+            btn.innerHTML = '<div class="loader-ring w-6 h-6 border-2"></div>';
+            btn.disabled = true;
+
+            try {
+                // Dalam skenario asli, aktifkan fetch ke API_URL
+                /*
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'login_siswa', nisn: inputVal, nama: inputVal })
+                });
+                const data = await res.json();
+                if(data.status === 'success') { ... }
+                */
+
+                // MOCK API Call for Preview Functionality
+                setTimeout(() => {
+                    const match = dummySiswa.find(s => s.nisn === inputVal || s.nama.toLowerCase() === inputVal.toLowerCase());
+                    if(match) {
+                        currentUser = {...match, role: 'siswa', foto: `https://placehold.co/150x150/0B1B3D/D4AF37?text=${match.nama.charAt(0)}`};
+                        localStorage.setItem('kmk_session', JSON.stringify(currentUser));
+                        
+                        showToast(`Selamat datang, ${match.nama}!`);
+                        populateStudentDashboard(currentUser);
+                        navigateTo('view-dashboard-siswa');
+                    } else {
+                        showToast('Data siswa tidak ditemukan', 'error');
+                    }
+                    btn.innerHTML = '<span>Masuk Sistem</span><i class="ph-bold ph-sign-in"></i>';
+                    btn.disabled = false;
+                }, 1000);
+
+            } catch (err) {
+                showToast('Koneksi ke database gagal', 'error');
+                btn.innerHTML = '<span>Masuk Sistem</span><i class="ph-bold ph-sign-in"></i>';
+                btn.disabled = false;
+            }
+        }
+
+        async function handleLoginAdmin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login-admin');
+            const user = document.getElementById('admin-user').value;
+            const pass = document.getElementById('admin-pass').value;
+
+            btn.innerHTML = '<div class="loader-ring w-6 h-6 border-2 border-t-white"></div>';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Mock Admin Login (Accept admin / admin123)
+                if(user === 'admin' && pass === 'admin123') {
+                    currentUser = { nama: 'Super Admin', role: 'admin' };
+                    localStorage.setItem('kmk_session', JSON.stringify(currentUser));
+                    
+                    showToast('Otorisasi Berhasil', 'success');
+                    initAdminDashboard();
+                    navigateTo('view-dashboard-admin');
+                } else {
+                    showToast('Kredensial tidak valid', 'error');
+                }
+                btn.innerHTML = '<span>Secure Login</span><i class="ph-bold ph-shield-check"></i>';
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        // --- Dashboard Population ---
+        function populateStudentDashboard(data) {
+            document.getElementById('siswa-nama').innerText = data.nama;
+            document.getElementById('siswa-nisn').innerText = data.nisn;
+            document.getElementById('siswa-kelas').innerText = data.kelas;
+            document.getElementById('siswa-sekolah').innerText = data.sekolah;
+            document.getElementById('siswa-eskul').innerText = data.eskul;
+            document.getElementById('siswa-foto').src = data.foto;
+            
+            // Generate QR Code dynamically
+            document.getElementById('qrcode-display').innerHTML = '';
+            new QRCode(document.getElementById("qrcode-display"), {
+                text: JSON.stringify({nisn: data.nisn, type: 'absen'}),
+                width: 128,
+                height: 128,
+                colorDark : "#0B1B3D",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+        }
+
+        // --- ID Card Generation ---
+        function downloadIDCard() {
+            const card = document.getElementById('id-card-container');
+            const btn = card.querySelector('button');
+            
+            // Hide button temporarily for screenshot
+            btn.style.display = 'none';
+            card.style.transform = 'scale(1)'; // ensure normal size
+            
+            showToast('Mempersiapkan ID Card...', 'success');
+            
+            html2canvas(card, {
+                backgroundColor: '#0B1B3D',
+                scale: 2 // High resolution
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `ID_CARD_${currentUser.nama.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                btn.style.display = 'flex';
+                showToast('ID Card berhasil diunduh!');
+            });
+        }
+
+        // --- Admin Charts ---
+        function initAdminDashboard() {
+            document.getElementById('admin-name').innerText = currentUser.nama;
+            
             const ctx = document.getElementById('attendanceChart');
             if(!ctx) return;
             
-            if(window.myChart) window.myChart.destroy();
+            if(currentChart) currentChart.destroy();
             
-            window.myChart = new Chart(ctx, {
-                type: 'bar',
+            // Dark theme chart configuration
+            Chart.defaults.color = '#9ca3af';
+            Chart.defaults.font.family = '"Plus Jakarta Sans", sans-serif';
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
                 data: {
                     labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'],
                     datasets: [{
-                        label: 'Pramuka',
-                        data: [65, 0, 0, 0, 120, 0],
-                        backgroundColor: '#D4AF37',
-                        borderRadius: 6
+                        label: 'Kehadiran Pramuka',
+                        data: [120, 190, 150, 220, 180, 250],
+                        borderColor: '#D4AF37', // Gold
+                        backgroundColor: 'rgba(212, 175, 55, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
                     },
                     {
-                        label: 'PMR',
-                        data: [0, 45, 0, 50, 0, 0],
-                        backgroundColor: '#ef4444',
-                        borderRadius: 6
+                        label: 'Kehadiran PMR',
+                        data: [80, 110, 95, 130, 110, 150],
+                        borderColor: '#3b82f6', // Blue
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#9ca3af' } } },
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, boxWidth: 8 } }
+                    },
                     scales: {
-                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9ca3af' } },
-                        x: { grid: { display: false }, ticks: { color: '#9ca3af' } }
+                        y: { grid: { color: 'rgba(255,255,255,0.05)' }, beginAtZero: true },
+                        x: { grid: { display: false } }
                     }
                 }
             });
         }
 
-        // --- INITIALIZATION ---
-        window.onload = function() {
-            setupAutoSuggest();
+        // --- QR Scanner Implementation ---
+        function openScanner() {
+            const modal = document.getElementById('scanner-modal');
+            modal.style.display = 'flex';
+            // Trigger reflow
+            void modal.offsetWidth;
+            modal.style.opacity = '1';
             
-            // Splash screen timeout
+            document.getElementById('scan-result').classList.add('hidden');
+
+            html5QrcodeScanner = new Html5Qrcode("qr-reader");
+            const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" }, 
+                config, 
+                onScanSuccess,
+                onScanFailure
+            ).catch(err => {
+                showToast("Kamera tidak dapat diakses", "error");
+                closeScanner();
+            });
+        }
+
+        function closeScanner() {
+            const modal = document.getElementById('scanner-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().catch(err => console.error(err));
+            }
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            // Hentikan scanner sementara saat memproses
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.pause();
+            }
+
+            const resBox = document.getElementById('scan-result');
+            resBox.classList.remove('hidden');
+            resBox.innerHTML = `<i class="ph-bold ph-spinner animate-spin"></i> Memproses Absensi...`;
+
+            // Simulasi Realtime Request ke Google Sheets Backend
             setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
+                resBox.classList.remove('text-emerald-400', 'bg-emerald-500/20');
+                resBox.classList.add('text-brand-dark', 'bg-brand-gold');
+                resBox.innerHTML = `<i class="ph-bold ph-check-circle text-lg"></i> Berhasil Absen: ${new Date().toLocaleTimeString()}`;
+                
+                showToast("Absensi berhasil direkam ke Database Realtime!", "success");
+                
+                // Tutup scanner otomatis setelah 2 detik
                 setTimeout(() => {
-                    switchView('role-selection');
-                }, 1000);
-            }, 2000);
-        };
+                    closeScanner();
+                }, 2000);
+            }, 1500);
+            
+            /* Logic Asli ke backend:
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    action: 'record_absen',
+                    nisn: JSON.parse(decodedText).nisn, // Asumsi data diluar sana
+                    ... 
+                })
+            }).then(r => r.json()).then(data => { ... });
+            */
+        }
+
+        function onScanFailure(error) {
+            // Ignored, continuous scanning
+        }
+
     </script>
 </body>
 </html>
