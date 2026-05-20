@@ -455,7 +455,7 @@
                     <i class="ph-fill ph-house text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Home</span>
                 </button>
-                <button onclick="showInfoModal('Jadwal Ekstrakurikuler', '<div class=\'p-3 bg-white/5 rounded-lg border border-white/5 mb-2\'><p class=\'font-bold text-brand-gold\'>Pramuka</p><p class=\'text-xs text-gray-400\'>Sabtu, 14:00 - 16:00 WIB</p></div><div class=\'p-3 bg-white/5 rounded-lg border border-white/5\'><p class=\'font-bold text-blue-400\'>PMR</p><p class=\'text-xs text-gray-400\'>Jumat, 15:00 - 16:30 WIB</p></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-colors">
+                <button onclick="showInfoModal('Jadwal Ekstrakurikuler', '<div class=\'text-center text-gray-400\'><i class=\'ph-bold ph-spinner animate-spin text-2xl mb-2\'></i><p>Memuat jadwal...</p></div>')" class="flex flex-col items-center text-gray-500 hover:text-gray-300 transition-colors">
                     <i class="ph ph-calendar-check text-2xl"></i>
                     <span class="text-[10px] mt-1 font-medium">Jadwal</span>
                 </button>
@@ -507,6 +507,10 @@
                         </button>
                         <button id="nav-pengumuman" onclick="switchAdminTab('pengumuman')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
                             <i class="ph-fill ph-speaker-hifi text-xl"></i> Pengumuman
+                        </button>
+                        <!-- MENU BARU: JADWAL ESKUL -->
+                        <button id="nav-jadwal" onclick="switchAdminTab('jadwal')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph-fill ph-calendar text-xl"></i> Jadwal Eskul
                         </button>
                         <!-- Menu Manajemen Akun: Hanya Muncul untuk Super Admin -->
                         <button id="nav-akun" onclick="switchAdminTab('akun')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium hidden">
@@ -765,6 +769,68 @@
                                 <i class="ph-bold ph-paper-plane-right"></i> Broadcast Pengumuman
                             </button>
                         </form>
+                    </div>
+                </div>
+
+                <!-- TAB BARU: JADWAL ESKUL -->
+                <div id="admin-tab-jadwal" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
+                    <h2 class="text-2xl font-bold text-white mb-2">Manajemen Jadwal Eskul</h2>
+                    <p class="text-sm text-gray-400 mb-6">Atur hari dan jam pelaksanaan ekstrakurikuler di sekolah Anda.</p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <!-- Form Input Jadwal -->
+                        <div class="glass p-6 rounded-3xl border border-white/5 lg:col-span-1 h-fit">
+                            <h3 class="text-lg font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Set Jadwal Baru</h3>
+                            <form onsubmit="handleSaveJadwal(event)" class="space-y-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-300 mb-1">Sekolah</label>
+                                    <select id="jadwal-sekolah" required class="w-full bg-brand-dark border border-white/10 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-brand-gold"></select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-300 mb-1">Ekstrakurikuler</label>
+                                    <input type="text" id="jadwal-eskul" list="list-eskul" required placeholder="Cth: Pramuka" class="w-full bg-brand-dark border border-white/10 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-brand-gold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-300 mb-1">Hari Pelaksanaan</label>
+                                    <select id="jadwal-hari" required class="w-full bg-brand-dark border border-white/10 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-brand-gold">
+                                        <option value="Senin">Senin</option><option value="Selasa">Selasa</option><option value="Rabu">Rabu</option><option value="Kamis">Kamis</option><option value="Jumat">Jumat</option><option value="Sabtu">Sabtu</option><option value="Minggu">Minggu</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-300 mb-1">Jam Mulai</label>
+                                        <input type="time" id="jadwal-mulai" required class="w-full bg-brand-dark border border-white/10 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-brand-gold" style="color-scheme: dark;">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-300 mb-1">Jam Selesai</label>
+                                        <input type="time" id="jadwal-selesai" required class="w-full bg-brand-dark border border-white/10 rounded-lg py-2 px-3 text-white focus:outline-none focus:border-brand-gold" style="color-scheme: dark;">
+                                    </div>
+                                </div>
+                                <button type="submit" id="btn-save-jadwal" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-brand-accent transition-colors">
+                                    <i class="ph-bold ph-floppy-disk"></i> Simpan Jadwal
+                                </button>
+                            </form>
+                        </div>
+
+                        <!-- Tabel Jadwal -->
+                        <div class="glass p-6 rounded-3xl border border-white/5 lg:col-span-2">
+                            <h3 class="text-lg font-bold text-white mb-4">Daftar Jadwal</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left text-sm text-gray-400 min-w-[500px]">
+                                    <thead class="text-xs text-gray-500 uppercase bg-white/5">
+                                        <tr>
+                                            <th class="px-4 py-3 rounded-tl-lg">Eskul & Sekolah</th>
+                                            <th class="px-4 py-3">Hari</th>
+                                            <th class="px-4 py-3">Waktu</th>
+                                            <th class="px-4 py-3 rounded-tr-lg text-center">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-jadwal">
+                                        <tr><td colspan="4" class="text-center py-4">Memuat jadwal...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -1135,12 +1201,13 @@
         // JAVASCRIPT STATE & CORE LOGIC
         // =========================================================================
         
-        const API_URL = "https://script.google.com/macros/s/AKfycbxQTnnHE0zhujaAP7b6Cb8WeshnLamP1TbNr1Cp3OnR15E6-D27seQfKZwFkQY8p88tJw/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbw1ByEJPQ9mkxxGRSkPQ6XJ90LE5JPrCXdN93U_LkEbmQqb_2Ddrg7BVeT8oeVgbtEGxQ/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
         let currentChart = null;
         let dummySiswa = []; 
+        let dataJadwal = []; // State untuk Jadwal
         let base64FotoBaru = null;
 
         let sigCanvas, sigCtx, isDrawingSig = false;
@@ -1169,6 +1236,7 @@
                         } else {
                             navigateTo('view-dashboard-siswa');
                             populateStudentDashboard(currentUser);
+                            fetchJadwalData(true); // Load jadwal untuk modal info siswa
                         }
                     } else {
                         navigateTo('view-role-select');
@@ -1302,6 +1370,7 @@
                     localStorage.setItem('kmk_session', JSON.stringify(currentUser));
                     showToast(`Selamat datang, ${currentUser.nama}!`);
                     populateStudentDashboard(currentUser);
+                    fetchJadwalData(true); // Load jadwal
                     navigateTo('view-dashboard-siswa');
                 } else { showToast(responseData.message, 'error'); }
             } catch (err) { showToast('Koneksi ke server gagal. Coba lagi.', 'error');
@@ -1393,6 +1462,17 @@
                 pengumumanTarget.innerHTML = html;
             }
 
+            // 1.5 Update Form Jadwal Sekolah Dropdown (NEW)
+            const jadwalSekolah = document.getElementById('jadwal-sekolah');
+            if(jadwalSekolah) {
+                if (currentUser && currentUser.role !== 'Super Admin') {
+                    jadwalSekolah.innerHTML = `<option value="${currentUser.sekolah}">${currentUser.sekolah}</option>`;
+                } else {
+                    jadwalSekolah.innerHTML = '<option value="">-- Pilih Sekolah --</option>';
+                    schools.forEach(sch => jadwalSekolah.innerHTML += `<option value="${sch}">${sch}</option>`);
+                }
+            }
+
             // 2. Update Staff Sekolah Dropdown (Dinamis dari Database)
             const staffSekolah = document.getElementById('staff-sekolah');
             if(staffSekolah) {
@@ -1477,7 +1557,7 @@
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'get_admin_data' }),
+                    body: JSON.stringify({ action: 'get_admin_data', adminContext: currentUser }),
                     redirect: 'follow'
                 });
                 
@@ -1566,6 +1646,7 @@
             
             if(tabName === 'datasiswa') renderDataSiswa();
             if(tabName === 'akun') fetchStaffData();
+            if(tabName === 'jadwal') fetchJadwalData();
         }
 
         function setupSearchAdmin() {
@@ -1610,7 +1691,7 @@
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'get_all_siswa' }),
+                    body: JSON.stringify({ action: 'get_all_siswa', adminContext: currentUser }),
                     redirect: 'follow'
                 });
                 const responseData = await res.json();
@@ -1673,7 +1754,7 @@
                 const res = await fetch(API_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'get_staff' }),
+                    body: JSON.stringify({ action: 'get_staff', adminContext: currentUser }),
                     redirect: 'follow'
                 });
                 const resData = await res.json();
@@ -1711,7 +1792,8 @@
                 pass: document.getElementById('staff-pass').value,
                 role: document.getElementById('staff-role').value,
                 sekolah: document.getElementById('staff-sekolah').value,
-                eskul: document.getElementById('staff-eskul').value
+                eskul: document.getElementById('staff-eskul').value,
+                adminContext: currentUser
             };
 
             try {
@@ -1741,7 +1823,7 @@
                         const res = await fetch(API_URL, {
                             method: 'POST',
                             headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                            body: JSON.stringify({ action: 'delete_staff', user: username }),
+                            body: JSON.stringify({ action: 'delete_staff', user: username, adminContext: currentUser }),
                             redirect: 'follow'
                         });
                         const resData = await res.json();
@@ -1756,6 +1838,115 @@
                     }
                 }
             );
+        }
+
+        // =========================================================================
+        // JADWAL ESKUL LOGIC (NEW)
+        // =========================================================================
+
+        async function fetchJadwalData(forStudent = false) {
+            const tbody = document.getElementById('table-jadwal');
+            if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Memuat jadwal...</td></tr>';
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_jadwal', adminContext: currentUser }), redirect: 'follow'
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    dataJadwal = data.data;
+                    if(!forStudent) renderJadwal();
+                    else updateStudentJadwalButton();
+                }
+            } catch (err) {
+                if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat jadwal.</td></tr>';
+            }
+        }
+
+        function renderJadwal() {
+            const tbody = document.getElementById('table-jadwal');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            if(dataJadwal.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada jadwal yang diatur.</td></tr>';
+                return;
+            }
+            dataJadwal.forEach((item, index) => {
+                tbody.innerHTML += `
+                    <tr class="border-b border-white/5">
+                        <td class="px-4 py-3"><span class="font-bold text-white">${item.eskul}</span><br><span class="text-xs text-gray-500">${item.sekolah}</span></td>
+                        <td class="px-4 py-3 text-brand-gold font-medium">${item.hari}</td>
+                        <td class="px-4 py-3 text-gray-300 text-sm font-mono">${item.jam_mulai} - ${item.jam_selesai}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="deleteJadwal('${item.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all"><i class="ph-bold ph-trash"></i> Hapus</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function handleSaveJadwal(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-jadwal');
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true;
+
+            const payload = {
+                action: 'save_jadwal',
+                adminContext: currentUser,
+                sekolah: document.getElementById('jadwal-sekolah').value,
+                eskul: document.getElementById('jadwal-eskul').value,
+                hari: document.getElementById('jadwal-hari').value,
+                jam_mulai: document.getElementById('jadwal-mulai').value,
+                jam_selesai: document.getElementById('jadwal-selesai').value
+            };
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload), redirect: 'follow'
+                });
+                const data = await res.json();
+                if(data.status === 'success') {
+                    showToast('Jadwal berhasil disimpan!', 'success');
+                    e.target.reset();
+                    fetchJadwalData();
+                } else { showToast(data.message, 'error'); }
+            } catch(err) { showToast('Gagal menyimpan jadwal.', 'error'); }
+            finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Jadwal'; btn.disabled = false; }
+        }
+
+        async function deleteJadwal(id) {
+            showCustomConfirm("Hapus Jadwal", "Yakin ingin menghapus jadwal ini?", async () => {
+                showToast("Menghapus...", "success");
+                try {
+                    const res = await fetch(API_URL, {
+                        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                        body: JSON.stringify({ action: 'delete_jadwal', id: id, adminContext: currentUser }), redirect: 'follow'
+                    });
+                    const data = await res.json();
+                    if(data.status === 'success') {
+                        showToast('Jadwal dihapus.', 'success');
+                        fetchJadwalData();
+                    } else showToast(data.message, 'error');
+                } catch(e) { showToast('Gagal menghapus.', 'error'); }
+            });
+        }
+
+        function updateStudentJadwalButton() {
+            // Update the onclick logic for mobile student "Jadwal" button to use real data
+            const btnJadwal = document.querySelector('button[onclick^="showInfoModal(\'Jadwal Ekstrakurikuler\'"]');
+            if (btnJadwal) {
+                if (dataJadwal.length === 0) {
+                    btnJadwal.setAttribute('onclick', `showInfoModal('Jadwal Ekstrakurikuler', '<p class="text-gray-400 text-center">Belum ada jadwal yang diatur untuk sekolah Anda.</p>')`);
+                } else {
+                    let htmlContent = '';
+                    dataJadwal.forEach(j => {
+                        let colorClass = j.eskul.toLowerCase().includes('pramuka') ? 'text-brand-gold' : 'text-blue-400';
+                        htmlContent += `<div class='p-3 bg-white/5 rounded-lg border border-white/5 mb-2'><p class='font-bold ${colorClass}'>${j.eskul}</p><p class='text-xs text-gray-400'>${j.hari}, ${j.jam_mulai} - ${j.jam_selesai} WIB</p></div>`;
+                    });
+                    btnJadwal.setAttribute('onclick', `showInfoModal('Jadwal Ekstrakurikuler', "${htmlContent}")`);
+                }
+            }
         }
 
         // =========================================================================
@@ -1801,7 +1992,8 @@
                 kelas: document.getElementById('student-kelas').value,
                 eskul: document.getElementById('student-eskul').value,
                 sekolah: document.getElementById('student-sekolah').value,
-                ttd: getSignatureBase64() 
+                ttd: getSignatureBase64(),
+                adminContext: currentUser
             };
 
             try {
@@ -2012,7 +2204,6 @@
 
         function handlePengumuman(e) {
             e.preventDefault();
-            // Implementasi real bisa dikirim ke API
             showToast('Pengumuman Broadcast Berhasil Terkirim!', 'success');
             e.target.reset(); 
         }
@@ -2096,7 +2287,7 @@
                 const data = await res.json();
                 if(data.status === 'success') {
                     resBox.className = 'mt-4 p-3 rounded-xl bg-brand-gold text-brand-dark text-center font-semibold text-sm border border-brand-gold'; resBox.innerHTML = `Berhasil Absen!`; showToast(`Berhasil`, "success");
-                    cancelAbsenSignature(); setTimeout(() => { closeScanner(); if(currentUser.role !== 'Siswa') initAdminDashboard(); }, 2000);
+                    cancelAbsenSignature(); setTimeout(() => { closeScanner(); if(currentUser && currentUser.role !== 'Siswa') initAdminDashboard(); }, 2000);
                 } else {
                     resBox.className = 'mt-4 p-3 rounded-xl bg-red-500/20 text-red-400 text-center text-sm border border-red-500/30'; resBox.innerHTML = data.message; showToast(data.message, "error");
                     cancelAbsenSignature(); setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2500);
