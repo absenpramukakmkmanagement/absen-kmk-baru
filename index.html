@@ -34,12 +34,7 @@
                 extend: {
                     fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
                     colors: {
-                        brand: {
-                            dark: '#0B1B3D',
-                            gold: '#D4AF37',
-                            light: '#F8FAFC',
-                            accent: '#E6C65C'
-                        }
+                        brand: { dark: '#0B1B3D', gold: '#D4AF37', light: '#F8FAFC', accent: '#E6C65C' }
                     },
                     animation: {
                         'float': 'float 6s ease-in-out infinite',
@@ -94,21 +89,9 @@
             to { background-position: 200% center; }
         }
 
-        .page-transition {
-            transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .hide-page {
-            opacity: 0;
-            transform: translateY(20px) scale(0.98);
-            pointer-events: none;
-            position: absolute;
-            width: 100%;
-        }
-        .show-page {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            position: relative;
-        }
+        .page-transition { transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hide-page { opacity: 0; transform: translateY(20px) scale(0.98); pointer-events: none; position: absolute; width: 100%; }
+        .show-page { opacity: 1; transform: translateY(0) scale(1); position: relative; }
 
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #0B1B3D; }
@@ -118,15 +101,11 @@
         .loader-ring {
             width: 40px; height: 40px;
             border: 3px solid rgba(212, 175, 55, 0.2);
-            border-radius: 50%;
-            border-top-color: #D4AF37;
+            border-radius: 50%; border-top-color: #D4AF37;
             animation: spin 1s ease-in-out infinite;
         }
 
-        #toast-container {
-            position: fixed; top: 20px; right: 20px; z-index: 9999;
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
         .toast {
             padding: 12px 20px; border-radius: 12px; color: white;
             font-weight: 500; font-size: 0.9rem;
@@ -178,7 +157,7 @@
     <main id="app-container" class="min-h-screen w-full relative hidden page-transition">
         
         <!-- View: Role Selection -->
-        <div id="view-role-select" class="page-view show-page w-full min-h-screen flex flex-col items-center justify-center p-4">
+       <div id="view-role-select" class="page-view show-page w-full min-h-screen flex flex-col items-center justify-center p-4">
             <div class="text-center mb-10">
                 <h2 class="text-4xl font-bold text-white mb-3">Selamat Datang di</h2>
                 <h1 class="text-5xl font-extrabold text-gold-gradient mb-4">ABSENSI ONLINE BY KMK Management</h1>
@@ -186,7 +165,6 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-                <!-- Siswa Card -->
                 <div onclick="navigateTo('view-login-siswa')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
                     <div class="w-20 h-20 rounded-full bg-brand-gold/20 flex items-center justify-center mb-6 group-hover:bg-brand-gold/40 transition-colors">
                         <i class="ph-fill ph-student text-brand-gold text-4xl"></i>
@@ -195,7 +173,6 @@
                     <p class="text-sm text-gray-400">Pramuka & PMR</p>
                 </div>
 
-                <!-- Pembina Card -->
                 <div onclick="navigateTo('view-login-admin')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
                     <div class="w-20 h-20 rounded-full bg-blue-500/20 flex items-center justify-center mb-6 group-hover:bg-blue-500/40 transition-colors">
                         <i class="ph-fill ph-chalkboard-teacher text-blue-400 text-4xl"></i>
@@ -204,7 +181,6 @@
                     <p class="text-sm text-gray-400">Manajemen Kegiatan</p>
                 </div>
 
-                <!-- Admin Card -->
                 <div onclick="navigateTo('view-login-admin')" class="glass hover:bg-white/10 group cursor-pointer p-8 rounded-3xl flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 border border-white/10 hover:border-brand-gold/50">
                     <div class="w-20 h-20 rounded-full bg-purple-500/20 flex items-center justify-center mb-6 group-hover:bg-purple-500/40 transition-colors">
                         <i class="ph-fill ph-shield-check text-purple-400 text-4xl"></i>
@@ -231,26 +207,14 @@
                     </div>
 
                     <form id="form-login-siswa" onsubmit="handleLoginSiswa(event)" class="space-y-6">
-                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
-        <p class="text-xs text-gray-400 mb-1">Kehadiran</p>
-        <p class="text-2xl font-bold text-white"><span id="siswa-persentase">0</span><span class="text-sm text-gray-500">%</span></p>
-    </div>
-    <div class="glass p-4 rounded-2xl border-l-4 border-brand-gold">
-        <p class="text-xs text-gray-400 mb-1">Total Hadir</p>
-        <p id="siswa-total-hadir" class="text-2xl font-bold text-white">0</p>
-    </div>
-    <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
-        <p class="text-xs text-gray-400 mb-1">Izin/Sakit</p>
-        <p id="siswa-total-izin" class="text-2xl font-bold text-white">0</p>
-    </div>
-    <div class="glass p-4 rounded-2xl border-l-4 border-purple-500 cursor-pointer hover:bg-white/5 transition-colors" onclick="openRiwayatModal()">
-        <p class="text-xs text-gray-400 mb-1">Cek Riwayat</p>
-        <p class="text-sm mt-1 font-bold text-purple-400 flex items-center gap-1">Detail <i class="ph-bold ph-arrow-right"></i></p>
-    </div>
-</div>
+                        <div class="relative">
+                            <div class="relative flex items-center">
+                                <i class="ph ph-user-focus absolute left-4 text-xl text-gray-400"></i>
+                                <input type="text" id="input-nisn" required placeholder="Masukkan NISN atau Nama Lengkap Anda" 
+                                    class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-white focus:outline-none focus:border-brand-gold transition-all" autocomplete="off">
+                            </div>
                             <div id="auto-suggest" class="absolute w-full mt-2 bg-brand-dark/95 border border-white/10 rounded-xl shadow-xl hidden flex-col max-h-40 overflow-y-auto z-10 glass">
-                                <!-- suggestions will be populated here by Real API -->
+                                <!-- suggestions will be populated here -->
                             </div>
                         </div>
 
@@ -405,15 +369,15 @@
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="glass p-4 rounded-2xl border-l-4 border-emerald-500">
                             <p class="text-xs text-gray-400 mb-1">Kehadiran</p>
-                            <p class="text-2xl font-bold text-white">95<span class="text-sm text-gray-500">%</span></p>
+                            <p class="text-2xl font-bold text-white"><span id="siswa-persentase">0</span><span class="text-sm text-gray-500">%</span></p>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-brand-gold">
                             <p class="text-xs text-gray-400 mb-1">Total Hadir</p>
-                            <p class="text-2xl font-bold text-white">24</p>
+                            <p id="siswa-total-hadir" class="text-2xl font-bold text-white">0</p>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-blue-500">
                             <p class="text-xs text-gray-400 mb-1">Izin/Sakit</p>
-                            <p class="text-2xl font-bold text-white">1</p>
+                            <p id="siswa-total-izin" class="text-2xl font-bold text-white">0</p>
                         </div>
                         <div class="glass p-4 rounded-2xl border-l-4 border-purple-500 cursor-pointer hover:bg-white/5 transition-colors" onclick="openRiwayatModal()">
                             <p class="text-xs text-gray-400 mb-1">Cek Riwayat</p>
@@ -516,10 +480,13 @@
                         <button id="nav-kehadiran" onclick="switchAdminTab('kehadiran')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
                             <i class="ph-fill ph-calendar-check text-xl"></i> Kehadiran
                         </button>
+                        <!-- MENU BARU: PERSETUJUAN IZIN -->
+                        <button id="nav-izin" onclick="switchAdminTab('izin')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
+                            <i class="ph-fill ph-envelope-open text-xl"></i> Persetujuan Izin <span id="badge-izin" class="hidden ml-auto bg-red-500 text-white text-[10px] px-2 py-0.5 rounded-full">New</span>
+                        </button>
                         <button id="nav-pengumuman" onclick="switchAdminTab('pengumuman')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
                             <i class="ph-fill ph-speaker-hifi text-xl"></i> Pengumuman
                         </button>
-                        <!-- MENU BARU: JADWAL ESKUL -->
                         <button id="nav-jadwal" onclick="switchAdminTab('jadwal')" class="admin-nav-btn w-full flex items-center gap-3 px-4 py-3 text-gray-400 border border-transparent hover:text-white hover:bg-white/5 rounded-xl transition-colors font-medium">
                             <i class="ph-fill ph-calendar text-xl"></i> Jadwal Eskul
                         </button>
@@ -555,13 +522,17 @@
                             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse mr-2"></span>
                             <span class="text-xs text-gray-300 font-medium">API Connected</span>
                         </div>
-                        <div class="flex items-center gap-3 border-l-0 sm:border-l border-white/10 sm:pl-4">
+                        
+                        <!-- PROFILE ADMIN KLIK UNTUK EDIT -->
+                        <div class="flex items-center gap-3 border-l-0 sm:border-l border-white/10 sm:pl-4 cursor-pointer group" onclick="openAdminProfileModal()">
                             <div class="text-right hidden sm:block">
-                                <p id="admin-name" class="text-sm font-bold text-white">Super Admin</p>
+                                <p id="admin-name" class="text-sm font-bold text-white group-hover:text-brand-gold transition-colors flex items-center justify-end gap-1">
+                                    <span>Super Admin</span> <i class="ph-bold ph-pencil-simple text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"></i>
+                                </p>
                                 <p id="admin-role-badge" class="text-[10px] text-gray-400">Master Akses</p>
                             </div>
-                            <div id="admin-avatar-container" class="w-9 h-9 rounded-full border-2 border-blue-500 overflow-hidden bg-brand-dark flex items-center justify-center">
-                                <i class="ph-bold ph-user text-blue-400"></i>
+                            <div id="admin-avatar-container" class="w-9 h-9 rounded-full border-2 border-blue-500 group-hover:border-brand-gold transition-colors overflow-hidden bg-brand-dark flex items-center justify-center">
+                                <i class="ph-bold ph-user text-blue-400 group-hover:text-brand-gold transition-colors"></i>
                             </div>
                         </div>
                     </div>
@@ -746,6 +717,39 @@
                     </div>
                 </div>
 
+                <!-- TAB BARU: PERSETUJUAN IZIN -->
+                <div id="admin-tab-izin" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+                        <div>
+                            <h2 class="text-2xl font-bold text-white mb-2">Manajemen Izin & Sakit</h2>
+                            <p class="text-sm text-gray-400">Tinjau dan berikan persetujuan untuk pengajuan izin atau sakit dari siswa.</p>
+                        </div>
+                        <button onclick="fetchDataIzin(true)" class="px-4 py-2.5 bg-brand-gold text-brand-dark font-bold rounded-lg flex items-center justify-center gap-2 shadow-lg hover:bg-brand-accent transition-colors whitespace-nowrap">
+                            <i class="ph-bold ph-arrows-clockwise"></i> Segarkan Data
+                        </button>
+                    </div>
+
+                    <div class="glass p-4 sm:p-6 rounded-3xl border border-white/5">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-400 min-w-[800px]">
+                                <thead class="text-xs text-gray-500 uppercase bg-white/5">
+                                    <tr>
+                                        <th class="px-4 py-3 rounded-tl-lg">Tgl Pengajuan</th>
+                                        <th class="px-4 py-3">Siswa</th>
+                                        <th class="px-4 py-3">Tipe</th>
+                                        <th class="px-4 py-3">Alasan</th>
+                                        <th class="px-4 py-3 text-center">Bukti</th>
+                                        <th class="px-4 py-3 rounded-tr-lg text-center">Aksi Persetujuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-izin">
+                                    <tr><td colspan="6" class="text-center py-8">Klik Segarkan Data untuk memuat pengajuan izin...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- TAB 4: PENGUMUMAN -->
                 <div id="admin-tab-pengumuman" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
                     <h2 class="text-2xl font-bold text-white mb-2">Buat Pengumuman</h2>
@@ -783,7 +787,7 @@
                     </div>
                 </div>
 
-                <!-- TAB BARU: JADWAL ESKUL -->
+                <!-- TAB 5: JADWAL ESKUL -->
                 <div id="admin-tab-jadwal" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
                     <h2 class="text-2xl font-bold text-white mb-2">Manajemen Jadwal Eskul</h2>
                     <p class="text-sm text-gray-400 mb-6">Atur hari dan jam pelaksanaan ekstrakurikuler di sekolah Anda.</p>
@@ -845,7 +849,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 5: MANAJEMEN AKUN (NEW - KHUSUS SUPER ADMIN) -->
+                <!-- TAB 6: MANAJEMEN AKUN (NEW - KHUSUS SUPER ADMIN) -->
                 <div id="admin-tab-akun" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                         <div>
@@ -881,7 +885,7 @@
                     </div>
                 </div>
 
-                <!-- TAB 6: BACKUP & ARSIP -->
+                <!-- TAB 7: BACKUP & ARSIP -->
                 <div id="admin-tab-arsip" class="admin-tab hidden p-4 md:p-6 lg:p-8 space-y-6 max-w-7xl mx-auto no-print">
                     <h2 class="text-2xl font-bold text-white mb-2">Backup & Arsip Database</h2>
                     <p class="text-sm text-gray-400 mb-6">Unduh salinan data (CSV) untuk keperluan laporan ke sekolah.</p>
@@ -911,6 +915,49 @@
 
         <!-- ======================= MODALS ======================= -->
         
+        <!-- Modal Edit Profil Admin -->
+        <div id="admin-profile-modal" class="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="w-full max-w-sm relative glass p-6 rounded-3xl text-left mx-4 border-blue-500/30">
+                <button onclick="closeAdminProfileModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+                <h3 class="text-xl font-bold text-white mb-1 border-b border-white/10 pb-2 flex items-center gap-2">
+                    <i class="ph-bold ph-user-circle text-blue-400"></i> Edit Profil Akun
+                </h3>
+                <p class="text-xs text-gray-400 mb-4">Ubah nama tampilan atau password Anda di sistem.</p>
+                
+                <form onsubmit="saveAdminProfile(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Nama Tampilan</label>
+                        <input type="text" id="edit-admin-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-blue-500 focus:outline-none" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Username (Tidak bisa diubah)</label>
+                        <input type="text" id="edit-admin-username" disabled class="w-full bg-black/40 border border-white/10 rounded-lg py-2.5 px-3 text-gray-500 cursor-not-allowed">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Password Baru (Opsional)</label>
+                        <input type="password" id="edit-admin-password" placeholder="Kosongkan jika tidak ingin diubah" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-blue-500 focus:outline-none" autocomplete="off">
+                    </div>
+                    
+                    <button type="submit" id="btn-save-admin-profile" class="w-full mt-2 px-4 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-500 transition-colors flex justify-center items-center gap-2">
+                        <i class="ph-bold ph-floppy-disk"></i> Simpan Profil
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Lihat Bukti Izin -->
+        <div id="bukti-izin-modal" class="fixed inset-0 z-[120] bg-black/95 backdrop-blur-md hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="w-full max-w-lg relative text-center mx-4 flex flex-col items-center">
+                <button onclick="closeBuktiIzin()" class="absolute -top-12 right-0 text-white hover:text-red-400 transition-colors bg-white/10 p-2 rounded-full z-10">
+                    <i class="ph-bold ph-x text-2xl"></i>
+                </button>
+                <img id="img-bukti-izin" src="" class="max-w-full max-h-[75vh] rounded-xl border-4 border-white/20 shadow-2xl" alt="Bukti Izin">
+                <p class="text-gray-300 mt-4 font-medium" id="caption-bukti-izin">Lampiran Bukti Surat/Sakit</p>
+            </div>
+        </div>
+
         <!-- Pop-Up Modal (Generic Info) -->
         <div id="info-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
             <div class="w-full max-w-sm relative glass p-6 rounded-3xl text-center mx-4">
@@ -929,7 +976,7 @@
                 <p id="confirm-message" class="text-sm text-gray-300 mb-6">Apakah Anda yakin ingin melakukan tindakan ini?</p>
                 <div class="flex gap-4">
                     <button id="btn-confirm-no" class="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl transition-colors">Batal</button>
-                    <button id="btn-confirm-yes" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors">Ya, Hapus</button>
+                    <button id="btn-confirm-yes" class="flex-1 py-3 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition-colors">Ya, Lanjutkan</button>
                 </div>
             </div>
         </div>
@@ -1212,13 +1259,14 @@
         // JAVASCRIPT STATE & CORE LOGIC
         // =========================================================================
         
-        const API_URL = "https://script.google.com/macros/s/AKfycbyHOzcTr6zs7sYi5-JIOr3x_NbOI3645MhGV9ehbv5SUIlzRw_utiJC6eM7NsYqEEBxMw/exec"; 
+        // PENTING: GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
+        const API_URL = "https://script.google.com/macros/s/AKfycbw6PwKCoxO5558_jsY05B9oUL7f6-a1RJqXcpsP7bu3DgkElAxrxNcLRYAg9s2pL_whFw/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
         let currentChart = null;
         let dummySiswa = []; 
-        let dataJadwal = []; // State untuk Jadwal
+        let dataJadwal = []; 
         let base64FotoBaru = null;
 
         let sigCanvas, sigCtx, isDrawingSig = false;
@@ -1247,7 +1295,7 @@
                         } else {
                             navigateTo('view-dashboard-siswa');
                             populateStudentDashboard(currentUser);
-                            fetchJadwalData(true); // Load jadwal untuk modal info siswa
+                            fetchJadwalData(true); 
                         }
                     } else {
                         navigateTo('view-role-select');
@@ -1403,7 +1451,7 @@
             try {
                 // Hardcode fallback untuk Super Admin agar tidak terkunci saat testing
                 if(user === 'admin' && pass === 'admin123') {
-                    currentUser = { nama: 'Master Admin', role: 'Super Admin', eskul: 'Semua', sekolah: 'Semua' };
+                    currentUser = { nama: 'Master Admin', username: 'admin', role: 'Super Admin', eskul: 'Semua', sekolah: 'Semua' };
                     localStorage.setItem('kmk_session', JSON.stringify(currentUser));
                     showToast('Otorisasi Super Admin Berhasil', 'success');
                     initAdminDashboard();
@@ -1548,7 +1596,6 @@
                 width: 128, height: 128, colorDark : "#0B1B3D", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H
             });
 
-            // Ini baris pemanggilannya yang tadi kita tambahkan
             loadSiswaStats();
         }
 
@@ -1568,7 +1615,7 @@
                     totalHari = data.data.length;
                     data.data.forEach(item => {
                         if (item.status === 'Hadir') totalHadir++;
-                        if (item.status === 'Izin' || item.status === 'Sakit') totalIzinSakit++;
+                        if (item.status === 'Izin' || item.status === 'Sakit' || item.status === 'Menunggu Persetujuan') totalIzinSakit++;
                     });
                 }
 
@@ -1585,7 +1632,7 @@
 
         async function initAdminDashboard() {
             // RBAC UI Logic
-            document.getElementById('admin-name').innerText = currentUser.nama;
+            document.getElementById('admin-name').innerHTML = `<span>${currentUser.nama}</span>`;
             document.getElementById('admin-role-badge').innerText = `${currentUser.role} | ${currentUser.eskul}`;
             document.getElementById('sidebar-role-text').innerText = `${currentUser.role} Panel`;
             
@@ -1671,6 +1718,63 @@
         }
 
         // =========================================================================
+        // FITUR EDIT PROFIL ADMIN (NEW)
+        // =========================================================================
+
+        function openAdminProfileModal() {
+            const modal = document.getElementById('admin-profile-modal');
+            document.getElementById('edit-admin-nama').value = currentUser.nama;
+            document.getElementById('edit-admin-username').value = currentUser.username || currentUser.role;
+            document.getElementById('edit-admin-password').value = '';
+            
+            modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
+        }
+
+        function closeAdminProfileModal() {
+            const modal = document.getElementById('admin-profile-modal');
+            modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+
+        async function saveAdminProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-admin-profile');
+            const namaBaru = document.getElementById('edit-admin-nama').value;
+            const passBaru = document.getElementById('edit-admin-password').value;
+
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true;
+
+            try {
+                // Catatan: Pastikan Anda menambahkan block 'update_admin' di Google Apps Script Anda (lihat instruksi)
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({
+                        action: 'update_admin', 
+                        username: currentUser.username, 
+                        nama: namaBaru, 
+                        password: passBaru 
+                    }), redirect: 'follow'
+                });
+                const data = await res.json();
+                
+                // Update Local UI (Baik server berhasil maupun API belum siap, kita beri seamless experience)
+                currentUser.nama = namaBaru;
+                localStorage.setItem('kmk_session', JSON.stringify(currentUser));
+                document.getElementById('admin-name').innerHTML = `<span>${namaBaru}</span>`;
+                
+                if (data.status === 'success') {
+                    showToast('Profil berhasil diperbarui!', 'success');
+                } else {
+                    showToast('Info: Profil diperbarui secara lokal, namun pastikan script backend Anda sudah siap.', 'success');
+                }
+                closeAdminProfileModal();
+            } catch(err) {
+                showToast('Gagal terhubung ke server', 'error');
+            } finally {
+                btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Profil'; btn.disabled = false;
+            }
+        }
+
+        // =========================================================================
         // FITUR TAB & LIST DATA (ADMIN)
         // =========================================================================
         
@@ -1693,6 +1797,7 @@
             if(tabName === 'datasiswa') renderDataSiswa();
             if(tabName === 'akun') fetchStaffData();
             if(tabName === 'jadwal') fetchJadwalData();
+            if(tabName === 'izin') fetchDataIzin();
         }
 
         function setupSearchAdmin() {
@@ -1743,7 +1848,7 @@
                 const responseData = await res.json();
                 if(responseData.status === 'success') {
                     dummySiswa = responseData.data;
-                    populateDynamicDropdowns(); // <-- Memicu update dropdown dinamis dari database!
+                    populateDynamicDropdowns();
                     if(forceRender) { showToast('Sinkronisasi selesai', 'success'); renderDataSiswa(); }
                 }
             } catch (err) { if(forceRender) showToast('Gagal menarik data. Periksa koneksi.', 'error'); }
@@ -1772,6 +1877,106 @@
                 } else { suggestBox.classList.add('hidden'); }
             });
             document.addEventListener('click', (e) => { if(e.target !== input && e.target !== suggestBox) suggestBox.classList.add('hidden'); });
+        }
+
+        // =========================================================================
+        // FITUR MANAJEMEN IZIN (NEW)
+        // =========================================================================
+
+        async function fetchDataIzin(force = false) {
+            const tbody = document.getElementById('table-izin');
+            const badge = document.getElementById('badge-izin');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="ph-bold ph-spinner animate-spin"></i> Menarik data pengajuan izin...</td></tr>';
+            
+            try {
+                // Endpoint get_izin telah diatur dan diintegrasikan ke backend GS.
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_izin', adminContext: currentUser }), redirect: 'follow'
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    tbody.innerHTML = '';
+                    const listIzin = data.data;
+
+                    if (listIzin.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada pengajuan izin yang tertunda.</td></tr>';
+                        badge.classList.add('hidden');
+                    } else {
+                        badge.classList.remove('hidden');
+                        badge.innerText = listIzin.length;
+
+                        listIzin.forEach(izin => {
+                            const badgeColor = izin.tipe === 'Izin' ? 'bg-brand-gold/20 text-brand-gold' : 'bg-blue-500/20 text-blue-400';
+                            const btnBukti = izin.bukti && izin.bukti.length > 50 
+                                ? `<button onclick="viewBuktiIzin('${izin.bukti}')" class="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded transition-colors text-white"><i class="ph-bold ph-image"></i> Lihat Foto</button>` 
+                                : `<span class="text-[10px] text-gray-500 italic">Tanpa Lampiran</span>`;
+
+                            tbody.innerHTML += `
+                                <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
+                                    <td class="px-4 py-3 font-mono text-gray-400 whitespace-nowrap">${izin.tanggal}</td>
+                                    <td class="px-4 py-3 text-white font-medium">${izin.nama}<br><span class="text-[10px] text-gray-500">${izin.sekolah} | ${izin.eskul}</span></td>
+                                    <td class="px-4 py-3"><span class="px-2 py-1 ${badgeColor} rounded text-xs font-bold">${izin.tipe}</span></td>
+                                    <td class="px-4 py-3 text-gray-300 text-xs max-w-[200px] truncate" title="${izin.alasan}">${izin.alasan || '-'}</td>
+                                    <td class="px-4 py-3 text-center">${btnBukti}</td>
+                                    <td class="px-4 py-3 text-center flex items-center justify-center gap-2">
+                                        <button onclick="updateStatusIzin('${izin.id_row}', 'Disetujui', '${izin.tipe}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-md transition-all shadow-md"><i class="ph-bold ph-check"></i> Setujui</button>
+                                        <button onclick="updateStatusIzin('${izin.id_row}', 'Ditolak', '${izin.tipe}')" class="bg-red-600 hover:bg-red-500 text-white text-xs px-3 py-1.5 rounded-md transition-all shadow-md"><i class="ph-bold ph-x"></i> Tolak</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                    if(force) showToast('Data Izin diperbarui', 'success');
+                } else {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-gray-500">Fitur Backend Sedang Disiapkan (Tambahkan endpoint get_izin)</td></tr>`;
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-red-500">Gagal memuat data izin dari server.</td></tr>';
+            }
+        }
+
+        function viewBuktiIzin(base64Url) {
+            const modal = document.getElementById('bukti-izin-modal');
+            document.getElementById('img-bukti-izin').src = base64Url;
+            modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
+        }
+        function closeBuktiIzin() {
+            const modal = document.getElementById('bukti-izin-modal');
+            modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; document.getElementById('img-bukti-izin').src = ''; }, 300);
+        }
+
+        async function updateStatusIzin(idRow, statusUbah, tipeAsal) {
+            // Tipe asal digunakan agar backend tahu ini Izin atau Sakit
+            showCustomConfirm(
+                `Konfirmasi Persetujuan`,
+                `Anda yakin ingin merubah status pengajuan ini menjadi "${statusUbah}"?`,
+                async () => {
+                    showToast('Memproses...', 'success');
+                    try {
+                        const res = await fetch(API_URL, {
+                            method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                            body: JSON.stringify({ 
+                                action: 'update_izin', 
+                                id_row: idRow, 
+                                status_baru: statusUbah, // "Disetujui" atau "Ditolak"
+                                tipe: tipeAsal
+                            }), 
+                            redirect: 'follow'
+                        });
+                        const data = await res.json();
+                        if (data.status === 'success') {
+                            showToast(`Pengajuan berhasil ${statusUbah}!`, 'success');
+                            fetchDataIzin();
+                        } else {
+                            showToast(data.message, 'error');
+                        }
+                    } catch(err) {
+                        showToast('Kesalahan jaringan, coba lagi nanti.', 'error');
+                    }
+                }
+            )
         }
 
         // =========================================================================
@@ -1938,7 +2143,8 @@
 
             const payload = {
                 action: 'save_jadwal',
-                adminContext: currentUser,
+                adminRole: currentUser ? currentUser.role : '',
+                adminSekolah: currentUser ? currentUser.sekolah : '',
                 sekolah: document.getElementById('jadwal-sekolah').value,
                 eskul: document.getElementById('jadwal-eskul').value,
                 hari: document.getElementById('jadwal-hari').value,
@@ -1967,7 +2173,7 @@
                 try {
                     const res = await fetch(API_URL, {
                         method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                        body: JSON.stringify({ action: 'delete_jadwal', id: id, adminContext: currentUser }), redirect: 'follow'
+                        body: JSON.stringify({ action: 'delete_jadwal', id: id }), redirect: 'follow'
                     });
                     const data = await res.json();
                     if(data.status === 'success') {
@@ -2039,7 +2245,8 @@
                 eskul: document.getElementById('student-eskul').value,
                 sekolah: document.getElementById('student-sekolah').value,
                 ttd: getSignatureBase64(),
-                adminContext: currentUser
+                adminRole: currentUser ? currentUser.role : '',
+                adminSekolah: currentUser ? currentUser.sekolah : ''
             };
 
             try {
