@@ -1403,7 +1403,8 @@
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'login_siswa', nisn: inputVal }), redirect: 'follow'
+                    // FIX: Ditambahkan "input: inputVal" agar cocok dengan "payload.input" pada Google Apps Script
+                    body: JSON.stringify({ action: 'login_siswa', nisn: inputVal, input: inputVal }), redirect: 'follow'
                 });
                 const responseData = await res.json();
                 if(responseData.status === 'success') {
@@ -1563,10 +1564,11 @@
                     const logTbody = document.getElementById('live-log-table');
                     logTbody.innerHTML = ''; 
                     
-                    if(data.logs.length === 0) {
+                    // FIX: Menggunakan 'recentLogs' sesuai dengan properti JSON yang dikirimkan oleh backend API
+                    if(!data.recentLogs || data.recentLogs.length === 0) {
                         logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada scan absensi hari ini</td></tr>';
                     } else {
-                        data.logs.forEach(log => {
+                        data.recentLogs.forEach(log => {
                             logTbody.innerHTML += `
                                 <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                                     <td class="px-4 py-3 font-mono text-gray-300">${log.waktu}</td>
@@ -1580,7 +1582,7 @@
                         });
                     }
 
-                    // Render Chart (Dummy data adjusted based on filter just for UI feel if API is basic)
+                    // Render Chart
                     if(!refreshLiveOnly) renderChart();
                 }
             } catch(e) { console.error("Gagal memuat data live:", e); }
@@ -1651,7 +1653,9 @@
             if(dummySiswa.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Data sedang disinkronisasi atau kosong...</td></tr>'; fetchDaftarSiswa(true); return; }
 
             tbody.innerHTML = '';
-            const filteredData = dummySiswa.filter(siswa => siswa.nama.toLowerCase().includes(filter) || siswa.nisn.includes(filter));
+            // FIX: Merubah cara pencocokan string agar NISN (Angka) tidak membuat JS error
+            const filteredData = dummySiswa.filter(siswa => String(siswa.nama).toLowerCase().includes(filter) || String(siswa.nisn).includes(filter));
+            
             if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Tidak ada siswa yang cocok dengan pencarian Anda.</td></tr>'; return; }
 
             filteredData.forEach(siswa => {
@@ -1911,8 +1915,8 @@
             } catch(err) { showToast('Gagal terhubung ke server', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Profil'; btn.disabled = false; }
         }
 
-        // (Other repetitive modal close/open and utility functions mapped exactly as your original logic, kept functional without breaking structure).
-        function setupAutoSuggest() { fetchDaftarSiswa(); const input = document.getElementById('input-nisn'); const suggestBox = document.getElementById('auto-suggest'); input.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); suggestBox.innerHTML = ''; if (!val) { suggestBox.classList.add('hidden'); return; } const matches = dummySiswa.filter(s => s.nama.toLowerCase().includes(val) || s.nisn.includes(val)); if (matches.length > 0) { suggestBox.classList.remove('hidden'); matches.forEach(match => { const div = document.createElement('div'); div.className = 'px-4 py-3 hover:bg-white/10 cursor-pointer text-sm text-white flex justify-between items-center border-b border-white/5 last:border-0'; div.innerHTML = `<div><span class="font-bold text-brand-gold">${match.nama}</span> <br> <span class="text-xs text-gray-400">${match.nisn}</span></div><span class="text-[10px] bg-white/10 px-2 py-1 rounded">${match.sekolah}</span>`; div.onclick = () => { input.value = match.nisn; suggestBox.classList.add('hidden'); }; suggestBox.appendChild(div); }); } else { suggestBox.classList.add('hidden'); } }); document.addEventListener('click', (e) => { if(e.target !== input && e.target !== suggestBox) suggestBox.classList.add('hidden'); }); }
+        // FIX: String() dibungkus pada s.nisn dan s.nama agar aman dari error pencarian type Number
+        function setupAutoSuggest() { fetchDaftarSiswa(); const input = document.getElementById('input-nisn'); const suggestBox = document.getElementById('auto-suggest'); input.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); suggestBox.innerHTML = ''; if (!val) { suggestBox.classList.add('hidden'); return; } const matches = dummySiswa.filter(s => String(s.nama).toLowerCase().includes(val) || String(s.nisn).includes(val)); if (matches.length > 0) { suggestBox.classList.remove('hidden'); matches.forEach(match => { const div = document.createElement('div'); div.className = 'px-4 py-3 hover:bg-white/10 cursor-pointer text-sm text-white flex justify-between items-center border-b border-white/5 last:border-0'; div.innerHTML = `<div><span class="font-bold text-brand-gold">${match.nama}</span> <br> <span class="text-xs text-gray-400">${match.nisn}</span></div><span class="text-[10px] bg-white/10 px-2 py-1 rounded">${match.sekolah}</span>`; div.onclick = () => { input.value = match.nisn; suggestBox.classList.add('hidden'); }; suggestBox.appendChild(div); }); } else { suggestBox.classList.add('hidden'); } }); document.addEventListener('click', (e) => { if(e.target !== input && e.target !== suggestBox) suggestBox.classList.add('hidden'); }); }
         
         function openUbahFotoModal() { document.getElementById('preview-foto-baru').src = currentUser.foto || 'https://placehold.co/150x150/0B1B3D/D4AF37?text=Siswa'; base64FotoBaru = null; document.getElementById('input-foto-file').value = ''; const modal = document.getElementById('ubah-foto-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
         function closeUbahFotoModal() { document.getElementById('ubah-foto-modal').style.opacity = '0'; setTimeout(() => { document.getElementById('ubah-foto-modal').style.display = 'none'; }, 300); }
@@ -1933,7 +1937,10 @@
         function downloadIDCard() { showToast('Mempersiapkan ID Card...', 'success'); html2canvas(document.getElementById('id-card-container'), { backgroundColor: '#0B1B3D', scale: 3, useCORS: true }).then(canvas => { const link = document.createElement('a'); link.download = `ID_CARD_${currentUser.nama.replace(/\s+/g, '_')}.png`; link.href = canvas.toDataURL('image/png'); link.click(); showToast('ID Card berhasil diunduh!'); }).catch(err => showToast('Gagal memuat ID Card.', 'error')); }
         function openQRSession() { const modal = document.getElementById('qr-session-modal'); document.getElementById('session-qrcode-display').innerHTML = ''; document.getElementById('qr-session-time').innerText = new Date().toLocaleDateString('id-ID'); new QRCode(document.getElementById('session-qrcode-display'), { text: JSON.stringify({ type: 'sesi_absen', date: new Date().toDateString() }), width: 200, height: 200, colorDark : "#0B1B3D", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H }); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
         function closeQRSession() { document.getElementById('qr-session-modal').style.opacity = '0'; setTimeout(() => document.getElementById('qr-session-modal').style.display = 'none', 300); }
-        function openStudentModal(nisn = null) { const modal = document.getElementById('student-modal'); const title = document.getElementById('student-modal-title'); document.getElementById('student-form').reset(); document.getElementById('student-original-nisn').value = ''; clearSignature(); if (nisn) { title.innerText = 'Edit Siswa'; const student = dummySiswa.find(s => s.nisn === nisn); if (student) { document.getElementById('student-original-nisn').value = student.nisn; document.getElementById('student-nisn').value = student.nisn; document.getElementById('student-nama').value = student.nama; document.getElementById('student-kelas').value = student.kelas || ''; document.getElementById('student-eskul').value = student.eskul || ''; document.getElementById('student-sekolah').value = student.sekolah || ''; } } else { title.innerText = 'Tambah Siswa Baru'; } setTimeout(() => { sigCtx = resizeCanvasHD('signature-pad'); }, 300); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
+        
+        // FIX: Ditambahkan String() agar tidak terjadi error typeof Number 
+        function openStudentModal(nisn = null) { const modal = document.getElementById('student-modal'); const title = document.getElementById('student-modal-title'); document.getElementById('student-form').reset(); document.getElementById('student-original-nisn').value = ''; clearSignature(); if (nisn) { title.innerText = 'Edit Siswa'; const student = dummySiswa.find(s => String(s.nisn) === String(nisn)); if (student) { document.getElementById('student-original-nisn').value = student.nisn; document.getElementById('student-nisn').value = student.nisn; document.getElementById('student-nama').value = student.nama; document.getElementById('student-kelas').value = student.kelas || ''; document.getElementById('student-eskul').value = student.eskul || ''; document.getElementById('student-sekolah').value = student.sekolah || ''; } } else { title.innerText = 'Tambah Siswa Baru'; } setTimeout(() => { sigCtx = resizeCanvasHD('signature-pad'); }, 300); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
+        
         function closeStudentModal() { const modal = document.getElementById('student-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
         async function saveStudent(e) { e.preventDefault(); const btn = document.getElementById('btn-save-student'); btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true; const payload = { action: document.getElementById('student-original-nisn').value ? 'edit_siswa' : 'add_siswa', original_nisn: document.getElementById('student-original-nisn').value, nisn: document.getElementById('student-nisn').value, nama: document.getElementById('student-nama').value, kelas: document.getElementById('student-kelas').value, eskul: document.getElementById('student-eskul').value, sekolah: document.getElementById('student-sekolah').value, ttd: getSignatureBase64(), adminRole: currentUser ? currentUser.role : '', adminSekolah: currentUser ? currentUser.sekolah : '' }; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' }); const data = await res.json(); if (data.status === 'success') { showToast('Data siswa berhasil disimpan!', 'success'); closeStudentModal(); fetchDaftarSiswa(true); } else { showToast(data.message, 'error'); } } catch (err) { showToast('Gagal menyimpan data.', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Data'; btn.disabled = false; } }
         async function fetchJadwalData(forStudent = false) { const tbody = document.getElementById('table-jadwal'); if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Memuat jadwal...</td></tr>'; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_jadwal', adminContext: currentUser }), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { dataJadwal = data.data; if(!forStudent) renderJadwal(); else updateStudentJadwalButton(); } } catch (err) { if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat jadwal.</td></tr>'; } }
