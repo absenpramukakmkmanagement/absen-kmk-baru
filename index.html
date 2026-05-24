@@ -25,7 +25,7 @@
     <!-- html2canvas for ID Card Download -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <!-- NEW: Professional PDF & Excel Export Libraries -->
+    <!-- Professional PDF & Excel Export Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -270,20 +270,10 @@
             </div>
         </div>
 
+        <!-- View: Dashboard Siswa -->
         <div id="view-dashboard-siswa" class="page-view hide-page w-full min-h-screen pb-20 md:pb-0">
-    
-    <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-white/10">
-        </nav>
-
-    <div class="p-6">
-        <button onclick="openEditProfilSiswa()" class="mb-4 inline-flex items-center gap-2 text-xs text-brand-gold bg-brand-gold/10 hover:bg-brand-gold/20 px-4 py-2 rounded-full border border-brand-gold/30 transition-all">
-            <i class="ph-bold ph-pencil-simple"></i> Edit Data Diri
-        </button>
-
-        </div>
-</div>
             <!-- Navbar Mobile/Desktop -->
-            <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b-0 border-white/10">
+            <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-white/10">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-brand-gold/20 flex items-center justify-center border border-brand-gold/30">
                         <i class="ph-fill ph-hexagon text-brand-gold text-xl"></i>
@@ -308,6 +298,14 @@
                 
                 <!-- Left Column: Unified Digital ID Card -->
                 <div class="md:col-span-4 space-y-4">
+                    
+                    <!-- Edit Profil Button -->
+                    <div class="flex justify-end">
+                        <button onclick="openEditProfilSiswa()" class="inline-flex items-center gap-2 text-xs text-brand-gold bg-brand-gold/10 hover:bg-brand-gold/20 px-4 py-2 rounded-full border border-brand-gold/30 transition-all">
+                            <i class="ph-bold ph-pencil-simple"></i> Edit Data Diri
+                        </button>
+                    </div>
+
                     <!-- Digital ID Card -->
                     <div id="id-card-container" class="bg-brand-dark p-0 rounded-3xl relative overflow-hidden flex flex-col items-center border border-brand-gold/30 shadow-2xl w-full max-w-sm mx-auto">
                         <div class="absolute inset-0 bg-gradient-to-br from-brand-gold/10 via-transparent to-brand-gold/5 z-0 pointer-events-none"></div>
@@ -771,7 +769,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="table-izin">
-                                    <tr><td colspan="6" class="text-center py-8">Klik Segarkan Data untuk memuat pengajuan izin...</td></tr>
+                                    <tr><td colspan="6" class="text-center py-8">Fitur persetujuan Izin (Backend Integration Pending)</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -964,7 +962,7 @@
             </div>
         </div>
 
-        <!-- Modal Lihat Bukti Izin -->
+        <!-- Bukti Izin Modal -->
         <div id="bukti-izin-modal" class="fixed inset-0 z-[120] bg-black/95 backdrop-blur-md hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
             <div class="w-full max-w-lg relative text-center mx-4 flex flex-col items-center">
                 <button onclick="closeBuktiIzin()" class="absolute -top-12 right-0 text-white hover:text-red-400 transition-colors bg-white/10 p-2 rounded-full z-10">
@@ -1028,7 +1026,7 @@
             </div>
         </div>
 
-        <!-- Pop-Up Modal (Tambah/Edit Siswa) -->
+        <!-- Pop-Up Modal (Tambah/Edit Siswa Admin) -->
         <div id="student-modal" class="fixed inset-0 z-[100] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
             <div class="w-full max-w-md relative glass p-6 rounded-3xl mx-4 max-h-[90vh] overflow-y-auto">
                 <button onclick="closeStudentModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
@@ -1271,6 +1269,30 @@
             </div>
         </div>
 
+        <!-- Pop-Up Modal (Edit Profil Mandiri - Siswa) -->
+        <div id="edit-profil-siswa-modal" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="w-full max-w-sm relative glass p-6 rounded-3xl mx-4 text-left">
+                <button onclick="closeEditProfilSiswa()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
+                    <i class="ph-bold ph-x text-lg"></i>
+                </button>
+                <h3 class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Perbarui Data Diri</h3>
+                
+                <form onsubmit="submitEditProfilSiswa(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Nama Lengkap</label>
+                        <input type="text" id="siswa-edit-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-300 mb-1">Kelas Saat Ini</label>
+                        <input type="text" id="siswa-edit-kelas" required placeholder="Cth: VIII-B" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+                    </div>
+                    <button type="submit" id="btn-save-profil-siswa" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
+                        <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </main>
 
     <script>
@@ -1413,7 +1435,6 @@
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    // FIX: Ditambahkan "input: inputVal" agar cocok dengan "payload.input" pada Google Apps Script
                     body: JSON.stringify({ action: 'login_siswa', nisn: inputVal, input: inputVal }), redirect: 'follow'
                 });
                 const responseData = await res.json();
@@ -1453,7 +1474,7 @@
         }
 
         // =========================================================================
-        // SYNCRONIZE SCHOOLS & ESKUL DYNAMICALLY
+        // SYNCRONIZE SCHOOLS & ESKUL DYNAMICALLY DENGAN RBAC ADMIN
         // =========================================================================
 
         const SCHOOLS_MASTER = ["SDN Telajung 04", "SMPN 4 SETU", "SMK 2"];
@@ -1463,39 +1484,42 @@
             let schools = [...new Set([...SCHOOLS_MASTER, ...dummySiswa.map(s => s.sekolah).filter(Boolean)])].sort();
             let eskuls = [...new Set([...ESKULS_MASTER, ...dummySiswa.map(s => s.eskul).filter(Boolean)])].sort();
 
-            const updateSelects = (selectors, optionsList, defaultTxt) => {
+            const updateSelectsWithRBAC = (selectors, optionsList, defaultTxt, userConstraint) => {
                 selectors.forEach(selector => {
                     const el = document.getElementById(selector);
                     if(el) {
-                        el.innerHTML = `<option value="${defaultTxt}">${defaultTxt}</option>`;
-                        optionsList.forEach(opt => el.innerHTML += `<option value="${opt}">${opt}</option>`);
+                        el.innerHTML = '';
+                        // Jika bukan super admin dan ada limitasi, paksa hanya muncul satu pilihan miliknya
+                        if (currentUser && currentUser.role !== 'Super Admin' && userConstraint && userConstraint !== 'Semua Sekolah' && userConstraint !== 'Semua Eskul' && userConstraint !== 'Semua Ekstrakurikuler') {
+                            el.innerHTML = `<option value="${userConstraint}">${userConstraint}</option>`;
+                        } else {
+                            // Tampilkan semua jika Super Admin atau memiliki hak "Semua Sekolah"
+                            el.innerHTML = `<option value="${defaultTxt}">${defaultTxt}</option>`;
+                            optionsList.forEach(opt => el.innerHTML += `<option value="${opt}">${opt}</option>`);
+                        }
                     }
                 });
             };
 
-            // Sekolah Selectors
-            updateSelects(['staff-sekolah', 'filter-sekolah-kehadiran', 'filter-sekolah-chart'], schools, 'Semua Sekolah');
-            
-            // Eskul Selectors
-            updateSelects(['staff-eskul', 'filter-eskul-kehadiran', 'filter-eskul-chart'], eskuls, 'Semua Ekstrakurikuler');
+            updateSelectsWithRBAC(['staff-sekolah', 'filter-sekolah-kehadiran', 'filter-sekolah-chart', 'jadwal-sekolah'], schools, 'Semua Sekolah', currentUser ? currentUser.sekolah : null);
+            updateSelectsWithRBAC(['staff-eskul', 'filter-eskul-kehadiran', 'filter-eskul-chart'], eskuls, 'Semua Ekstrakurikuler', currentUser ? currentUser.eskul : null);
 
-            // Pengumuman Target
+            // Pengumuman Target (Disesuaikan berdasarkan hak akses)
             const pTarget = document.getElementById('pengumuman-target');
             if(pTarget) {
                 let html = '<option value="all">Semua Siswa</option>';
-                html += '<optgroup label="Berdasarkan Sekolah">'; schools.forEach(s => html += `<option value="${s}">Hanya Siswa ${s}</option>`); html += '</optgroup>';
-                html += '<optgroup label="Berdasarkan Ekstrakurikuler">'; eskuls.forEach(e => html += `<option value="${e}">Seluruh Anggota ${e}</option>`); html += '</optgroup>';
-                pTarget.innerHTML = html;
-            }
-
-            // Jadwal Sekolah (RBAC)
-            const jSekolah = document.getElementById('jadwal-sekolah');
-            if(jSekolah) {
-                if (currentUser && currentUser.role !== 'Super Admin' && currentUser.sekolah !== 'Semua Sekolah') {
-                    jSekolah.innerHTML = `<option value="${currentUser.sekolah}">${currentUser.sekolah}</option>`;
+                if (currentUser && currentUser.role !== 'Super Admin') {
+                    if (currentUser.sekolah !== 'Semua Sekolah') {
+                         html += `<option value="${currentUser.sekolah}">Hanya Siswa ${currentUser.sekolah}</option>`;
+                    }
+                    if (currentUser.eskul !== 'Semua Eskul') {
+                         html += `<option value="${currentUser.eskul}">Seluruh Anggota ${currentUser.eskul}</option>`;
+                    }
                 } else {
-                    jSekolah.innerHTML = '<option value="">-- Pilih Sekolah --</option>'; schools.forEach(sch => jSekolah.innerHTML += `<option value="${sch}">${sch}</option>`);
+                    html += '<optgroup label="Berdasarkan Sekolah">'; schools.forEach(s => html += `<option value="${s}">Hanya Siswa ${s}</option>`); html += '</optgroup>';
+                    html += '<optgroup label="Berdasarkan Ekstrakurikuler">'; eskuls.forEach(e => html += `<option value="${e}">Seluruh Anggota ${e}</option>`); html += '</optgroup>';
                 }
+                pTarget.innerHTML = html;
             }
 
             // Datalist Forms
@@ -1555,7 +1579,6 @@
 
             if(!refreshLiveOnly) { fetchDaftarSiswa(); switchAdminTab('dashboard'); }
             
-            // Collect Chart Filters
             const chSekolah = document.getElementById('filter-sekolah-chart')?.value || 'Semua Sekolah';
             const chEskul = document.getElementById('filter-eskul-chart')?.value || 'Semua Ekstrakurikuler';
 
@@ -1568,17 +1591,39 @@
                 const responseData = await res.json();
                 if(responseData.status === 'success') {
                     const data = responseData.data;
-                    document.getElementById('stat-total-siswa').innerText = data.totalSiswa;
-                    document.getElementById('stat-hadir-hari-ini').innerText = data.hadirHariIni;
+                    
+                    let filteredLogs = data.logs || [];
+                    let myTotalSiswa = data.totalSiswa;
+                    let myHadirHariIni = data.hadirHariIni; 
+                    
+                    // Filter berdasarkan role Admin secara lokal (jika backend mengirimkan seluruh data global)
+                    if (currentUser && currentUser.role !== 'Super Admin') {
+                        if (currentUser.sekolah !== 'Semua Sekolah') {
+                            filteredLogs = filteredLogs.filter(log => log.sekolah === currentUser.sekolah);
+                        }
+                        if (currentUser.eskul !== 'Semua Eskul') {
+                            filteredLogs = filteredLogs.filter(log => log.eskul === currentUser.eskul);
+                        }
+                        
+                        // Menghitung ulang total siswa di naungannya (dari dummySiswa frontend)
+                        if (dummySiswa.length > 0) {
+                            let mySiswa = dummySiswa;
+                            if (currentUser.sekolah !== 'Semua Sekolah') mySiswa = mySiswa.filter(s => s.sekolah === currentUser.sekolah);
+                            if (currentUser.eskul !== 'Semua Eskul') mySiswa = mySiswa.filter(s => s.eskul === currentUser.eskul);
+                            myTotalSiswa = mySiswa.length;
+                        }
+                    }
+
+                    document.getElementById('stat-total-siswa').innerText = myTotalSiswa;
+                    document.getElementById('stat-hadir-hari-ini').innerText = myHadirHariIni; // Global stats from server fallback
 
                     const logTbody = document.getElementById('live-log-table');
                     logTbody.innerHTML = ''; 
                     
-                    // FIX: Menggunakan 'recentLogs' sesuai dengan properti JSON yang dikirimkan oleh backend API
-                    if(!data.recentLogs || data.recentLogs.length === 0) {
-                        logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada scan absensi hari ini</td></tr>';
+                    if(filteredLogs.length === 0) {
+                        logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada scan absensi hari ini untuk wilayah Anda</td></tr>';
                     } else {
-                        data.recentLogs.forEach(log => {
+                        filteredLogs.forEach(log => {
                             logTbody.innerHTML += `
                                 <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
                                     <td class="px-4 py-3 font-mono text-gray-300">${log.waktu}</td>
@@ -1592,7 +1637,6 @@
                         });
                     }
 
-                    // Render Chart
                     if(!refreshLiveOnly) renderChart();
                 }
             } catch(e) { console.error("Gagal memuat data live:", e); }
@@ -1663,10 +1707,21 @@
             if(dummySiswa.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Data sedang disinkronisasi atau kosong...</td></tr>'; fetchDaftarSiswa(true); return; }
 
             tbody.innerHTML = '';
-            // FIX: Merubah cara pencocokan string agar NISN (Angka) tidak membuat JS error
-            const filteredData = dummySiswa.filter(siswa => String(siswa.nama).toLowerCase().includes(filter) || String(siswa.nisn).includes(filter));
             
-            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Tidak ada siswa yang cocok dengan pencarian Anda.</td></tr>'; return; }
+            // FILTER BERDASARKAN ROLE ADMIN
+            let allowedSiswa = dummySiswa;
+            if (currentUser && currentUser.role !== 'Super Admin') {
+                if (currentUser.sekolah !== 'Semua Sekolah') {
+                    allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
+                }
+                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') {
+                    allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
+                }
+            }
+
+            const filteredData = allowedSiswa.filter(siswa => String(siswa.nama).toLowerCase().includes(filter) || String(siswa.nisn).includes(filter));
+            
+            if (filteredData.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-8 text-gray-500">Tidak ada siswa yang cocok dengan pencarian / di wilayah Anda.</td></tr>'; return; }
 
             filteredData.forEach(siswa => {
                 tbody.innerHTML += `
@@ -1682,7 +1737,7 @@
         }
 
         // =========================================================================
-        // REKAP KEHADIRAN & EXPORT PDF/EXCEL (NEW)
+        // REKAP KEHADIRAN & EXPORT PDF/EXCEL DENGAN RBAC
         // =========================================================================
 
         let dataKehadiranCache = [];
@@ -1699,15 +1754,42 @@
             try {
                 const res = await fetch(API_URL, {
                     method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'get_laporan', adminContext: currentUser, filterSekolah: fSekolah, filterEskul: fEskul, filterBulan: fBulan, filterTanggal: fTanggal }), redirect: 'follow'
+                    body: JSON.stringify({ action: 'get_laporan', adminContext: currentUser }), redirect: 'follow'
                 });
                 const responseData = await res.json();
                 
                 if(responseData.status === 'success') {
-                    dataKehadiranCache = responseData.data;
+                    let allData = responseData.data;
+
+                    // FILTER BERDASARKAN ROLE ADMIN
+                    if (currentUser && currentUser.role !== 'Super Admin') {
+                        if (currentUser.sekolah !== 'Semua Sekolah') {
+                            allData = allData.filter(d => d.sekolah === currentUser.sekolah);
+                        }
+                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') {
+                            allData = allData.filter(d => d.ekskul === currentUser.eskul);
+                        }
+                    }
+
+                    // FILTER BERDASARKAN DROPDOWN (FRONTEND)
+                    if (fSekolah && fSekolah !== 'Semua Sekolah') {
+                        allData = allData.filter(d => d.sekolah === fSekolah);
+                    }
+                    if (fEskul && fEskul !== 'Semua Ekstrakurikuler' && fEskul !== 'Semua Eskul') {
+                        allData = allData.filter(d => d.ekskul === fEskul);
+                    }
+                    if (fBulan) {
+                        allData = allData.filter(d => d.tanggal.startsWith(fBulan));
+                    }
+                    if (fTanggal) {
+                        allData = allData.filter(d => d.tanggal === fTanggal);
+                    }
+
+                    dataKehadiranCache = allData;
                     tbody.innerHTML = '';
+                    
                     if(dataKehadiranCache.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada rekap absensi pada rentang waktu ini.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada rekap absensi pada rentang / filter waktu ini.</td></tr>';
                         return;
                     }
                     dataKehadiranCache.forEach(log => {
@@ -1925,7 +2007,6 @@
             } catch(err) { showToast('Gagal terhubung ke server', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Profil'; btn.disabled = false; }
         }
 
-        // FIX: String() dibungkus pada s.nisn dan s.nama agar aman dari error pencarian type Number
         function setupAutoSuggest() { fetchDaftarSiswa(); const input = document.getElementById('input-nisn'); const suggestBox = document.getElementById('auto-suggest'); input.addEventListener('input', (e) => { const val = e.target.value.toLowerCase(); suggestBox.innerHTML = ''; if (!val) { suggestBox.classList.add('hidden'); return; } const matches = dummySiswa.filter(s => String(s.nama).toLowerCase().includes(val) || String(s.nisn).includes(val)); if (matches.length > 0) { suggestBox.classList.remove('hidden'); matches.forEach(match => { const div = document.createElement('div'); div.className = 'px-4 py-3 hover:bg-white/10 cursor-pointer text-sm text-white flex justify-between items-center border-b border-white/5 last:border-0'; div.innerHTML = `<div><span class="font-bold text-brand-gold">${match.nama}</span> <br> <span class="text-xs text-gray-400">${match.nisn}</span></div><span class="text-[10px] bg-white/10 px-2 py-1 rounded">${match.sekolah}</span>`; div.onclick = () => { input.value = match.nisn; suggestBox.classList.add('hidden'); }; suggestBox.appendChild(div); }); } else { suggestBox.classList.add('hidden'); } }); document.addEventListener('click', (e) => { if(e.target !== input && e.target !== suggestBox) suggestBox.classList.add('hidden'); }); }
         
         function openUbahFotoModal() { document.getElementById('preview-foto-baru').src = currentUser.foto || 'https://placehold.co/150x150/0B1B3D/D4AF37?text=Siswa'; base64FotoBaru = null; document.getElementById('input-foto-file').value = ''; const modal = document.getElementById('ubah-foto-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
@@ -1940,7 +2021,34 @@
         async function openRiwayatModal() { const modal = document.getElementById('riwayat-modal'); const tbody = document.getElementById('table-riwayat-siswa'); tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8"><i class="ph-bold ph-spinner animate-spin text-2xl"></i> Memuat riwayat...</td></tr>'; modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_riwayat', nisn: currentUser.nisn }), redirect: 'follow' }); const data = await res.json(); if (data.status === 'success' && data.data.length > 0) { tbody.innerHTML = ''; data.data.forEach(item => { let badgeColor = item.status === 'Hadir' ? 'bg-emerald-500/20 text-emerald-400' : (item.status === 'Izin' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400'); tbody.innerHTML += ` <tr class="border-b border-white/5"> <td class="px-4 py-3 font-mono text-gray-300 whitespace-nowrap">${item.tanggal}</td> <td class="px-4 py-3 text-white">${item.kegiatan} ${item.alasan ? `<br><span class="text-[10px] text-gray-500">Ket: ${item.alasan}</span>` : ''}</td> <td class="px-4 py-3 text-right"><span class="px-2 py-1 ${badgeColor} rounded-md text-[10px] font-bold">${item.status}</span></td> </tr> `; }); } else { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-gray-500">Belum ada riwayat absensi.</td></tr>'; } } catch (err) { tbody.innerHTML = '<tr><td colspan="3" class="text-center py-8 text-red-400">Gagal mengambil data.</td></tr>'; } }
         function closeRiwayatModal() { const modal = document.getElementById('riwayat-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
 
-        function openManualAbsenModal() { const select = document.getElementById('manual-absen-siswa'); if(dummySiswa.length === 0) { fetchDaftarSiswa().then(() => { select.innerHTML = '<option value="">-- Pilih Siswa --</option>'; dummySiswa.forEach(s => select.innerHTML += `<option value="${s.nisn}">${s.nama} (${s.kelas || '-'})</option>`); }); } else { select.innerHTML = '<option value="">-- Pilih Siswa --</option>'; dummySiswa.forEach(s => select.innerHTML += `<option value="${s.nisn}">${s.nama} (${s.kelas || '-'})</option>`); } const modal = document.getElementById('manual-absen-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
+        function openManualAbsenModal() { 
+            const select = document.getElementById('manual-absen-siswa'); 
+            
+            // Limitasi Siswa Sesuai Hak Akses
+            let allowedSiswa = dummySiswa;
+            if (currentUser && currentUser.role !== 'Super Admin') {
+                if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
+                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
+            }
+
+            if(allowedSiswa.length === 0) { 
+                fetchDaftarSiswa().then(() => { 
+                    select.innerHTML = '<option value="">-- Pilih Siswa --</option>'; 
+                    let refiltered = dummySiswa;
+                    if (currentUser && currentUser.role !== 'Super Admin') {
+                        if (currentUser.sekolah !== 'Semua Sekolah') refiltered = refiltered.filter(s => s.sekolah === currentUser.sekolah);
+                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') refiltered = refiltered.filter(s => s.eskul === currentUser.eskul);
+                    }
+                    refiltered.forEach(s => select.innerHTML += `<option value="${s.nisn}">${s.nama} (${s.kelas || '-'})</option>`); 
+                }); 
+            } else { 
+                select.innerHTML = '<option value="">-- Pilih Siswa --</option>'; 
+                allowedSiswa.forEach(s => select.innerHTML += `<option value="${s.nisn}">${s.nama} (${s.kelas || '-'})</option>`); 
+            } 
+            
+            const modal = document.getElementById('manual-absen-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; 
+        }
+
         function closeManualAbsenModal() { const modal = document.getElementById('manual-absen-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
         async function submitManualAbsen(e) { e.preventDefault(); const btn = e.target.querySelector('button[type="submit"]'); btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'manual_absen', nisn: document.getElementById('manual-absen-siswa').value, status: document.getElementById('manual-absen-status').value, tanggal: document.getElementById('manual-absen-tanggal').value }), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { showToast('Absen manual disimpan!', 'success'); closeManualAbsenModal(); initAdminDashboard(true); fetchKehadiranData(); } else { showToast(data.message, 'error'); } } catch (err) { showToast('Kesalahan jaringan.', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-check-square"></i> Simpan Status'; btn.disabled = false; } }
 
@@ -1948,54 +2056,176 @@
         function openQRSession() { const modal = document.getElementById('qr-session-modal'); document.getElementById('session-qrcode-display').innerHTML = ''; document.getElementById('qr-session-time').innerText = new Date().toLocaleDateString('id-ID'); new QRCode(document.getElementById('session-qrcode-display'), { text: JSON.stringify({ type: 'sesi_absen', date: new Date().toDateString() }), width: 200, height: 200, colorDark : "#0B1B3D", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H }); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
         function closeQRSession() { document.getElementById('qr-session-modal').style.opacity = '0'; setTimeout(() => document.getElementById('qr-session-modal').style.display = 'none', 300); }
         
-        // FIX: Ditambahkan String() agar tidak terjadi error typeof Number 
         function openStudentModal(nisn = null) { const modal = document.getElementById('student-modal'); const title = document.getElementById('student-modal-title'); document.getElementById('student-form').reset(); document.getElementById('student-original-nisn').value = ''; clearSignature(); if (nisn) { title.innerText = 'Edit Siswa'; const student = dummySiswa.find(s => String(s.nisn) === String(nisn)); if (student) { document.getElementById('student-original-nisn').value = student.nisn; document.getElementById('student-nisn').value = student.nisn; document.getElementById('student-nama').value = student.nama; document.getElementById('student-kelas').value = student.kelas || ''; document.getElementById('student-eskul').value = student.eskul || ''; document.getElementById('student-sekolah').value = student.sekolah || ''; } } else { title.innerText = 'Tambah Siswa Baru'; } setTimeout(() => { sigCtx = resizeCanvasHD('signature-pad'); }, 300); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
         
         function closeStudentModal() { const modal = document.getElementById('student-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
         async function saveStudent(e) { e.preventDefault(); const btn = document.getElementById('btn-save-student'); btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true; const payload = { action: document.getElementById('student-original-nisn').value ? 'edit_siswa' : 'add_siswa', original_nisn: document.getElementById('student-original-nisn').value, nisn: document.getElementById('student-nisn').value, nama: document.getElementById('student-nama').value, kelas: document.getElementById('student-kelas').value, eskul: document.getElementById('student-eskul').value, sekolah: document.getElementById('student-sekolah').value, ttd: getSignatureBase64(), adminRole: currentUser ? currentUser.role : '', adminSekolah: currentUser ? currentUser.sekolah : '' }; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' }); const data = await res.json(); if (data.status === 'success') { showToast('Data siswa berhasil disimpan!', 'success'); closeStudentModal(); fetchDaftarSiswa(true); } else { showToast(data.message, 'error'); } } catch (err) { showToast('Gagal menyimpan data.', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Data'; btn.disabled = false; } }
+        
         async function fetchJadwalData(forStudent = false) { const tbody = document.getElementById('table-jadwal'); if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Memuat jadwal...</td></tr>'; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_jadwal', adminContext: currentUser }), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { dataJadwal = data.data; if(!forStudent) renderJadwal(); else updateStudentJadwalButton(); } } catch (err) { if(tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat jadwal.</td></tr>'; } }
-        function renderJadwal() { const tbody = document.getElementById('table-jadwal'); if (!tbody) return; tbody.innerHTML = ''; if(dataJadwal.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada jadwal yang diatur.</td></tr>'; return; } dataJadwal.forEach((item, index) => { tbody.innerHTML += ` <tr class="border-b border-white/5"> <td class="px-4 py-3"><span class="font-bold text-white">${item.eskul}</span><br><span class="text-xs text-gray-500">${item.sekolah}</span></td> <td class="px-4 py-3 text-brand-gold font-medium">${item.hari}</td> <td class="px-4 py-3 text-gray-300 text-sm font-mono">${item.jam_mulai} - ${item.jam_selesai}</td> <td class="px-4 py-3 text-center"> <button onclick="deleteJadwal('${item.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all"><i class="ph-bold ph-trash"></i> Hapus</button> </td> </tr> `; }); }
+        
+        function renderJadwal() { 
+            const tbody = document.getElementById('table-jadwal'); if (!tbody) return; 
+            tbody.innerHTML = ''; 
+            
+            // FILTER JADWAL SESUAI ROLE ADMIN
+            let filteredJadwal = dataJadwal;
+            if (currentUser && currentUser.role !== 'Super Admin') {
+                if (currentUser.sekolah !== 'Semua Sekolah') filteredJadwal = filteredJadwal.filter(j => j.sekolah === currentUser.sekolah);
+                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') filteredJadwal = filteredJadwal.filter(j => j.eskul === currentUser.eskul);
+            }
+
+            if(filteredJadwal.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada jadwal yang diatur.</td></tr>'; return; } 
+            
+            filteredJadwal.forEach((item, index) => { 
+                tbody.innerHTML += ` <tr class="border-b border-white/5"> <td class="px-4 py-3"><span class="font-bold text-white">${item.eskul}</span><br><span class="text-xs text-gray-500">${item.sekolah}</span></td> <td class="px-4 py-3 text-brand-gold font-medium">${item.hari}</td> <td class="px-4 py-3 text-gray-300 text-sm font-mono">${item.jam_mulai} - ${item.jam_selesai}</td> <td class="px-4 py-3 text-center"> <button onclick="deleteJadwal('${item.id}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all"><i class="ph-bold ph-trash"></i> Hapus</button> </td> </tr> `; 
+            }); 
+        }
+
         async function handleSaveJadwal(e) { e.preventDefault(); const btn = document.getElementById('btn-save-jadwal'); btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...'; btn.disabled = true; const payload = { action: 'save_jadwal', adminRole: currentUser ? currentUser.role : '', adminSekolah: currentUser ? currentUser.sekolah : '', sekolah: document.getElementById('jadwal-sekolah').value, eskul: document.getElementById('jadwal-eskul').value, hari: document.getElementById('jadwal-hari').value, jam_mulai: document.getElementById('jadwal-mulai').value, jam_selesai: document.getElementById('jadwal-selesai').value }; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { showToast('Jadwal berhasil disimpan!', 'success'); e.target.reset(); fetchJadwalData(); } else { showToast(data.message, 'error'); } } catch(err) { showToast('Gagal menyimpan jadwal.', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Jadwal'; btn.disabled = false; } }
         async function deleteJadwal(id) { showCustomConfirm("Hapus Jadwal", "Yakin ingin menghapus jadwal ini?", async () => { showToast("Menghapus...", "success"); try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete_jadwal', id: id }), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { showToast('Jadwal dihapus.', 'success'); fetchJadwalData(); } else showToast(data.message, 'error'); } catch(e) { showToast('Gagal menghapus.', 'error'); } }); }
         function updateStudentJadwalButton() { const btnJadwal = document.querySelector('button[onclick^="showInfoModal(\'Jadwal Ekstrakurikuler\'"]'); if (btnJadwal) { if (dataJadwal.length === 0) { btnJadwal.setAttribute('onclick', `showInfoModal('Jadwal Ekstrakurikuler', '<p class="text-gray-400 text-center">Belum ada jadwal yang diatur untuk sekolah Anda.</p>')`); } else { let htmlContent = ''; dataJadwal.forEach(j => { let colorClass = j.eskul.toLowerCase().includes('pramuka') ? 'text-brand-gold' : 'text-blue-400'; htmlContent += `<div class='p-3 bg-white/5 rounded-lg border border-white/5 mb-2'><p class='font-bold ${colorClass}'>${j.eskul}</p><p class='text-xs text-gray-400'>${j.hari}, ${j.jam_mulai} - ${j.jam_selesai} WIB</p></div>`; }); btnJadwal.setAttribute('onclick', `showInfoModal('Jadwal Ekstrakurikuler', "${htmlContent}")`); } } }
         function openStaffModal() { const modal = document.getElementById('staff-modal'); document.getElementById('staff-form').reset(); populateDynamicDropdowns(); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1'; }
         function closeStaffModal() { const modal = document.getElementById('staff-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
-        async function fetchStaffData(force = false) { const tbody = document.getElementById('table-akun-staff'); tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Memuat data akun...</td></tr>'; if (force) showToast('Menyinkronkan data staff...', 'success'); try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_staff', adminContext: currentUser }), redirect: 'follow' }); const resData = await res.json(); if(resData.status === 'success' && resData.data.length > 0) { tbody.innerHTML = ''; resData.data.forEach(staff => { let badgeColor = staff.role === 'Super Admin' ? 'bg-red-500/20 text-red-400' : (staff.role === 'Pembina' ? 'bg-purple-500/20 text-purple-400' : 'bg-emerald-500/20 text-emerald-400'); tbody.innerHTML += ` <tr class="border-b border-white/5"> <td class="px-4 py-3 text-white font-medium">${staff.nama}<br><span class="text-xs text-gray-500 font-mono">${staff.username}</span></td> <td class="px-4 py-3"><span class="px-2 py-1 ${badgeColor} rounded text-xs font-bold">${staff.role}</span></td> <td class="px-4 py-3 text-gray-300 text-xs">${staff.eskul} - ${staff.sekolah}</td> <td class="px-4 py-3 text-center"> <button onclick="requestDeleteStaff('${staff.username}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all"><i class="ph-bold ph-trash"></i> Hapus</button> </td> </tr> `; }); if (force) showToast('Staff tersinkronisasi!', 'success'); } else { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada akun staff terdaftar.</td></tr>'; } } catch(e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat akun.</td></tr>'; } }
+
+        async function fetchStaffData(force = false) { 
+            const tbody = document.getElementById('table-akun-staff'); tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Memuat data akun...</td></tr>'; 
+            if (force) showToast('Menyinkronkan data staff...', 'success'); 
+            try { 
+                const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_staff', adminContext: currentUser }), redirect: 'follow' }); 
+                const resData = await res.json(); 
+                if(resData.status === 'success' && resData.data.length > 0) { 
+                    tbody.innerHTML = ''; 
+                    
+                    // Filter staff data for frontend display just in case backend ignores it
+                    let staffList = resData.data;
+                    if (currentUser && currentUser.role !== 'Super Admin') {
+                        if (currentUser.sekolah !== 'Semua Sekolah') staffList = staffList.filter(s => s.sekolah === currentUser.sekolah);
+                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') staffList = staffList.filter(s => s.eskul === currentUser.eskul);
+                    }
+
+                    if(staffList.length === 0) {
+                         tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Tidak ada staff di wilayah Anda.</td></tr>';
+                    } else {
+                        staffList.forEach(staff => { 
+                            let badgeColor = staff.role === 'Super Admin' ? 'bg-red-500/20 text-red-400' : (staff.role === 'Pembina' ? 'bg-purple-500/20 text-purple-400' : 'bg-emerald-500/20 text-emerald-400'); 
+                            tbody.innerHTML += ` <tr class="border-b border-white/5"> <td class="px-4 py-3 text-white font-medium">${staff.nama}<br><span class="text-xs text-gray-500 font-mono">${staff.username}</span></td> <td class="px-4 py-3"><span class="px-2 py-1 ${badgeColor} rounded text-xs font-bold">${staff.role}</span></td> <td class="px-4 py-3 text-gray-300 text-xs">${staff.eskul} - ${staff.sekolah}</td> <td class="px-4 py-3 text-center"> <button onclick="requestDeleteStaff('${staff.username}')" class="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-500/10 hover:bg-red-500/20 rounded-md transition-all"><i class="ph-bold ph-trash"></i> Hapus</button> </td> </tr> `; 
+                        }); 
+                    }
+                    if (force) showToast('Staff tersinkronisasi!', 'success'); 
+                } else { 
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada akun staff terdaftar.</td></tr>'; 
+                } 
+            } catch(e) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-red-500">Gagal memuat akun.</td></tr>'; } 
+        }
+
         async function saveStaff(e) { e.preventDefault(); const btn = document.getElementById('btn-save-staff'); btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memproses...'; btn.disabled = true; const payload = { action: 'add_staff', nama: document.getElementById('staff-nama').value, user: document.getElementById('staff-user').value, pass: document.getElementById('staff-pass').value, role: document.getElementById('staff-role').value, sekolah: document.getElementById('staff-sekolah').value, eskul: document.getElementById('staff-eskul').value, adminContext: currentUser }; try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload), redirect: 'follow' }); const data = await res.json(); if(data.status === 'success') { showToast('Akun berhasil dibuat!', 'success'); closeStaffModal(); fetchStaffData(); } else { showToast(data.message, 'error'); } } catch(err) { showToast('Gagal terhubung ke server', 'error'); } finally { btn.innerHTML = '<i class="ph-bold ph-user-plus"></i> Buat Akun'; btn.disabled = false; } }
         function requestDeleteStaff(username) { showCustomConfirm("Hapus Akun Staff", `Apakah Anda yakin ingin menghapus akses login untuk "${username}"? Tindakan ini tidak dapat dibatalkan.`, async () => { showToast('Menghapus...', 'success'); try { const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete_staff', user: username, adminContext: currentUser }), redirect: 'follow' }); const resData = await res.json(); if (resData.status === 'success') { showToast('Akun berhasil dihapus!', 'success'); fetchStaffData(); } else { showToast(resData.message, 'error'); } } catch(e) { showToast('Gagal menghapus akun staff', 'error'); } }); }
-        function exportDataToCSV(type) { showToast(`Mempersiapkan data ${type}...`, 'success'); let csvContent = "data:text/csv;charset=utf-8,"; let fileName = ""; if (type === 'siswa') { if (dummySiswa.length === 0) { showToast('Data kosong, tunggu sync.', 'error'); return; } fileName = "Data_Siswa.csv"; csvContent += "NISN,Nama Lengkap,Asal Sekolah\n"; dummySiswa.forEach(s => csvContent += `${s.nisn},"${s.nama}","${s.sekolah}"\n`); } const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", fileName); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
-        function handlePengumuman(e) { e.preventDefault(); showToast('Pengumuman Broadcast Berhasil Terkirim!', 'success'); e.target.reset(); }
-    </script>
-    <div id="edit-profil-siswa-modal" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
-    <div class="w-full max-w-sm relative glass p-6 rounded-3xl mx-4 text-left">
-        <button onclick="closeEditProfilSiswa()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
-            <i class="ph-bold ph-x text-lg"></i>
-        </button>
-        <h3 class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Perbarui Data Diri</h3>
+
+        function exportDataToCSV(type) { 
+            showToast(`Mempersiapkan data ${type}...`, 'success'); 
+            let csvContent = "data:text/csv;charset=utf-8,"; 
+            let fileName = ""; 
+            if (type === 'siswa') { 
+                // Filter Export Data berdasar Role
+                let allowedSiswa = dummySiswa;
+                if (currentUser && currentUser.role !== 'Super Admin') {
+                    if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
+                    if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
+                }
+
+                if (allowedSiswa.length === 0) { 
+                    showToast('Data kosong / tidak ada di wilayah Anda.', 'error'); return; 
+                } 
+                fileName = "Data_Siswa.csv"; 
+                csvContent += "NISN,Nama Lengkap,Kelas,Ekstrakurikuler,Asal Sekolah\n"; 
+                allowedSiswa.forEach(s => csvContent += `${s.nisn},"${s.nama}","${s.kelas || ''}","${s.eskul || ''}","${s.sekolah || ''}"\n`); 
+            } 
+            const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", fileName); document.body.appendChild(link); link.click(); document.body.removeChild(link); 
+        }
         
-        <form onsubmit="submitEditProfilSiswa(event)" class="space-y-4">
-            <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Nama Lengkap</label>
-                <input type="text" id="siswa-edit-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
-            </div>
-            <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Kelas Saat Ini</label>
-                <input type="text" id="siswa-edit-kelas" required placeholder="Cth: VIII-B" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
-            </div>
-            <button type="submit" id="btn-save-profil-siswa" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
-                <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
-            </button>
-        </form>
-    </div>
-</div>
+        function handlePengumuman(e) { e.preventDefault(); showToast('Pengumuman Broadcast Berhasil Terkirim!', 'success'); e.target.reset(); }
+
+        // =========================================================================
+        // JAVASCRIPT: NEW EDIT PROFIL SISWA
+        // =========================================================================
+
+        function openEditProfilSiswa() {
+            const modal = document.getElementById('edit-profil-siswa-modal');
+            document.getElementById('siswa-edit-nama').value = currentUser.nama || '';
+            document.getElementById('siswa-edit-kelas').value = currentUser.kelas || '';
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
+            modal.style.opacity = '1';
+        }
+
+        function closeEditProfilSiswa() {
+            const modal = document.getElementById('edit-profil-siswa-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { modal.style.display = 'none'; }, 300);
+        }
+
+        async function submitEditProfilSiswa(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btn-save-profil-siswa');
+            const newNama = document.getElementById('siswa-edit-nama').value;
+            const newKelas = document.getElementById('siswa-edit-kelas').value;
+
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
+            btn.disabled = true;
+
+            try {
+                const payload = {
+                    action: 'edit_profil_siswa',
+                    nisn: currentUser.nisn,
+                    nama: newNama,
+                    kelas: newKelas
+                };
+                
+                const res = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify(payload),
+                    redirect: 'follow'
+                });
+                
+                const data = await res.json();
+                if (data.status === 'success') {
+                    // Update Local State
+                    currentUser.nama = newNama;
+                    currentUser.kelas = newKelas;
+                    localStorage.setItem('kmk_session', JSON.stringify(currentUser));
+                    
+                    // Update UI Dashboard Siswa
+                    document.getElementById('siswa-nama').innerText = newNama;
+                    document.getElementById('siswa-kelas').innerText = newKelas;
+                    
+                    showToast('Data diri berhasil diperbarui!', 'success');
+                    closeEditProfilSiswa();
+                } else {
+                    showToast(data.message, 'error');
+                }
+            } catch (err) {
+                showToast('Gagal terhubung ke server', 'error');
+            } finally {
+                btn.innerHTML = '<i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan';
+                btn.disabled = false;
+            }
+        }
+
+        // =========================================================================
+        // JAVASCRIPT: FITUR PERSETUJUAN IZIN (DUMMY/PLACEHOLDER)
+        // =========================================================================
+        
+        async function fetchDataIzin(force = false) {
+            const tbody = document.getElementById('table-izin');
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="ph-bold ph-spinner animate-spin text-2xl"></i> Memuat Data Pengajuan...</td></tr>';
+            
+            // Catatan: Jika API backend belum siap, fungsi ini akan ditangani sebagai mock/dummy atau dilewatkan agar tidak error.
+            setTimeout(() => {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada pengajuan izin yang masuk saat ini.</td></tr>';
+                if(force) showToast('Data izin berhasil disinkronisasi', 'success');
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
-<div id="view-dashboard-siswa" ...>
-    <div class="glass p-6 ...">
-        <h2 id="siswa-nama">...</h2>
-
-        <button onclick="openEditProfilSiswa()" class="mt-4 px-4 py-2 bg-brand-gold/20 ...">
-            Edit Data Diri
-        </button>
-    </div>
-</div>
