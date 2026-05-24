@@ -270,8 +270,18 @@
             </div>
         </div>
 
-        <!-- View: Student Dashboard -->
         <div id="view-dashboard-siswa" class="page-view hide-page w-full min-h-screen pb-20 md:pb-0">
+    
+    <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b border-white/10">
+        </nav>
+
+    <div class="p-6">
+        <button onclick="openEditProfilSiswa()" class="mb-4 inline-flex items-center gap-2 text-xs text-brand-gold bg-brand-gold/10 hover:bg-brand-gold/20 px-4 py-2 rounded-full border border-brand-gold/30 transition-all">
+            <i class="ph-bold ph-pencil-simple"></i> Edit Data Diri
+        </button>
+
+        </div>
+</div>
             <!-- Navbar Mobile/Desktop -->
             <nav class="glass sticky top-0 z-40 px-6 py-4 flex justify-between items-center border-b-0 border-white/10">
                 <div class="flex items-center gap-3">
@@ -1269,7 +1279,7 @@
         // =========================================================================
         
         // PENTING: GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const API_URL = "https://script.google.com/macros/s/AKfycbyZaY6LlikO2ci2iRL99qr7Hm0vJkJS2ETCRY2QUxLbfiT99LApCUQR7nRPtKWJMKV9/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbxLtCDfbhfIv1cdJHFtqhfjQIsafdw5PYJX9eaDwtMP8DK2ISleL6duPtQyJfof4fn4/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
@@ -1956,5 +1966,36 @@
         function exportDataToCSV(type) { showToast(`Mempersiapkan data ${type}...`, 'success'); let csvContent = "data:text/csv;charset=utf-8,"; let fileName = ""; if (type === 'siswa') { if (dummySiswa.length === 0) { showToast('Data kosong, tunggu sync.', 'error'); return; } fileName = "Data_Siswa.csv"; csvContent += "NISN,Nama Lengkap,Asal Sekolah\n"; dummySiswa.forEach(s => csvContent += `${s.nisn},"${s.nama}","${s.sekolah}"\n`); } const encodedUri = encodeURI(csvContent); const link = document.createElement("a"); link.setAttribute("href", encodedUri); link.setAttribute("download", fileName); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
         function handlePengumuman(e) { e.preventDefault(); showToast('Pengumuman Broadcast Berhasil Terkirim!', 'success'); e.target.reset(); }
     </script>
+    <div id="edit-profil-siswa-modal" class="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+    <div class="w-full max-w-sm relative glass p-6 rounded-3xl mx-4 text-left">
+        <button onclick="closeEditProfilSiswa()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-white/5 p-1 rounded-full z-10">
+            <i class="ph-bold ph-x text-lg"></i>
+        </button>
+        <h3 class="text-xl font-bold text-brand-gold mb-4 border-b border-white/10 pb-2">Perbarui Data Diri</h3>
+        
+        <form onsubmit="submitEditProfilSiswa(event)" class="space-y-4">
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Nama Lengkap</label>
+                <input type="text" id="siswa-edit-nama" required class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Kelas Saat Ini</label>
+                <input type="text" id="siswa-edit-kelas" required placeholder="Cth: VIII-B" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
+            </div>
+            <button type="submit" id="btn-save-profil-siswa" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
+                <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
+            </button>
+        </form>
+    </div>
+</div>
 </body>
 </html>
+<div id="view-dashboard-siswa" ...>
+    <div class="glass p-6 ...">
+        <h2 id="siswa-nama">...</h2>
+
+        <button onclick="openEditProfilSiswa()" class="mt-4 px-4 py-2 bg-brand-gold/20 ...">
+            Edit Data Diri
+        </button>
+    </div>
+</div>
