@@ -1881,6 +1881,11 @@
             const ctx = canvas.getContext("2d");
             ctx.scale(ratio, ratio);
             ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#0B1B3D';
+            
+            // FILL WHITE BACKGROUND FOR JPEG COMPRESSION
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
             return ctx;
         }
 
@@ -1899,8 +1904,17 @@
             sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); }, {passive: false});
             sigCanvas.addEventListener('touchend', stopDraw);
         }
-        function clearSignature() { if(sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
-        function getSignatureBase64() { if(!sigCanvas) return ""; const blank = document.createElement('canvas'); blank.width = sigCanvas.width; blank.height = sigCanvas.height; return sigCanvas.toDataURL() === blank.toDataURL() ? "" : sigCanvas.toDataURL('image/png', 1.0); }
+        function clearSignature() { 
+            if(sigCtx) {
+                sigCtx.fillStyle = "#ffffff";
+                sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
+            } 
+        }
+        function getSignatureBase64() { 
+            if(!sigCanvas) return ""; 
+            // COMPRESS TO JPEG (90% SMALLER SIZE, PREVENTS UPLOAD TIMEOUT)
+            return sigCanvas.toDataURL('image/jpeg', 0.5); 
+        }
 
         function initAbsenSignaturePad() {
             absenSigCanvas = document.getElementById('absen-signature-pad'); if (!absenSigCanvas) return;
@@ -1917,8 +1931,17 @@
             absenSigCanvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); }, {passive: false});
             absenSigCanvas.addEventListener('touchend', stopDraw);
         }
-        function clearAbsenSignature() { if(absenSigCtx) absenSigCtx.clearRect(0, 0, absenSigCanvas.width, absenSigCanvas.height); }
-        function getAbsenSignatureBase64() { if(!absenSigCanvas) return ""; const blank = document.createElement('canvas'); blank.width = absenSigCanvas.width; blank.height = absenSigCanvas.height; return absenSigCanvas.toDataURL() === blank.toDataURL() ? "" : absenSigCanvas.toDataURL('image/png', 1.0); }
+        function clearAbsenSignature() { 
+            if(absenSigCtx) {
+                absenSigCtx.fillStyle = "#ffffff";
+                absenSigCtx.fillRect(0, 0, absenSigCanvas.width, absenSigCanvas.height);
+            } 
+        }
+        function getAbsenSignatureBase64() { 
+            if(!absenSigCanvas) return ""; 
+            // COMPRESS TO JPEG TO FIX DELAY AND NETWORK TIMEOUT
+            return absenSigCanvas.toDataURL('image/jpeg', 0.5); 
+        }
         function cancelAbsenSignature() { document.getElementById('absen-sig-modal').style.opacity = '0'; setTimeout(() => { document.getElementById('absen-sig-modal').style.display = 'none'; try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e){} }, 300); }
 
         function getPos(e, cvs) {
@@ -1937,27 +1960,46 @@
             document.getElementById('scan-result').classList.add('hidden');
             modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
             
-            // Konfigurasi Turbo Scanner (Focus & QR Code only)
+            // Konfigurasi Turbo Scanner (Focus & QR Code only) - OPTIMIZED FOR MOBILE
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
             html5QrcodeScanner.start(
-                { facingMode: "environment" }, 
-                { fps: 30, qrbox: { width: 250, height: 250 }, disableFlip: false, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }, 
+                { facingMode: { ideal: "environment" } }, // Use ideal instead of exact strict requirement
+                { fps: 10, qrbox: { width: 250, height: 250 }, disableFlip: false, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }, 
                 onScanSuccess, 
                 () => {} // silent on error for continuous scanning
-            ).catch(err => { showToast("Gagal akses kamera", "error"); closeScanner(); });
+            ).catch(err => { showToast("Gagal akses kamera, pastikan izin diberikan.", "error"); closeScanner(); });
         }
         function closeScanner() { document.getElementById('scanner-modal').style.opacity = '0'; setTimeout(() => document.getElementById('scanner-modal').style.display = 'none', 300); if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(e => {}); }
 
         async function onScanSuccess(decodedText) {
             if (html5QrcodeScanner) try { html5QrcodeScanner.pause(true); } catch(e) {}
             try {
-                let qrData; try { qrData = JSON.parse(decodedText); } catch(e) { qrData = { nisn: decodedText }; }
-                pendingAbsenNisn = qrData.nisn;
+                let qrData; 
+                try { qrData = JSON.parse(decodedText); } catch(e) { qrData = { text: decodedText }; }
+                
+                // LOGIKA BARU: Cek siapa yang scan dan apa yang di scan
+                if (qrData.type === 'sesi_absen') {
+                    // Skenario: Siswa menscan QR Generator milik Admin
+                    if (currentUser && currentUser.role === 'Siswa') {
+                        pendingAbsenNisn = currentUser.nisn;
+                    } else {
+                        showToast("Admin tidak bisa absen. Harap siswa yang menscan.", "error");
+                        setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2500);
+                        return;
+                    }
+                } else if (qrData.nisn) {
+                    // Skenario: Admin menscan Kartu Pelajar Siswa
+                    pendingAbsenNisn = qrData.nisn;
+                } else {
+                    // Fallback Text biasa
+                    pendingAbsenNisn = decodedText;
+                }
+
                 clearAbsenSignature();
                 const modal = document.getElementById('absen-sig-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
                 
                 // Trigger resize untuk HD canvas saat modal muncul
-                setTimeout(() => { absenSigCtx = resizeCanvasHD('absen-signature-pad'); }, 300);
+                setTimeout(() => { absenSigCtx = resizeCanvasHD('absen-signature-pad'); clearAbsenSignature(); }, 300);
             } catch (err) { showToast("Gagal membaca QR.", "error"); setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000); }
         }
 
