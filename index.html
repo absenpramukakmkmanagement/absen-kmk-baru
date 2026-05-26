@@ -577,10 +577,10 @@
                             <div class="flex justify-between items-center mb-6">
                                 <h3 class="text-lg font-bold text-white">Grafik Kehadiran Mingguan</h3>
                                 <div class="flex gap-2">
-                                    <select id="filter-sekolah-chart" onchange="initAdminDashboard()" class="bg-brand-dark border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 focus:outline-none">
+                                    <select id="filter-sekolah-chart" onchange="initAdminDashboard(true)" class="bg-brand-dark border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 focus:outline-none">
                                         <!-- Opsi diisi via JS -->
                                     </select>
-                                    <select id="filter-eskul-chart" onchange="initAdminDashboard()" class="bg-brand-dark border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 focus:outline-none">
+                                    <select id="filter-eskul-chart" onchange="initAdminDashboard(true)" class="bg-brand-dark border border-white/10 text-xs text-gray-300 rounded-lg px-2 py-1 focus:outline-none">
                                         <!-- Opsi diisi via JS -->
                                     </select>
                                 </div>
@@ -1357,7 +1357,7 @@
         // =========================================================================
         
         // PENTING: GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const API_URL = "https://script.google.com/macros/s/AKfycbzczYUbDMaByqWUQ_UlxOrpnvgQd_BLnb017btTCMxMB0EgOPeZ3_T2Db7nwFStJxTZ/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbwPGNeTkT2I-HlRFJOw-vsKvyC2RO_ZFkZ-tnf-jCGXZXp85C5PtzndDK3olKd0reHE/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
@@ -1373,6 +1373,9 @@
         // State Tanda Tangan Profil Baru
         let profilSignaturePad = null;
         let isEditingTtd = false;
+
+        // -- FRONTEND LOCAL CACHE UNTUK ANTI DOUBLE SCAN --
+        let scannedSession = new Set(); 
 
         // Init App & Realtime Clock Sync
         window.onload = () => {
@@ -1451,7 +1454,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('kmk_session'); currentUser = null;
+            localStorage.removeItem('kmk_session'); currentUser = null; scannedSession.clear();
             navigateTo('view-role-select'); showToast('Berhasil logout', 'success');
         }
 
@@ -1650,65 +1653,77 @@
 
             if(!refreshLiveOnly) { fetchDaftarSiswa(); switchAdminTab('dashboard'); }
             
-            const chSekolah = document.getElementById('filter-sekolah-chart')?.value || 'Semua Sekolah';
-            const chEskul = document.getElementById('filter-eskul-chart')?.value || 'Semua Eskul';
+            const logTbody = document.getElementById('live-log-table');
+            if (refreshLiveOnly) logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500"><i class="ph-bold ph-spinner animate-spin"></i> Menyegarkan data...</td></tr>';
 
             try {
-                const res = await fetch(API_URL, {
-                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify({ action: 'get_admin_data', adminContext: currentUser, filterSekolah: chSekolah, filterEskul: chEskul }), redirect: 'follow'
-                });
+                const [resLaporan, resSiswa] = await Promise.all([
+                    fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_laporan', adminContext: currentUser }), redirect: 'follow' }),
+                    fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'get_all_siswa', adminContext: currentUser }), redirect: 'follow' })
+                ]);
                 
-                const responseData = await res.json();
-                if(responseData.status === 'success') {
-                    const data = responseData.data;
-                    
-                    let filteredLogs = data.logs || [];
-                    let myTotalSiswa = data.totalSiswa;
-                    let myHadirHariIni = data.hadirHariIni; 
+                const dataLaporan = await resLaporan.json();
+                const dataSiswa = await resSiswa.json();
+                
+                if(dataLaporan.status === 'success' && dataSiswa.status === 'success') {
+                    let allLogs = dataLaporan.data || [];
+                    let allSiswa = dataSiswa.data || [];
                     
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') {
-                            filteredLogs = filteredLogs.filter(log => log.sekolah === currentUser.sekolah);
+                            allLogs = allLogs.filter(log => log.sekolah === currentUser.sekolah);
+                            allSiswa = allSiswa.filter(s => s.sekolah === currentUser.sekolah);
                         }
                         if (currentUser.eskul !== 'Semua Eskul') {
-                            filteredLogs = filteredLogs.filter(log => log.eskul === currentUser.eskul);
-                        }
-                        
-                        if (dummySiswa.length > 0) {
-                            let mySiswa = dummySiswa;
-                            if (currentUser.sekolah !== 'Semua Sekolah') mySiswa = mySiswa.filter(s => s.sekolah === currentUser.sekolah);
-                            if (currentUser.eskul !== 'Semua Eskul') mySiswa = mySiswa.filter(s => s.eskul === currentUser.eskul);
-                            myTotalSiswa = mySiswa.length;
+                            allLogs = allLogs.filter(log => (log.ekskul || log.eskul) === currentUser.eskul);
+                            allSiswa = allSiswa.filter(s => s.eskul === currentUser.eskul);
                         }
                     }
 
-                    document.getElementById('stat-total-siswa').innerText = myTotalSiswa;
-                    document.getElementById('stat-hadir-hari-ini').innerText = myHadirHariIni;
+                    document.getElementById('stat-total-siswa').innerText = allSiswa.length;
 
-                    const logTbody = document.getElementById('live-log-table');
+                    const tglSekarang = new Date().getDate().toString().padStart(2, '0');
+                    let hadirHariIni = 0;
+                    allLogs.forEach(log => {
+                        const logDate = log.tanggal || '';
+                        if(logDate.includes(tglSekarang) || logDate.includes(new Date().toISOString().split('T')[0])) {
+                            if(log.status === 'Hadir') hadirHariIni++;
+                        }
+                    });
+                    document.getElementById('stat-hadir-hari-ini').innerText = hadirHariIni;
+
+                    let recentLogs = [...allLogs].reverse().slice(0, 10);
                     logTbody.innerHTML = ''; 
                     
-                    if(filteredLogs.length === 0) {
-                        logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada scan absensi hari ini untuk wilayah Anda</td></tr>';
+                    if(recentLogs.length === 0) {
+                        logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">Belum ada riwayat absensi.</td></tr>';
                     } else {
-                        filteredLogs.forEach(log => {
+                        recentLogs.forEach(log => {
+                            const namaSiswa = log.nama && log.nama.trim() !== '' ? log.nama : 'Siswa';
+                            const inisial = namaSiswa.charAt(0).toUpperCase();
+                            const waktuLog = log.jam || log.waktu || '-';
+                            const eskulLog = log.ekskul || log.eskul || '-';
+                            const badgeClass = log.status === 'Hadir' ? 'bg-emerald-500/20 text-emerald-400' : (log.status === 'Sakit' || log.status === 'Izin' ? 'bg-blue-500/20 text-blue-400' : 'bg-red-500/20 text-red-400');
+                            
                             logTbody.innerHTML += `
                                 <tr class="border-b border-white/5 hover:bg-white/5 transition-colors">
-                                    <td class="px-4 py-3 font-mono text-gray-300">${log.waktu}</td>
+                                    <td class="px-4 py-3 font-mono text-gray-300 whitespace-nowrap">${log.tanggal} ${waktuLog}</td>
                                     <td class="px-4 py-3 text-white font-medium flex items-center gap-2">
-                                        <img src="https://placehold.co/30x30/D4AF37/0B1B3D?text=${log.nama.charAt(0).toUpperCase()}" class="rounded-full w-6 h-6"> ${log.nama}
+                                        <img src="https://placehold.co/30x30/D4AF37/0B1B3D?text=${inisial}" class="rounded-full w-6 h-6"> ${namaSiswa}
                                     </td>
-                                    <td class="px-4 py-3 text-brand-gold">${log.eskul}</td>
-                                    <td class="px-4 py-3">${log.sekolah}</td>
-                                    <td class="px-4 py-3"><span class="px-2 py-1 bg-emerald-500/20 text-emerald-400 rounded-md text-xs font-semibold">${log.status}</span></td>
+                                    <td class="px-4 py-3 text-brand-gold">${eskulLog}</td>
+                                    <td class="px-4 py-3">${log.sekolah || '-'}</td>
+                                    <td class="px-4 py-3"><span class="px-2 py-1 ${badgeClass} rounded-md text-xs font-semibold">${log.status || 'Hadir'}</span></td>
                                 </tr>`;
                         });
                     }
 
                     if(!refreshLiveOnly) renderChart();
                 }
-            } catch(e) { console.error("Gagal memuat data live:", e); }
+            } catch(e) { 
+                console.error("Gagal memuat data live:", e); 
+                logTbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-red-500">Gagal menarik data dari server. Pastikan koneksi stabil.</td></tr>';
+            }
         }
 
         function renderChart() {
@@ -1992,7 +2007,7 @@
         }
 
         // =========================================================================
-        // SCANNER QR KILAT (PERBAIKAN ERROR MERAH)
+        // SCANNER QR KILAT & PENCEGAHAN DOUBLE SCAN FRONTEND
         // =========================================================================
 
         function openScanner() {
@@ -2028,13 +2043,17 @@
                 let qrData; try { qrData = JSON.parse(decodedText); } catch(e) { qrData = { nisn: decodedText }; }
                 pendingAbsenNisn = qrData.nisn;
                 
-                // CEK ROLE LOGIN SAAT INI UNTUK VERIFIKASI ADMIN ATAU ABSEN MANDIRI
+                // [PENCEGAHAN FRONTEND]: Langsung tolak jika NISN ini sudah di-scan sebelumnya pada sesi buka aplikasi ini
+                if(scannedSession.has(pendingAbsenNisn)) {
+                    showToast("Siswa ini BARUSAN SUDAH Anda Scan!", "error");
+                    setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000);
+                    return;
+                }
+                
                 if (currentUser && currentUser.role !== 'Siswa') {
-                    // MODE ADMIN / PEMBINA (Verifikasi TTD)
                     showToast("Memeriksa data siswa...", "success");
                     fetchSiswaInfoForVerifikasi(pendingAbsenNisn);
                 } else {
-                    // MODE SISWA MANDIRI
                     clearAbsenSignature();
                     const modal = document.getElementById('absen-sig-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
                     
@@ -2043,6 +2062,7 @@
             } catch (err) { showToast("Gagal membaca QR.", "error"); setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000); }
         }
 
+        // Simpan Absen Mandiri (Oleh Siswa)
         async function submitAbsenSignature() {
             const ttdData = getAbsenSignatureBase64();
             if(!ttdData) { showToast('Tanda tangan wajib!', 'error'); return; }
@@ -2052,7 +2072,9 @@
             try {
                 const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'record_absen', nisn: pendingAbsenNisn, ttd_absen: ttdData }), redirect: 'follow' });
                 const data = await res.json();
+                
                 if(data.status === 'success') {
+                    scannedSession.add(pendingAbsenNisn); // Kunci agar tidak bisa disinggung scan kedua kali
                     resBox.className = 'mt-4 p-3 rounded-xl bg-brand-gold text-brand-dark text-center font-semibold text-sm border border-brand-gold'; resBox.innerHTML = `Berhasil Absen!`; showToast(`Berhasil`, "success");
                     cancelAbsenSignature(); setTimeout(() => { closeScanner(); if(currentUser && currentUser.role !== 'Siswa') { initAdminDashboard(true); fetchKehadiranData(); } }, 1500);
                 } else {
@@ -2341,7 +2363,7 @@
         }
 
         // =========================================================================
-        // JAVASCRIPT: LOGIKA ADMIN VERIFIKASI SCAN QR
+        // JAVASCRIPT: LOGIKA ADMIN VERIFIKASI SCAN QR (DAN RECORD SESI KE CACHE)
         // =========================================================================
         
         async function fetchSiswaInfoForVerifikasi(nisn) {
@@ -2393,6 +2415,7 @@
             }, 300);
         }
 
+        // Simpan Absen Diverifikasi (Oleh Admin)
         async function submitVerifikasiScan() {
             const btn = document.getElementById('btn-verif-scan-submit');
             btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memproses...';
@@ -2412,9 +2435,9 @@
                 const data = await res.json();
                 
                 if (data.status === 'success') {
+                    scannedSession.add(pendingAbsenNisn); // Kunci agar tidak bisa disinggung scan kedua kali
                     showToast('Kehadiran berhasil dicatat dan diverifikasi!', 'success');
                     closeVerifikasiScanModal();
-                    closeScanner();
                     initAdminDashboard(true); 
                     fetchKehadiranData();
                 } else {
@@ -2431,7 +2454,7 @@
         }
 
         // =========================================================================
-        // JAVASCRIPT: PERSIAPAN TAB PERSETUJUAN IZIN (Terkoneksi dengan Backend nanti)
+        // JAVASCRIPT: PERSIAPAN TAB PERSETUJUAN IZIN
         // =========================================================================
         
         async function fetchDataIzin(force = false) {
@@ -2439,7 +2462,6 @@
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="ph-bold ph-spinner animate-spin text-2xl"></i> Memuat Data Pengajuan...</td></tr>';
             
             try {
-                // PERSIAPAN KONEKSI BACKEND (Akan dicocokkan dengan file Kode.gs Anda)
                 const res = await fetch(API_URL, { 
                     method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
                     body: JSON.stringify({ action: 'get_izin_pending', adminContext: currentUser }), 
