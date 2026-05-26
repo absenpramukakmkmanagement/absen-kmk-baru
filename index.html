@@ -698,7 +698,7 @@
                                 <div>
                                     <label class="block text-[10px] text-gray-400 uppercase tracking-wider mb-1">Ekskul</label>
                                     <select id="filter-eskul-kehadiran" class="w-full bg-brand-dark border border-white/10 text-sm text-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-brand-gold">
-                                        <option value="Semua Ekstrakurikuler">Semua Ekstrakurikuler</option>
+                                        <option value="Semua Eskul">Semua Eskul</option>
                                     </select>
                                 </div>
                                 <div>
@@ -1357,7 +1357,7 @@
         // =========================================================================
         
         // PENTING: GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const API_URL = "https://script.google.com/macros/s/AKfycbwz2EmhUoWQXqM0GWQ2SoYC4x6wO7jVSYCoUlndJz5OBV4yC_l5fOsqCNe8nWvbJJz8/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbzczYUbDMaByqWUQ_UlxOrpnvgQd_BLnb017btTCMxMB0EgOPeZ3_T2Db7nwFStJxTZ/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
@@ -1483,9 +1483,6 @@
         }
         function closeCustomConfirm() { const modal = document.getElementById('confirm-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
 
-        // =========================================================================
-        // PERBAIKAN FITUR BUKTI IZIN (Tadinya Hilang)
-        // =========================================================================
         function openBuktiIzin(imgUrl) {
             if(!imgUrl) return;
             document.getElementById('img-bukti-izin').src = imgUrl;
@@ -1531,8 +1528,6 @@
             btn.innerHTML = '<div class="loader-ring w-6 h-6 border-2 border-t-white"></div>'; btn.disabled = true;
 
             try {
-                // WARNING: KODE DI BAWAH INI ADALAH CELAH KEAMANAN (Telah diamankan sementara)
-                // Sebaiknya akun admin123 dihapus sepenuhnya saat web rilis resmi.
                 if(user === 'admin_master_rahasia' && pass === 'AdminKmk123!@#') { 
                     currentUser = { nama: 'Master Admin', username: 'admin', role: 'Super Admin', eskul: 'Semua Eskul', sekolah: 'Semua Sekolah' };
                     localStorage.setItem('kmk_session', JSON.stringify(currentUser));
@@ -1569,7 +1564,7 @@
                     const el = document.getElementById(selector);
                     if(el) {
                         el.innerHTML = '';
-                        if (currentUser && currentUser.role !== 'Super Admin' && userConstraint && userConstraint !== 'Semua Sekolah' && userConstraint !== 'Semua Eskul' && userConstraint !== 'Semua Ekstrakurikuler') {
+                        if (currentUser && currentUser.role !== 'Super Admin' && userConstraint && userConstraint !== 'Semua Sekolah' && userConstraint !== 'Semua Eskul') {
                             el.innerHTML = `<option value="${userConstraint}">${userConstraint}</option>`;
                         } else {
                             el.innerHTML = `<option value="${defaultTxt}">${defaultTxt}</option>`;
@@ -1580,7 +1575,7 @@
             };
 
             updateSelectsWithRBAC(['staff-sekolah', 'filter-sekolah-kehadiran', 'filter-sekolah-chart', 'jadwal-sekolah'], schools, 'Semua Sekolah', currentUser ? currentUser.sekolah : null);
-            updateSelectsWithRBAC(['staff-eskul', 'filter-eskul-kehadiran', 'filter-eskul-chart'], eskuls, 'Semua Ekstrakurikuler', currentUser ? currentUser.eskul : null);
+            updateSelectsWithRBAC(['staff-eskul', 'filter-eskul-kehadiran', 'filter-eskul-chart'], eskuls, 'Semua Eskul', currentUser ? currentUser.eskul : null);
 
             const pTarget = document.getElementById('pengumuman-target');
             if(pTarget) {
@@ -1656,7 +1651,7 @@
             if(!refreshLiveOnly) { fetchDaftarSiswa(); switchAdminTab('dashboard'); }
             
             const chSekolah = document.getElementById('filter-sekolah-chart')?.value || 'Semua Sekolah';
-            const chEskul = document.getElementById('filter-eskul-chart')?.value || 'Semua Ekstrakurikuler';
+            const chEskul = document.getElementById('filter-eskul-chart')?.value || 'Semua Eskul';
 
             try {
                 const res = await fetch(API_URL, {
@@ -1787,7 +1782,7 @@
                 if (currentUser.sekolah !== 'Semua Sekolah') {
                     allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
                 }
-                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') {
+                if (currentUser.eskul !== 'Semua Eskul') {
                     allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
                 }
             }
@@ -1838,7 +1833,7 @@
                         if (currentUser.sekolah !== 'Semua Sekolah') {
                             allData = allData.filter(d => d.sekolah === currentUser.sekolah);
                         }
-                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') {
+                        if (currentUser.eskul !== 'Semua Eskul') {
                             allData = allData.filter(d => d.ekskul === currentUser.eskul);
                         }
                     }
@@ -1846,7 +1841,7 @@
                     if (fSekolah && fSekolah !== 'Semua Sekolah') {
                         allData = allData.filter(d => d.sekolah === fSekolah);
                     }
-                    if (fEskul && fEskul !== 'Semua Ekstrakurikuler' && fEskul !== 'Semua Eskul') {
+                    if (fEskul && fEskul !== 'Semua Eskul') {
                         allData = allData.filter(d => d.ekskul === fEskul);
                     }
                     if (fBulan) {
@@ -2018,7 +2013,6 @@
             document.getElementById('scanner-modal').style.opacity = '0'; 
             setTimeout(() => document.getElementById('scanner-modal').style.display = 'none', 300); 
             
-            // PERBAIKAN: Cek status kamera terlebih dahulu sebelum melakukan .stop() agar tidak error merah
             if (html5QrcodeScanner) {
                 if(html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
                     html5QrcodeScanner.stop().catch(e => console.warn("Peringatan Scanner:", e)); 
@@ -2115,7 +2109,7 @@
             let allowedSiswa = dummySiswa;
             if (currentUser && currentUser.role !== 'Super Admin') {
                 if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
-                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
+                if (currentUser.eskul !== 'Semua Eskul') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
             }
 
             if(allowedSiswa.length === 0) { 
@@ -2124,7 +2118,7 @@
                     let refiltered = dummySiswa;
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') refiltered = refiltered.filter(s => s.sekolah === currentUser.sekolah);
-                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') refiltered = refiltered.filter(s => s.eskul === currentUser.eskul);
+                        if (currentUser.eskul !== 'Semua Eskul') refiltered = refiltered.filter(s => s.eskul === currentUser.eskul);
                     }
                     refiltered.forEach(s => select.innerHTML += `<option value="${s.nisn}">${s.nama} (${s.kelas || '-'})</option>`); 
                 }); 
@@ -2157,7 +2151,7 @@
             let filteredJadwal = dataJadwal;
             if (currentUser && currentUser.role !== 'Super Admin') {
                 if (currentUser.sekolah !== 'Semua Sekolah') filteredJadwal = filteredJadwal.filter(j => j.sekolah === currentUser.sekolah);
-                if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') filteredJadwal = filteredJadwal.filter(j => j.eskul === currentUser.eskul);
+                if (currentUser.eskul !== 'Semua Eskul') filteredJadwal = filteredJadwal.filter(j => j.eskul === currentUser.eskul);
             }
 
             if(filteredJadwal.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-gray-500">Belum ada jadwal yang diatur.</td></tr>'; return; } 
@@ -2185,7 +2179,7 @@
                     let staffList = resData.data;
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') staffList = staffList.filter(s => s.sekolah === currentUser.sekolah);
-                        if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') staffList = staffList.filter(s => s.eskul === currentUser.eskul);
+                        if (currentUser.eskul !== 'Semua Eskul') staffList = staffList.filter(s => s.eskul === currentUser.eskul);
                     }
 
                     if(staffList.length === 0) {
@@ -2214,7 +2208,7 @@
                 let allowedSiswa = dummySiswa;
                 if (currentUser && currentUser.role !== 'Super Admin') {
                     if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
-                    if (currentUser.eskul !== 'Semua Eskul' && currentUser.eskul !== 'Semua Ekstrakurikuler') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
+                    if (currentUser.eskul !== 'Semua Eskul') allowedSiswa = allowedSiswa.filter(s => s.eskul === currentUser.eskul);
                 }
 
                 if (allowedSiswa.length === 0) { 
