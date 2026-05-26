@@ -30,6 +30,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
+    <!-- Library Tanda Tangan Digital Siswa -->
+    <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -769,7 +772,8 @@
                                     </tr>
                                 </thead>
                                 <tbody id="table-izin">
-                                    <tr><td colspan="6" class="text-center py-8">Fitur persetujuan Izin (Backend Integration Pending)</td></tr>
+                                    <!-- Data izin akan dimuat di sini -->
+                                    <tr><td colspan="6" class="text-center py-8">Silakan klik "Segarkan Data" untuk memuat</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -1286,10 +1290,62 @@
                         <label class="block text-xs font-medium text-gray-300 mb-1">Kelas Saat Ini</label>
                         <input type="text" id="siswa-edit-kelas" required placeholder="Cth: VIII-B" class="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 px-3 text-white focus:border-brand-gold focus:outline-none" autocomplete="off">
                     </div>
-                    <button type="submit" id="btn-save-profil-siswa" class="w-full mt-2 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
+
+                    <!-- Area Tanda Tangan Digital Baru -->
+                    <div class="mt-4">
+                        <label class="block text-xs font-medium text-gray-300 mb-2 flex justify-between items-center">
+                            <span>Tanda Tangan Digital</span>
+                            <button type="button" onclick="clearProfilSignature()" class="text-brand-gold hover:text-brand-accent transition-colors text-[10px] hidden font-bold" id="btn-clear-ttd"><i class="ph-bold ph-eraser"></i> Bersihkan TTD</button>
+                        </label>
+                        
+                        <!-- Preview Jika Sudah Ada -->
+                        <div id="profil-ttd-preview-container" class="hidden relative group mb-2">
+                            <div class="bg-white rounded-lg p-2 h-28 border border-white/10 flex items-center justify-center overflow-hidden">
+                                <img id="profil-ttd-preview-img" src="" class="max-h-full object-contain mix-blend-multiply">
+                            </div>
+                            <div class="absolute inset-0 bg-black/70 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button type="button" onclick="enableEditSignature()" class="bg-brand-gold text-brand-dark px-4 py-2 rounded-lg text-xs font-bold shadow-lg"><i class="ph-bold ph-pencil-simple"></i> Ubah TTD Baru</button>
+                            </div>
+                        </div>
+                        
+                        <!-- Canvas Input TTD -->
+                        <div id="profil-ttd-canvas-container" class="bg-white rounded-lg p-1 relative border border-white/10 overflow-hidden h-28 hidden">
+                            <canvas id="profil-signature-pad" class="w-full h-full rounded cursor-crosshair touch-none"></canvas>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btn-save-profil-siswa" class="w-full mt-4 px-4 py-3 bg-brand-gold text-brand-dark font-bold rounded-xl hover:bg-brand-accent transition-colors flex justify-center items-center gap-2">
                         <i class="ph-bold ph-floppy-disk"></i> Simpan Perubahan
                     </button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Pop-Up Modal (Verifikasi Scan Admin/Guru) -->
+        <div id="admin-verifikasi-scan-modal" class="fixed inset-0 z-[120] bg-black/90 backdrop-blur-sm hidden flex-col items-center justify-center p-4 opacity-0 transition-opacity duration-300 no-print">
+            <div class="w-full max-w-sm relative glass p-6 rounded-3xl mx-4 text-center border-emerald-500/30">
+                <h3 class="text-xl font-bold text-emerald-400 mb-2 border-b border-white/10 pb-2 flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-check-circle"></i> Verifikasi Kehadiran
+                </h3>
+                
+                <div class="text-left space-y-2 mt-4 bg-white/5 p-4 rounded-xl border border-white/10">
+                    <p class="text-xs text-gray-400">Nama Lengkap: <br><span id="verif-scan-nama" class="font-bold text-white text-base"></span></p>
+                    <p class="text-xs text-gray-400">Kelas: <br><span id="verif-scan-kelas" class="font-bold text-white text-sm"></span></p>
+                    <p class="text-xs text-gray-400">NISN: <br><span id="verif-scan-nisn" class="font-mono text-white text-sm"></span></p>
+                </div>
+
+                <div class="mt-4 mb-6 text-left">
+                    <p class="text-xs text-gray-400 mb-2 font-medium">Tanda Tangan Digital Siswa</p>
+                    <div class="bg-white p-2 rounded-xl h-24 flex items-center justify-center overflow-hidden border border-white/10">
+                        <img id="verif-scan-ttd" src="" class="max-h-full object-contain mix-blend-multiply">
+                        <span id="verif-scan-no-ttd" class="hidden text-red-500 text-xs font-bold bg-red-50 px-3 py-1 rounded-md">Belum Ada TTD</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="closeVerifikasiScanModal()" class="flex-1 px-4 py-3 bg-white/10 text-white font-bold rounded-xl hover:bg-white/20 transition-colors">Batal</button>
+                    <button id="btn-verif-scan-submit" onclick="submitVerifikasiScan()" class="flex-[2] px-4 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-600/30">Verifikasi Hadir</button>
+                </div>
             </div>
         </div>
 
@@ -1301,7 +1357,7 @@
         // =========================================================================
         
         // PENTING: GANTI DENGAN URL DEPLOYMENT GOOGLE APPS SCRIPT ANDA
-        const API_URL = "https://script.google.com/macros/s/AKfycbxLtCDfbhfIv1cdJHFtqhfjQIsafdw5PYJX9eaDwtMP8DK2ISleL6duPtQyJfof4fn4/exec"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbwz2EmhUoWQXqM0GWQ2SoYC4x6wO7jVSYCoUlndJz5OBV4yC_l5fOsqCNe8nWvbJJz8/exec"; 
         
         let currentUser = null;
         let html5QrcodeScanner = null;
@@ -1313,6 +1369,10 @@
         let sigCanvas, sigCtx, isDrawingSig = false;
         let absenSigCanvas, absenSigCtx, isDrawingAbsenSig = false;
         let pendingAbsenNisn = null;
+        
+        // State Tanda Tangan Profil Baru
+        let profilSignaturePad = null;
+        let isEditingTtd = false;
 
         // Init App & Realtime Clock Sync
         window.onload = () => {
@@ -1424,6 +1484,24 @@
         function closeCustomConfirm() { const modal = document.getElementById('confirm-modal'); modal.style.opacity = '0'; setTimeout(() => { modal.style.display = 'none'; }, 300); }
 
         // =========================================================================
+        // PERBAIKAN FITUR BUKTI IZIN (Tadinya Hilang)
+        // =========================================================================
+        function openBuktiIzin(imgUrl) {
+            if(!imgUrl) return;
+            document.getElementById('img-bukti-izin').src = imgUrl;
+            const modal = document.getElementById('bukti-izin-modal');
+            modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
+        }
+        function closeBuktiIzin() { 
+            const modal = document.getElementById('bukti-izin-modal'); 
+            modal.style.opacity = '0'; 
+            setTimeout(() => { 
+                modal.style.display = 'none'; 
+                document.getElementById('img-bukti-izin').src = ''; 
+            }, 300); 
+        }
+
+        // =========================================================================
         // LOGIC LOGIN
         // =========================================================================
         
@@ -1453,7 +1531,9 @@
             btn.innerHTML = '<div class="loader-ring w-6 h-6 border-2 border-t-white"></div>'; btn.disabled = true;
 
             try {
-                if(user === 'admin' && pass === 'admin123') { // Fallback Super Admin local
+                // WARNING: KODE DI BAWAH INI ADALAH CELAH KEAMANAN (Telah diamankan sementara)
+                // Sebaiknya akun admin123 dihapus sepenuhnya saat web rilis resmi.
+                if(user === 'admin_master_rahasia' && pass === 'AdminKmk123!@#') { 
                     currentUser = { nama: 'Master Admin', username: 'admin', role: 'Super Admin', eskul: 'Semua Eskul', sekolah: 'Semua Sekolah' };
                     localStorage.setItem('kmk_session', JSON.stringify(currentUser));
                     showToast('Otorisasi Super Admin Berhasil', 'success'); initAdminDashboard(); navigateTo('view-dashboard-admin');
@@ -1489,11 +1569,9 @@
                     const el = document.getElementById(selector);
                     if(el) {
                         el.innerHTML = '';
-                        // Jika bukan super admin dan ada limitasi, paksa hanya muncul satu pilihan miliknya
                         if (currentUser && currentUser.role !== 'Super Admin' && userConstraint && userConstraint !== 'Semua Sekolah' && userConstraint !== 'Semua Eskul' && userConstraint !== 'Semua Ekstrakurikuler') {
                             el.innerHTML = `<option value="${userConstraint}">${userConstraint}</option>`;
                         } else {
-                            // Tampilkan semua jika Super Admin atau memiliki hak "Semua Sekolah"
                             el.innerHTML = `<option value="${defaultTxt}">${defaultTxt}</option>`;
                             optionsList.forEach(opt => el.innerHTML += `<option value="${opt}">${opt}</option>`);
                         }
@@ -1504,7 +1582,6 @@
             updateSelectsWithRBAC(['staff-sekolah', 'filter-sekolah-kehadiran', 'filter-sekolah-chart', 'jadwal-sekolah'], schools, 'Semua Sekolah', currentUser ? currentUser.sekolah : null);
             updateSelectsWithRBAC(['staff-eskul', 'filter-eskul-kehadiran', 'filter-eskul-chart'], eskuls, 'Semua Ekstrakurikuler', currentUser ? currentUser.eskul : null);
 
-            // Pengumuman Target (Disesuaikan berdasarkan hak akses)
             const pTarget = document.getElementById('pengumuman-target');
             if(pTarget) {
                 let html = '<option value="all">Semua Siswa</option>';
@@ -1522,7 +1599,6 @@
                 pTarget.innerHTML = html;
             }
 
-            // Datalist Forms
             ['list-sekolah', 'list-eskul'].forEach((id, i) => {
                 const el = document.getElementById(id);
                 if(el) { el.innerHTML = ''; (i===0?schools:eskuls).forEach(opt => el.innerHTML += `<option value="${opt}">`); }
@@ -1596,7 +1672,6 @@
                     let myTotalSiswa = data.totalSiswa;
                     let myHadirHariIni = data.hadirHariIni; 
                     
-                    // Filter berdasarkan role Admin secara lokal (jika backend mengirimkan seluruh data global)
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') {
                             filteredLogs = filteredLogs.filter(log => log.sekolah === currentUser.sekolah);
@@ -1605,7 +1680,6 @@
                             filteredLogs = filteredLogs.filter(log => log.eskul === currentUser.eskul);
                         }
                         
-                        // Menghitung ulang total siswa di naungannya (dari dummySiswa frontend)
                         if (dummySiswa.length > 0) {
                             let mySiswa = dummySiswa;
                             if (currentUser.sekolah !== 'Semua Sekolah') mySiswa = mySiswa.filter(s => s.sekolah === currentUser.sekolah);
@@ -1615,7 +1689,7 @@
                     }
 
                     document.getElementById('stat-total-siswa').innerText = myTotalSiswa;
-                    document.getElementById('stat-hadir-hari-ini').innerText = myHadirHariIni; // Global stats from server fallback
+                    document.getElementById('stat-hadir-hari-ini').innerText = myHadirHariIni;
 
                     const logTbody = document.getElementById('live-log-table');
                     logTbody.innerHTML = ''; 
@@ -1708,7 +1782,6 @@
 
             tbody.innerHTML = '';
             
-            // FILTER BERDASARKAN ROLE ADMIN
             let allowedSiswa = dummySiswa;
             if (currentUser && currentUser.role !== 'Super Admin') {
                 if (currentUser.sekolah !== 'Semua Sekolah') {
@@ -1761,7 +1834,6 @@
                 if(responseData.status === 'success') {
                     let allData = responseData.data;
 
-                    // FILTER BERDASARKAN ROLE ADMIN
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') {
                             allData = allData.filter(d => d.sekolah === currentUser.sekolah);
@@ -1771,7 +1843,6 @@
                         }
                     }
 
-                    // FILTER BERDASARKAN DROPDOWN (FRONTEND)
                     if (fSekolah && fSekolah !== 'Semua Sekolah') {
                         allData = allData.filter(d => d.sekolah === fSekolah);
                     }
@@ -1822,7 +1893,6 @@
             doc.setFont('helvetica', 'normal');
             doc.text(`Dicetak pada: ${new Date().toLocaleString('id-ID')}`, 14, 22);
             
-            // Build Table Data
             const tableColumn = ["Tanggal & Waktu", "Nama Siswa", "Ekskul", "Asal Sekolah", "Status", "Keterangan"];
             const tableRows = [];
             dataKehadiranCache.forEach(row => {
@@ -1870,22 +1940,15 @@
             const ratio = Math.max(window.devicePixelRatio || 1, 1);
             const parent = canvas.parentElement;
             
-            // Set actual size in memory (scaled by pixel ratio)
             canvas.width = parent.clientWidth * ratio;
             canvas.height = parent.clientHeight * ratio;
             
-            // Set style size
             canvas.style.width = `${parent.clientWidth}px`;
             canvas.style.height = `${parent.clientHeight}px`;
             
             const ctx = canvas.getContext("2d");
             ctx.scale(ratio, ratio);
             ctx.lineWidth = 3; ctx.lineCap = 'round'; ctx.strokeStyle = '#0B1B3D';
-            
-            // FILL WHITE BACKGROUND FOR JPEG COMPRESSION
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
             return ctx;
         }
 
@@ -1904,17 +1967,8 @@
             sigCanvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); }, {passive: false});
             sigCanvas.addEventListener('touchend', stopDraw);
         }
-        function clearSignature() { 
-            if(sigCtx) {
-                sigCtx.fillStyle = "#ffffff";
-                sigCtx.fillRect(0, 0, sigCanvas.width, sigCanvas.height);
-            } 
-        }
-        function getSignatureBase64() { 
-            if(!sigCanvas) return ""; 
-            // COMPRESS TO JPEG (90% SMALLER SIZE, PREVENTS UPLOAD TIMEOUT)
-            return sigCanvas.toDataURL('image/jpeg', 0.5); 
-        }
+        function clearSignature() { if(sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); }
+        function getSignatureBase64() { if(!sigCanvas) return ""; const blank = document.createElement('canvas'); blank.width = sigCanvas.width; blank.height = sigCanvas.height; return sigCanvas.toDataURL() === blank.toDataURL() ? "" : sigCanvas.toDataURL('image/png', 1.0); }
 
         function initAbsenSignaturePad() {
             absenSigCanvas = document.getElementById('absen-signature-pad'); if (!absenSigCanvas) return;
@@ -1931,17 +1985,8 @@
             absenSigCanvas.addEventListener('touchmove', e => { e.preventDefault(); moveDraw(e); }, {passive: false});
             absenSigCanvas.addEventListener('touchend', stopDraw);
         }
-        function clearAbsenSignature() { 
-            if(absenSigCtx) {
-                absenSigCtx.fillStyle = "#ffffff";
-                absenSigCtx.fillRect(0, 0, absenSigCanvas.width, absenSigCanvas.height);
-            } 
-        }
-        function getAbsenSignatureBase64() { 
-            if(!absenSigCanvas) return ""; 
-            // COMPRESS TO JPEG TO FIX DELAY AND NETWORK TIMEOUT
-            return absenSigCanvas.toDataURL('image/jpeg', 0.5); 
-        }
+        function clearAbsenSignature() { if(absenSigCtx) absenSigCtx.clearRect(0, 0, absenSigCanvas.width, absenSigCanvas.height); }
+        function getAbsenSignatureBase64() { if(!absenSigCanvas) return ""; const blank = document.createElement('canvas'); blank.width = absenSigCanvas.width; blank.height = absenSigCanvas.height; return absenSigCanvas.toDataURL() === blank.toDataURL() ? "" : absenSigCanvas.toDataURL('image/png', 1.0); }
         function cancelAbsenSignature() { document.getElementById('absen-sig-modal').style.opacity = '0'; setTimeout(() => { document.getElementById('absen-sig-modal').style.display = 'none'; try { if (html5QrcodeScanner) html5QrcodeScanner.resume(); } catch(e){} }, 300); }
 
         function getPos(e, cvs) {
@@ -1952,7 +1997,7 @@
         }
 
         // =========================================================================
-        // SCANNER QR KILAT
+        // SCANNER QR KILAT (PERBAIKAN ERROR MERAH)
         // =========================================================================
 
         function openScanner() {
@@ -1960,46 +2005,47 @@
             document.getElementById('scan-result').classList.add('hidden');
             modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
             
-            // Konfigurasi Turbo Scanner (Focus & QR Code only) - OPTIMIZED FOR MOBILE
             html5QrcodeScanner = new Html5Qrcode("qr-reader");
             html5QrcodeScanner.start(
-                { facingMode: { ideal: "environment" } }, // Use ideal instead of exact strict requirement
-                { fps: 10, qrbox: { width: 250, height: 250 }, disableFlip: false, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }, 
+                { facingMode: "environment" }, 
+                { fps: 30, qrbox: { width: 250, height: 250 }, disableFlip: false, formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE] }, 
                 onScanSuccess, 
                 () => {} // silent on error for continuous scanning
-            ).catch(err => { showToast("Gagal akses kamera, pastikan izin diberikan.", "error"); closeScanner(); });
+            ).catch(err => { showToast("Gagal akses kamera", "error"); closeScanner(); });
         }
-        function closeScanner() { document.getElementById('scanner-modal').style.opacity = '0'; setTimeout(() => document.getElementById('scanner-modal').style.display = 'none', 300); if (html5QrcodeScanner) html5QrcodeScanner.stop().catch(e => {}); }
+        
+        function closeScanner() { 
+            document.getElementById('scanner-modal').style.opacity = '0'; 
+            setTimeout(() => document.getElementById('scanner-modal').style.display = 'none', 300); 
+            
+            // PERBAIKAN: Cek status kamera terlebih dahulu sebelum melakukan .stop() agar tidak error merah
+            if (html5QrcodeScanner) {
+                if(html5QrcodeScanner.getState() === Html5QrcodeScannerState.SCANNING) {
+                    html5QrcodeScanner.stop().catch(e => console.warn("Peringatan Scanner:", e)); 
+                } else {
+                    try { html5QrcodeScanner.clear(); } catch(e){}
+                }
+            }
+        }
 
         async function onScanSuccess(decodedText) {
             if (html5QrcodeScanner) try { html5QrcodeScanner.pause(true); } catch(e) {}
             try {
-                let qrData; 
-                try { qrData = JSON.parse(decodedText); } catch(e) { qrData = { text: decodedText }; }
+                let qrData; try { qrData = JSON.parse(decodedText); } catch(e) { qrData = { nisn: decodedText }; }
+                pendingAbsenNisn = qrData.nisn;
                 
-                // LOGIKA BARU: Cek siapa yang scan dan apa yang di scan
-                if (qrData.type === 'sesi_absen') {
-                    // Skenario: Siswa menscan QR Generator milik Admin
-                    if (currentUser && currentUser.role === 'Siswa') {
-                        pendingAbsenNisn = currentUser.nisn;
-                    } else {
-                        showToast("Admin tidak bisa absen. Harap siswa yang menscan.", "error");
-                        setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2500);
-                        return;
-                    }
-                } else if (qrData.nisn) {
-                    // Skenario: Admin menscan Kartu Pelajar Siswa
-                    pendingAbsenNisn = qrData.nisn;
+                // CEK ROLE LOGIN SAAT INI UNTUK VERIFIKASI ADMIN ATAU ABSEN MANDIRI
+                if (currentUser && currentUser.role !== 'Siswa') {
+                    // MODE ADMIN / PEMBINA (Verifikasi TTD)
+                    showToast("Memeriksa data siswa...", "success");
+                    fetchSiswaInfoForVerifikasi(pendingAbsenNisn);
                 } else {
-                    // Fallback Text biasa
-                    pendingAbsenNisn = decodedText;
+                    // MODE SISWA MANDIRI
+                    clearAbsenSignature();
+                    const modal = document.getElementById('absen-sig-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
+                    
+                    setTimeout(() => { absenSigCtx = resizeCanvasHD('absen-signature-pad'); }, 300);
                 }
-
-                clearAbsenSignature();
-                const modal = document.getElementById('absen-sig-modal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
-                
-                // Trigger resize untuk HD canvas saat modal muncul
-                setTimeout(() => { absenSigCtx = resizeCanvasHD('absen-signature-pad'); clearAbsenSignature(); }, 300);
             } catch (err) { showToast("Gagal membaca QR.", "error"); setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000); }
         }
 
@@ -2066,7 +2112,6 @@
         function openManualAbsenModal() { 
             const select = document.getElementById('manual-absen-siswa'); 
             
-            // Limitasi Siswa Sesuai Hak Akses
             let allowedSiswa = dummySiswa;
             if (currentUser && currentUser.role !== 'Super Admin') {
                 if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
@@ -2109,7 +2154,6 @@
             const tbody = document.getElementById('table-jadwal'); if (!tbody) return; 
             tbody.innerHTML = ''; 
             
-            // FILTER JADWAL SESUAI ROLE ADMIN
             let filteredJadwal = dataJadwal;
             if (currentUser && currentUser.role !== 'Super Admin') {
                 if (currentUser.sekolah !== 'Semua Sekolah') filteredJadwal = filteredJadwal.filter(j => j.sekolah === currentUser.sekolah);
@@ -2138,7 +2182,6 @@
                 if(resData.status === 'success' && resData.data.length > 0) { 
                     tbody.innerHTML = ''; 
                     
-                    // Filter staff data for frontend display just in case backend ignores it
                     let staffList = resData.data;
                     if (currentUser && currentUser.role !== 'Super Admin') {
                         if (currentUser.sekolah !== 'Semua Sekolah') staffList = staffList.filter(s => s.sekolah === currentUser.sekolah);
@@ -2168,7 +2211,6 @@
             let csvContent = "data:text/csv;charset=utf-8,"; 
             let fileName = ""; 
             if (type === 'siswa') { 
-                // Filter Export Data berdasar Role
                 let allowedSiswa = dummySiswa;
                 if (currentUser && currentUser.role !== 'Super Admin') {
                     if (currentUser.sekolah !== 'Semua Sekolah') allowedSiswa = allowedSiswa.filter(s => s.sekolah === currentUser.sekolah);
@@ -2188,13 +2230,58 @@
         function handlePengumuman(e) { e.preventDefault(); showToast('Pengumuman Broadcast Berhasil Terkirim!', 'success'); e.target.reset(); }
 
         // =========================================================================
-        // JAVASCRIPT: NEW EDIT PROFIL SISWA
+        // JAVASCRIPT: NEW EDIT PROFIL SISWA & TANDA TANGAN DIGITAL
         // =========================================================================
+
+        function initProfilSignaturePad() {
+            const canvas = document.getElementById('profil-signature-pad');
+            if (!canvas) return;
+            
+            function resize() {
+                const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                canvas.width = canvas.offsetWidth * ratio;
+                canvas.height = canvas.offsetHeight * ratio;
+                canvas.getContext("2d").scale(ratio, ratio);
+            }
+            resize();
+            
+            if (!profilSignaturePad) {
+                profilSignaturePad = new SignaturePad(canvas, { penColor: "#0B1B3D", backgroundColor: "rgba(255,255,255,0)" });
+            }
+            profilSignaturePad.clear();
+        }
+
+        function clearProfilSignature() {
+            if (profilSignaturePad) profilSignaturePad.clear();
+        }
+
+        function enableEditSignature() {
+            isEditingTtd = true;
+            document.getElementById('profil-ttd-preview-container').classList.add('hidden');
+            document.getElementById('profil-ttd-canvas-container').classList.remove('hidden');
+            document.getElementById('btn-clear-ttd').classList.remove('hidden');
+            setTimeout(() => { initProfilSignaturePad(); }, 100);
+        }
 
         function openEditProfilSiswa() {
             const modal = document.getElementById('edit-profil-siswa-modal');
             document.getElementById('siswa-edit-nama').value = currentUser.nama || '';
             document.getElementById('siswa-edit-kelas').value = currentUser.kelas || '';
+            
+            isEditingTtd = false;
+            if (currentUser.ttd && currentUser.ttd.length > 50) {
+                document.getElementById('profil-ttd-preview-container').classList.remove('hidden');
+                document.getElementById('profil-ttd-preview-img').src = currentUser.ttd;
+                document.getElementById('profil-ttd-canvas-container').classList.add('hidden');
+                document.getElementById('btn-clear-ttd').classList.add('hidden');
+            } else {
+                document.getElementById('profil-ttd-preview-container').classList.add('hidden');
+                document.getElementById('profil-ttd-canvas-container').classList.remove('hidden');
+                document.getElementById('btn-clear-ttd').classList.remove('hidden');
+                isEditingTtd = true;
+                setTimeout(() => { initProfilSignaturePad(); }, 100);
+            }
+
             modal.style.display = 'flex';
             void modal.offsetWidth;
             modal.style.opacity = '1';
@@ -2212,40 +2299,45 @@
             const newNama = document.getElementById('siswa-edit-nama').value;
             const newKelas = document.getElementById('siswa-edit-kelas').value;
 
+            let base64Ttd = null;
+            if (isEditingTtd) {
+                if (profilSignaturePad && profilSignaturePad.isEmpty()) {
+                    showToast('Kanvas Tanda Tangan tidak boleh kosong!', 'error');
+                    return;
+                }
+                base64Ttd = profilSignaturePad.toDataURL('image/png').split(',')[1];
+            }
+
             btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Menyimpan...';
             btn.disabled = true;
 
             try {
-                const payload = {
-                    action: 'edit_profil_siswa',
-                    nisn: currentUser.nisn,
-                    nama: newNama,
-                    kelas: newKelas
-                };
-                
-                const res = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                    body: JSON.stringify(payload),
-                    redirect: 'follow'
-                });
-                
-                const data = await res.json();
-                if (data.status === 'success') {
-                    // Update Local State
-                    currentUser.nama = newNama;
-                    currentUser.kelas = newKelas;
-                    localStorage.setItem('kmk_session', JSON.stringify(currentUser));
-                    
-                    // Update UI Dashboard Siswa
-                    document.getElementById('siswa-nama').innerText = newNama;
-                    document.getElementById('siswa-kelas').innerText = newKelas;
-                    
-                    showToast('Data diri berhasil diperbarui!', 'success');
-                    closeEditProfilSiswa();
-                } else {
-                    showToast(data.message, 'error');
+                if (newNama !== currentUser.nama || newKelas !== currentUser.kelas) {
+                    const payloadProfil = { action: 'edit_profil_siswa', nisn: currentUser.nisn, nama: newNama, kelas: newKelas };
+                    await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadProfil), redirect: 'follow' });
+                    currentUser.nama = newNama; currentUser.kelas = newKelas;
+                    document.getElementById('siswa-nama').innerText = newNama; document.getElementById('siswa-kelas').innerText = newKelas;
                 }
+
+                if (isEditingTtd && base64Ttd) {
+                    const payloadTtd = { action: 'save_signature', nisn: currentUser.nisn, base64_image: base64Ttd };
+                    const resTtd = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payloadTtd), redirect: 'follow' });
+                    const dataTtd = await resTtd.json();
+                    
+                    if (dataTtd.status === 'success') {
+                        currentUser.ttd = dataTtd.url;
+                        const ttdImg = document.getElementById('siswa-ttd');
+                        ttdImg.src = dataTtd.url; 
+                        ttdImg.classList.remove('hidden');
+                    } else {
+                        showToast(dataTtd.message || 'Gagal menyimpan Tanda Tangan ke Drive', 'error');
+                    }
+                }
+
+                localStorage.setItem('kmk_session', JSON.stringify(currentUser));
+                showToast('Data Profil berhasil diperbarui!', 'success');
+                closeEditProfilSiswa();
+                
             } catch (err) {
                 showToast('Gagal terhubung ke server', 'error');
             } finally {
@@ -2255,18 +2347,171 @@
         }
 
         // =========================================================================
-        // JAVASCRIPT: FITUR PERSETUJUAN IZIN (DUMMY/PLACEHOLDER)
+        // JAVASCRIPT: LOGIKA ADMIN VERIFIKASI SCAN QR
+        // =========================================================================
+        
+        async function fetchSiswaInfoForVerifikasi(nisn) {
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ action: 'get_siswa_info', qr_data: nisn, adminContext: currentUser }),
+                    redirect: 'follow'
+                });
+                const response = await res.json();
+                
+                if (response.status === 'success') {
+                    const data = response.data;
+                    document.getElementById('verif-scan-nama').innerText = data.nama || '-';
+                    document.getElementById('verif-scan-nisn').innerText = data.nisn || '-';
+                    document.getElementById('verif-scan-kelas').innerText = data.kelas || '-';
+                    
+                    const imgTtd = document.getElementById('verif-scan-ttd');
+                    const noTtd = document.getElementById('verif-scan-no-ttd');
+                    
+                    if (data.ttd_url && data.ttd_url.length > 10) {
+                        imgTtd.src = data.ttd_url;
+                        imgTtd.classList.remove('hidden');
+                        noTtd.classList.add('hidden');
+                    } else {
+                        imgTtd.classList.add('hidden');
+                        noTtd.classList.remove('hidden');
+                        imgTtd.src = '';
+                    }
+                    
+                    const modal = document.getElementById('admin-verifikasi-scan-modal');
+                    modal.style.display = 'flex'; void modal.offsetWidth; modal.style.opacity = '1';
+                } else {
+                    showToast(response.message || 'Data siswa tidak ditemukan', 'error');
+                    setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000);
+                }
+            } catch(err) {
+                showToast('Gagal terhubung ke server backend.', 'error');
+                setTimeout(() => { try { html5QrcodeScanner.resume(); } catch(e){} }, 2000);
+            }
+        }
+
+        function closeVerifikasiScanModal() {
+            const modal = document.getElementById('admin-verifikasi-scan-modal');
+            modal.style.opacity = '0';
+            setTimeout(() => { 
+                modal.style.display = 'none'; 
+                try { html5QrcodeScanner.resume(); } catch(e){} 
+            }, 300);
+        }
+
+        async function submitVerifikasiScan() {
+            const btn = document.getElementById('btn-verif-scan-submit');
+            btn.innerHTML = '<i class="ph-bold ph-spinner animate-spin"></i> Memproses...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                    body: JSON.stringify({ 
+                        action: 'absen', 
+                        qr_data: pendingAbsenNisn,
+                        ttd_url: document.getElementById('verif-scan-ttd').src || '', 
+                        adminContext: currentUser
+                    }),
+                    redirect: 'follow'
+                });
+                const data = await res.json();
+                
+                if (data.status === 'success') {
+                    showToast('Kehadiran berhasil dicatat dan diverifikasi!', 'success');
+                    closeVerifikasiScanModal();
+                    closeScanner();
+                    initAdminDashboard(true); 
+                    fetchKehadiranData();
+                } else {
+                    showToast(data.message, 'error');
+                    closeVerifikasiScanModal(); 
+                }
+            } catch(err) {
+                showToast('Gagal memverifikasi, periksa jaringan.', 'error');
+                closeVerifikasiScanModal();
+            } finally {
+                btn.innerHTML = 'Verifikasi Hadir';
+                btn.disabled = false;
+            }
+        }
+
+        // =========================================================================
+        // JAVASCRIPT: PERSIAPAN TAB PERSETUJUAN IZIN (Terkoneksi dengan Backend nanti)
         // =========================================================================
         
         async function fetchDataIzin(force = false) {
             const tbody = document.getElementById('table-izin');
             tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8"><i class="ph-bold ph-spinner animate-spin text-2xl"></i> Memuat Data Pengajuan...</td></tr>';
             
-            // Catatan: Jika API backend belum siap, fungsi ini akan ditangani sebagai mock/dummy atau dilewatkan agar tidak error.
-            setTimeout(() => {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada pengajuan izin yang masuk saat ini.</td></tr>';
-                if(force) showToast('Data izin berhasil disinkronisasi', 'success');
-            }, 1000);
+            try {
+                // PERSIAPAN KONEKSI BACKEND (Akan dicocokkan dengan file Kode.gs Anda)
+                const res = await fetch(API_URL, { 
+                    method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify({ action: 'get_izin_pending', adminContext: currentUser }), 
+                    redirect: 'follow' 
+                });
+                
+                const responseData = await res.json();
+                
+                if (responseData.status === 'success') {
+                    const dataIzin = responseData.data || [];
+                    
+                    if(dataIzin.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Tidak ada pengajuan izin/sakit yang perlu disetujui saat ini.</td></tr>';
+                    } else {
+                        tbody.innerHTML = '';
+                        dataIzin.forEach(izin => {
+                            let badgeTipe = izin.tipe === 'Sakit' ? 'bg-blue-500/20 text-blue-400' : 'bg-brand-gold/20 text-brand-gold';
+                            let btnBuktiHtml = izin.bukti && izin.bukti.length > 50 
+                                ? `<button onclick="openBuktiIzin('${izin.bukti}')" class="text-xs bg-white/10 hover:bg-white/20 text-white px-2 py-1 rounded transition-colors"><i class="ph-bold ph-image"></i> Lihat</button>`
+                                : `<span class="text-[10px] text-gray-500 italic">Tanpa Lampiran</span>`;
+
+                            tbody.innerHTML += `
+                                <tr class="border-b border-white/5">
+                                    <td class="px-4 py-3 font-mono text-gray-300 text-xs">${izin.tanggal_pengajuan}</td>
+                                    <td class="px-4 py-3 text-white font-medium">${izin.nama}<br><span class="text-[10px] text-gray-500">${izin.sekolah} - ${izin.eskul}</span></td>
+                                    <td class="px-4 py-3"><span class="px-2 py-1 ${badgeTipe} rounded text-xs font-bold">${izin.tipe}</span></td>
+                                    <td class="px-4 py-3 text-xs text-gray-300 max-w-[150px] truncate" title="${izin.alasan}">${izin.alasan}</td>
+                                    <td class="px-4 py-3 text-center">${btnBuktiHtml}</td>
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <button onclick="prosesIzin('${izin.id}', 'Terima')" class="bg-emerald-600 hover:bg-emerald-500 text-white p-1.5 rounded transition-colors" title="Terima Izin"><i class="ph-bold ph-check"></i></button>
+                                            <button onclick="prosesIzin('${izin.id}', 'Tolak')" class="bg-red-600 hover:bg-red-500 text-white p-1.5 rounded transition-colors" title="Tolak Izin"><i class="ph-bold ph-x"></i></button>
+                                        </div>
+                                    </td>
+                                </tr>`;
+                        });
+                    }
+                    if(force) showToast('Data izin berhasil disinkronisasi', 'success');
+                } else {
+                     tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Belum ada fitur / Tidak ada pengajuan izin yang masuk.</td></tr>';
+                }
+            } catch (err) {
+                 tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">Koneksi Backend / Fitur Izin belum tersedia.</td></tr>';
+            }
+        }
+
+        async function prosesIzin(idIzin, aksi) {
+            showCustomConfirm("Proses Izin", `Apakah Anda yakin ingin ${aksi.toLowerCase()} pengajuan ini?`, async () => {
+                showToast(`Memproses...`, 'success');
+                try {
+                    const res = await fetch(API_URL, { 
+                        method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                        body: JSON.stringify({ action: 'proses_izin', id: idIzin, status: aksi, adminContext: currentUser }), 
+                        redirect: 'follow' 
+                    });
+                    const data = await res.json();
+                    if(data.status === 'success') {
+                        showToast(`Izin berhasil di-${aksi.toLowerCase()}`, 'success');
+                        fetchDataIzin(); // Refresh tabel
+                    } else {
+                        showToast(data.message, 'error');
+                    }
+                } catch(e) {
+                    showToast('Gagal terhubung ke server', 'error');
+                }
+            });
         }
     </script>
 </body>
